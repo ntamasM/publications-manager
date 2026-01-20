@@ -228,7 +228,7 @@ class PM_Admin_Pages
                 'posts_per_page' => -1,
                 'meta_query'     => array(
                     array(
-                        'key'     => '_pm_type',
+                        'key'     => 'pm_type',
                         'value'   => $type_slug,
                         'compare' => '='
                     )

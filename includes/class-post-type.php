@@ -119,7 +119,7 @@ class PM_Post_Type
     {
         switch ($column) {
             case 'pm_type':
-                $type = get_post_meta($post_id, '_pm_type', true);
+                $type = get_post_meta($post_id, 'pm_type', true);
                 if ($type) {
                     $type_data = PM_Publication_Types::get($type);
                     echo $type_data ? esc_html($type_data['i18n_singular']) : esc_html($type);
@@ -129,7 +129,7 @@ class PM_Post_Type
                 break;
 
             case 'pm_authors':
-                $authors = get_post_meta($post_id, '_pm_author', true);
+                $authors = get_post_meta($post_id, 'pm_author', true);
                 if ($authors) {
                     $author_list = explode(' and ', $authors);
                     if (count($author_list) > 2) {
@@ -143,7 +143,7 @@ class PM_Post_Type
                 break;
 
             case 'pm_year':
-                $date = get_post_meta($post_id, '_pm_date', true);
+                $date = get_post_meta($post_id, 'pm_date', true);
                 if ($date) {
                     echo esc_html(substr($date, 0, 4));
                 } else {

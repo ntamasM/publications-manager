@@ -19,8 +19,17 @@ class PM_Meta_Boxes
     public static function init()
     {
         add_action('add_meta_boxes', array(__CLASS__, 'add_meta_boxes'));
+        add_action('add_meta_boxes', array(__CLASS__, 'remove_default_meta_boxes'));
         add_action('save_post_publication', array(__CLASS__, 'save_meta_boxes'), 10, 2);
         add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueue_scripts'));
+    }
+
+    /**
+     * Remove default WordPress meta boxes
+     */
+    public static function remove_default_meta_boxes()
+    {
+        remove_meta_box('postcustom', 'publication', 'normal');
     }
 
     /**
@@ -142,10 +151,10 @@ class PM_Meta_Boxes
     {
         wp_nonce_field('pm_save_meta', 'pm_meta_nonce');
 
-        $type = get_post_meta($post->ID, '_pm_type', true);
-        $bibtex = get_post_meta($post->ID, '_pm_bibtex', true);
-        $award = get_post_meta($post->ID, '_pm_award', true);
-        $date = get_post_meta($post->ID, '_pm_date', true);
+        $type = get_post_meta($post->ID, 'pm_type', true);
+        $bibtex = get_post_meta($post->ID, 'pm_bibtex', true);
+        $award = get_post_meta($post->ID, 'pm_award', true);
+        $date = get_post_meta($post->ID, 'pm_date', true);
 
 ?>
         <table class="form-table">
@@ -189,8 +198,8 @@ class PM_Meta_Boxes
      */
     public static function render_authors_metabox($post)
     {
-        $author = get_post_meta($post->ID, '_pm_author', true);
-        $editor = get_post_meta($post->ID, '_pm_editor', true);
+        $author = get_post_meta($post->ID, 'pm_author', true);
+        $editor = get_post_meta($post->ID, 'pm_editor', true);
 
     ?>
         <table class="form-table">
@@ -219,26 +228,26 @@ class PM_Meta_Boxes
     {
         // Get all field values
         $fields = array(
-            'journal'       => get_post_meta($post->ID, '_pm_journal', true),
-            'booktitle'     => get_post_meta($post->ID, '_pm_booktitle', true),
-            'issuetitle'    => get_post_meta($post->ID, '_pm_issuetitle', true),
-            'volume'        => get_post_meta($post->ID, '_pm_volume', true),
-            'number'        => get_post_meta($post->ID, '_pm_number', true),
-            'issue'         => get_post_meta($post->ID, '_pm_issue', true),
-            'pages'         => get_post_meta($post->ID, '_pm_pages', true),
-            'chapter'       => get_post_meta($post->ID, '_pm_chapter', true),
-            'publisher'     => get_post_meta($post->ID, '_pm_publisher', true),
-            'address'       => get_post_meta($post->ID, '_pm_address', true),
-            'edition'       => get_post_meta($post->ID, '_pm_edition', true),
-            'series'        => get_post_meta($post->ID, '_pm_series', true),
-            'institution'   => get_post_meta($post->ID, '_pm_institution', true),
-            'organization'  => get_post_meta($post->ID, '_pm_organization', true),
-            'school'        => get_post_meta($post->ID, '_pm_school', true),
-            'howpublished'  => get_post_meta($post->ID, '_pm_howpublished', true),
-            'techtype'      => get_post_meta($post->ID, '_pm_techtype', true),
-            'isbn'          => get_post_meta($post->ID, '_pm_isbn', true),
-            'crossref'      => get_post_meta($post->ID, '_pm_crossref', true),
-            'key'           => get_post_meta($post->ID, '_pm_key', true),
+            'journal'       => get_post_meta($post->ID, 'pm_journal', true),
+            'booktitle'     => get_post_meta($post->ID, 'pm_booktitle', true),
+            'issuetitle'    => get_post_meta($post->ID, 'pm_issuetitle', true),
+            'volume'        => get_post_meta($post->ID, 'pm_volume', true),
+            'number'        => get_post_meta($post->ID, 'pm_number', true),
+            'issue'         => get_post_meta($post->ID, 'pm_issue', true),
+            'pages'         => get_post_meta($post->ID, 'pm_pages', true),
+            'chapter'       => get_post_meta($post->ID, 'pm_chapter', true),
+            'publisher'     => get_post_meta($post->ID, 'pm_publisher', true),
+            'address'       => get_post_meta($post->ID, 'pm_address', true),
+            'edition'       => get_post_meta($post->ID, 'pm_edition', true),
+            'series'        => get_post_meta($post->ID, 'pm_series', true),
+            'institution'   => get_post_meta($post->ID, 'pm_institution', true),
+            'organization'  => get_post_meta($post->ID, 'pm_organization', true),
+            'school'        => get_post_meta($post->ID, 'pm_school', true),
+            'howpublished'  => get_post_meta($post->ID, 'pm_howpublished', true),
+            'techtype'      => get_post_meta($post->ID, 'pm_techtype', true),
+            'isbn'          => get_post_meta($post->ID, 'pm_isbn', true),
+            'crossref'      => get_post_meta($post->ID, 'pm_crossref', true),
+            'key'           => get_post_meta($post->ID, 'pm_key', true),
         );
 
     ?>
@@ -415,11 +424,11 @@ class PM_Meta_Boxes
      */
     public static function render_additional_metabox($post)
     {
-        $urldate = get_post_meta($post->ID, '_pm_urldate', true);
-        $image_url = get_post_meta($post->ID, '_pm_image_url', true);
-        $image_ext = get_post_meta($post->ID, '_pm_image_ext', true);
-        $rel_page = get_post_meta($post->ID, '_pm_rel_page', true);
-        $import_id = get_post_meta($post->ID, '_pm_import_id', true);
+        $urldate = get_post_meta($post->ID, 'pm_urldate', true);
+        $image_url = get_post_meta($post->ID, 'pm_image_url', true);
+        $image_ext = get_post_meta($post->ID, 'pm_image_ext', true);
+        $rel_page = get_post_meta($post->ID, 'pm_rel_page', true);
+        $import_id = get_post_meta($post->ID, 'pm_import_id', true);
 
     ?>
         <table class="form-table">
@@ -475,9 +484,9 @@ class PM_Meta_Boxes
      */
     public static function render_abstract_metabox($post)
     {
-        $abstract = get_post_meta($post->ID, '_pm_abstract', true);
-        $note = get_post_meta($post->ID, '_pm_note', true);
-        $comment = get_post_meta($post->ID, '_pm_comment', true);
+        $abstract = get_post_meta($post->ID, 'pm_abstract', true);
+        $note = get_post_meta($post->ID, 'pm_note', true);
+        $comment = get_post_meta($post->ID, 'pm_comment', true);
 
     ?>
         <table class="form-table">
@@ -511,8 +520,8 @@ class PM_Meta_Boxes
      */
     public static function render_urls_metabox($post)
     {
-        $url = get_post_meta($post->ID, '_pm_url', true);
-        $doi = get_post_meta($post->ID, '_pm_doi', true);
+        $url = get_post_meta($post->ID, 'pm_url', true);
+        $doi = get_post_meta($post->ID, 'pm_doi', true);
 
     ?>
         <p>
@@ -533,7 +542,7 @@ class PM_Meta_Boxes
      */
     public static function render_status_metabox($post)
     {
-        $status = get_post_meta($post->ID, '_pm_status', true);
+        $status = get_post_meta($post->ID, 'pm_status', true);
         if (empty($status)) {
             $status = 'published';
         }
@@ -575,11 +584,10 @@ class PM_Meta_Boxes
         // Define all meta fields
         $meta_fields = array(
             'pm_type',
-            'pm_bibtex',
-            'pm_award',
-            'pm_date',
             'pm_author',
             'pm_editor',
+            'pm_doi',
+            'pm_date',
             'pm_journal',
             'pm_booktitle',
             'pm_issuetitle',
@@ -601,7 +609,6 @@ class PM_Meta_Boxes
             'pm_crossref',
             'pm_key',
             'pm_url',
-            'pm_doi',
             'pm_urldate',
             'pm_image_url',
             'pm_image_ext',
@@ -609,12 +616,13 @@ class PM_Meta_Boxes
             'pm_abstract',
             'pm_note',
             'pm_comment',
-            'pm_status'
+            'pm_status',
+            'pm_bibtex_key'
         );
 
         // Save each field
         foreach ($meta_fields as $field) {
-            $meta_key = '_' . $field;
+            $meta_key = $field;
 
             if (isset($_POST[$field])) {
                 $value = $_POST[$field];

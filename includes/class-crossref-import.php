@@ -367,7 +367,7 @@ class PM_Crossref_Import
             'posts_per_page' => 1,
             'meta_query'     => array(
                 array(
-                    'key'     => '_pm_bibtex',
+                    'key'     => 'pm_bibtex_key',
                     'value'   => $key,
                     'compare' => '='
                 )
@@ -405,23 +405,23 @@ class PM_Crossref_Import
 
         // Save meta data
         $meta_mapping = array(
-            'type'        => '_pm_type',
-            'bibtex'      => '_pm_bibtex',
-            'date'        => '_pm_date',
-            'author'      => '_pm_author',
-            'editor'      => '_pm_editor',
-            'doi'         => '_pm_doi',
-            'url'         => '_pm_url',
-            'volume'      => '_pm_volume',
-            'number'      => '_pm_number',
-            'issue'       => '_pm_issue',
-            'pages'       => '_pm_pages',
-            'publisher'   => '_pm_publisher',
-            'journal'     => '_pm_journal',
-            'booktitle'   => '_pm_booktitle',
-            'isbn'        => '_pm_isbn',
-            'abstract'    => '_pm_abstract',
-            'edition'     => '_pm_edition',
+            'type'        => 'pm_type',
+            'bibtex'      => 'pm_bibtex',
+            'date'        => 'pm_date',
+            'author'      => 'pm_author',
+            'editor'      => 'pm_editor',
+            'doi'         => 'pm_doi',
+            'url'         => 'pm_url',
+            'volume'      => 'pm_volume',
+            'number'      => 'pm_number',
+            'issue'       => 'pm_issue',
+            'pages'       => 'pm_pages',
+            'publisher'   => 'pm_publisher',
+            'journal'     => 'pm_journal',
+            'booktitle'   => 'pm_booktitle',
+            'isbn'        => 'pm_isbn',
+            'abstract'    => 'pm_abstract',
+            'edition'     => 'pm_edition',
         );
 
         foreach ($meta_mapping as $key => $meta_key) {
@@ -431,10 +431,10 @@ class PM_Crossref_Import
         }
 
         // Set default status
-        update_post_meta($post_id, '_pm_status', 'published');
+        update_post_meta($post_id, 'pm_status', 'published');
 
         // Mark as imported
-        update_post_meta($post_id, '_pm_import_id', current_time('timestamp'));
+        update_post_meta($post_id, 'pm_import_id', current_time('timestamp'));
 
         return $post_id;
     }

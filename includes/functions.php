@@ -14,7 +14,7 @@ if (! defined('ABSPATH')) {
  */
 function pm_get_meta($post_id, $key, $single = true)
 {
-    return get_post_meta($post_id, '_pm_' . $key, $single);
+    return get_post_meta($post_id, 'pm_' . $key, $single);
 }
 
 /**
@@ -171,40 +171,37 @@ function pm_register_meta_fields_for_rest()
         'pm_author',
         'pm_editor',
         'pm_doi',
-        'pm_year',
-        'pm_month',
+        'pm_date',
         'pm_journal',
+        'pm_booktitle',
+        'pm_issuetitle',
         'pm_volume',
         'pm_number',
+        'pm_issue',
         'pm_pages',
+        'pm_chapter',
         'pm_publisher',
         'pm_address',
-        'pm_isbn',
-        'pm_issn',
-        'pm_url',
-        'pm_note',
-        'pm_abstract',
-        'pm_keywords',
-        'pm_bibtex_key',
-        'pm_booktitle',
-        'pm_chapter',
         'pm_edition',
         'pm_series',
-        'pm_howpublished',
-        'pm_organization',
         'pm_institution',
+        'pm_organization',
         'pm_school',
+        'pm_howpublished',
         'pm_techtype',
+        'pm_isbn',
         'pm_crossref',
         'pm_key',
+        'pm_url',
         'pm_urldate',
-        'pm_status',
-        'pm_issuetitle',
         'pm_image_url',
+        'pm_image_ext',
         'pm_rel_page',
+        'pm_abstract',
+        'pm_note',
         'pm_comment',
-        'pm_award',
-        'pm_import_id',
+        'pm_status',
+        'pm_bibtex_key',
     );
 
     foreach ($fields as $field) {
