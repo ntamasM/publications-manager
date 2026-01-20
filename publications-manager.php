@@ -4,7 +4,7 @@
  * Plugin Name: Publications Manager
  * Plugin URI: https://ntamadakis.gr
  * Description: Advanced publication management using Custom Post Types with teachPress-compatible fields and Crossref import functionality
- * Version: 1.0.0
+ * Version: 1.0.2
  * Author: Ntamadakis
  * Author URI: https://ntamadakis.gr
  * License: GPL v2 or later
@@ -19,7 +19,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('PM_VERSION', '1.0.0');
+define('PM_VERSION', '1.0.2');
 define('PM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PM_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('PM_PLUGIN_FILE', __FILE__);
@@ -76,8 +76,8 @@ class Publications_Manager
      */
     public function init()
     {
-        // Load text domain
-        load_plugin_textdomain('publications-manager', false, dirname(plugin_basename(PM_PLUGIN_FILE)) . '/languages');
+        // Load text domain for translations
+        $this->load_textdomain();
 
         // Initialize publication types first
         PM_Publication_Types::register_all();
@@ -91,6 +91,26 @@ class Publications_Manager
         if (get_transient('pm_flush_rewrite_rules')) {
             flush_rewrite_rules();
             delete_transient('pm_flush_rewrite_rules');
+        }
+    }
+
+    /**
+     * Load text domain for translations
+     * Similar to teachPress approach - prioritize plugin's own translations
+     * 
+     * @since 1.0.0
+     */
+    private function load_textdomain()
+    {
+        $domain = 'publications-manager';
+        $locale = apply_filters('plugin_locale', determine_locale(), $domain);
+        $path = dirname(plugin_basename(PM_PLUGIN_FILE)) . '/languages/';
+        $mofile = WP_PLUGIN_DIR . '/' . $path . $domain . '-' . $locale . '.mo';
+
+        // Load the plugin's language files first instead of language files from WP languages directory
+        // This ensures custom translations in the plugin's /languages folder take priority
+        if (!load_textdomain($domain, $mofile)) {
+            load_plugin_textdomain($domain, false, $path);
         }
     }
 

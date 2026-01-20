@@ -1,0 +1,502 @@
+# Copyright (C) 2026 Publications Manager
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Publications Manager 1.0.0\n"
+"Report-Msgid-Bugs-To: https://ntamadakis.gr\n"
+"POT-Creation-Date: 2026-01-20 10:00+0000\n"
+"PO-Revision-Date: 2026-01-20 12:00+0000\n"
+"Last-Translator: Auto-generated\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. Plugin Name of the plugin
+msgid "Publications Manager"
+msgstr "Gestionnaire de publications"
+
+#. Description of the plugin
+msgid "Advanced publication management using Custom Post Types with teachPress-compatible fields and Crossref import functionality"
+msgstr "Gestion avancée des publications utilisant les types de publication personnalisés avec des champs compatibles teachPress et fonctionnalité d'importation Crossref"
+
+#: includes/class-post-type.php:38
+msgctxt "Post type general name"
+msgid "Publications"
+msgstr "Publications"
+
+#: includes/class-post-type.php:39
+msgctxt "Post type singular name"
+msgid "Publication"
+msgstr "Publication"
+
+#: includes/class-post-type.php:40
+msgctxt "Admin Menu text"
+msgid "Publications"
+msgstr "Publications"
+
+#: includes/class-post-type.php:41
+msgctxt "Add New on Toolbar"
+msgid "Publication"
+msgstr "Publication"
+
+#: includes/class-post-type.php:42
+msgid "Add New"
+msgstr "Ajouter"
+
+#: includes/class-post-type.php:43
+msgid "Add New Publication"
+msgstr "Ajouter une nouvelle publication"
+
+#: includes/class-post-type.php:44
+msgid "New Publication"
+msgstr "Nouvelle publication"
+
+#: includes/class-post-type.php:45
+msgid "Edit Publication"
+msgstr "Modifier la publication"
+
+#: includes/class-post-type.php:46
+msgid "View Publication"
+msgstr "Voir la publication"
+
+#: includes/class-post-type.php:47
+msgid "All Publications"
+msgstr "Toutes les publications"
+
+#: includes/class-post-type.php:48
+msgid "Search Publications"
+msgstr "Rechercher des publications"
+
+#: includes/class-post-type.php:49
+msgid "Parent Publications:"
+msgstr "Publications parentes :"
+
+#: includes/class-post-type.php:50
+msgid "No publications found."
+msgstr "Aucune publication trouvée."
+
+#: includes/class-post-type.php:51
+msgid "No publications found in Trash."
+msgstr "Aucune publication trouvée dans la corbeille."
+
+#: includes/class-post-type.php:52
+msgctxt "Overrides the \"Featured Image\" phrase"
+msgid "Publication Cover Image"
+msgstr "Image de couverture de la publication"
+
+#: includes/class-post-type.php:53
+msgctxt "Overrides the \"Set featured image\" phrase"
+msgid "Set cover image"
+msgstr "Définir l'image de couverture"
+
+#: includes/class-post-type.php:54
+msgctxt "Overrides the \"Remove featured image\" phrase"
+msgid "Remove cover image"
+msgstr "Supprimer l'image de couverture"
+
+#: includes/class-post-type.php:55
+msgctxt "Overrides the \"Use as featured image\" phrase"
+msgid "Use as cover image"
+msgstr "Utiliser comme image de couverture"
+
+#: includes/class-post-type.php:56
+msgctxt "The post type archive label used in nav menus"
+msgid "Publication archives"
+msgstr "Archives des publications"
+
+#: includes/class-post-type.php:57
+msgctxt "Overrides the \"Insert into post\" phrase"
+msgid "Insert into publication"
+msgstr "Insérer dans la publication"
+
+#: includes/class-post-type.php:58
+msgctxt "Overrides the \"Uploaded to this post\" phrase"
+msgid "Uploaded to this publication"
+msgstr "Téléchargé vers cette publication"
+
+#: includes/class-post-type.php:59
+msgid "Filter publications list"
+msgstr "Filtrer la liste des publications"
+
+#: includes/class-post-type.php:60
+msgid "Publications list navigation"
+msgstr "Navigation de la liste des publications"
+
+#: includes/class-post-type.php:61
+msgid "Publications list"
+msgstr "Liste des publications"
+
+#: includes/class-publication-types.php:32
+msgid "Journal Article"
+msgstr "Article de revue"
+
+#: includes/class-publication-types.php:33
+msgid "Journal Articles"
+msgstr "Articles de revue"
+
+#: includes/class-publication-types.php:42
+msgid "Book"
+msgstr "Livre"
+
+#: includes/class-publication-types.php:43
+msgid "Books"
+msgstr "Livres"
+
+#: includes/class-publication-types.php:52
+msgid "Booklet"
+msgstr "Livret"
+
+#: includes/class-publication-types.php:53
+msgid "Booklets"
+msgstr "Livrets"
+
+#: includes/class-publication-types.php:62
+msgid "Collection"
+msgstr "Collection"
+
+#: includes/class-publication-types.php:63
+msgid "Collections"
+msgstr "Collections"
+
+#: includes/class-publication-types.php:72
+msgid "Conference"
+msgstr "Conférence"
+
+#: includes/class-publication-types.php:73
+msgid "Conferences"
+msgstr "Conférences"
+
+#: includes/class-publication-types.php:82
+msgid "Bachelor Thesis"
+msgstr "Mémoire de licence"
+
+#: includes/class-publication-types.php:83
+msgid "Bachelor Theses"
+msgstr "Mémoires de licence"
+
+#: includes/class-publication-types.php:92
+msgid "Diploma Thesis"
+msgstr "Mémoire de diplôme"
+
+#: includes/class-publication-types.php:93
+msgid "Diploma Theses"
+msgstr "Mémoires de diplôme"
+
+#: includes/class-publication-types.php:102
+msgid "Book Chapter"
+msgstr "Chapitre de livre"
+
+#: includes/class-publication-types.php:103
+msgid "Book Chapters"
+msgstr "Chapitres de livre"
+
+#: includes/class-publication-types.php:112
+msgid "Book Section"
+msgstr "Section de livre"
+
+#: includes/class-publication-types.php:113
+msgid "Book Sections"
+msgstr "Sections de livre"
+
+#: includes/class-publication-types.php:122
+msgid "Proceedings Article"
+msgstr "Article de conférence"
+
+#: includes/class-publication-types.php:123
+msgid "Proceedings Articles"
+msgstr "Articles de conférence"
+
+#: includes/class-publication-types.php:132
+msgid "Technical Manual"
+msgstr "Manuel technique"
+
+#: includes/class-publication-types.php:133
+msgid "Technical Manuals"
+msgstr "Manuels techniques"
+
+#: includes/class-publication-types.php:142
+msgid "Master Thesis"
+msgstr "Mémoire de master"
+
+#: includes/class-publication-types.php:143
+msgid "Master Theses"
+msgstr "Mémoires de master"
+
+#: includes/class-publication-types.php:152
+msgid "Miscellaneous"
+msgstr "Divers"
+
+#: includes/class-publication-types.php:162
+msgid "PhD Thesis"
+msgstr "Thèse de doctorat"
+
+#: includes/class-publication-types.php:163
+msgid "PhD Theses"
+msgstr "Thèses de doctorat"
+
+#: includes/class-publication-types.php:172
+msgid "Proceedings"
+msgstr "Actes"
+
+#: includes/class-publication-types.php:182
+msgid "Technical Report"
+msgstr "Rapport technique"
+
+#: includes/class-publication-types.php:183
+msgid "Technical Reports"
+msgstr "Rapports techniques"
+
+#: includes/class-publication-types.php:192
+msgid "Unpublished"
+msgstr "Non publié"
+
+#: includes/class-publication-types.php:202
+msgid "Working Paper"
+msgstr "Document de travail"
+
+#: includes/class-publication-types.php:203
+msgid "Working Papers"
+msgstr "Documents de travail"
+
+#: includes/class-publication-types.php:212
+msgid "Presentation"
+msgstr "Présentation"
+
+#: includes/class-publication-types.php:213
+msgid "Presentations"
+msgstr "Présentations"
+
+#: includes/class-publication-types.php:222
+msgid "Poster"
+msgstr "Affiche"
+
+#: includes/class-publication-types.php:223
+msgid "Posters"
+msgstr "Affiches"
+
+#: includes/class-publication-types.php:232
+msgid "Online"
+msgstr "En ligne"
+
+#: includes/class-publication-types.php:242
+msgid "Patent"
+msgstr "Brevet"
+
+#: includes/class-publication-types.php:243
+msgid "Patents"
+msgstr "Brevets"
+
+#: includes/class-publication-types.php:252
+msgid "Periodical"
+msgstr "Périodique"
+
+#: includes/class-publication-types.php:253
+msgid "Periodicals"
+msgstr "Périodiques"
+
+#: includes/class-meta-boxes.php:39
+msgid "Publication Details"
+msgstr "Détails de la publication"
+
+#: includes/class-meta-boxes.php:52
+msgid "Publication Type"
+msgstr "Type de publication"
+
+#: includes/class-meta-boxes.php:74
+msgid "Author(s)"
+msgstr "Auteur(s)"
+
+#: includes/class-meta-boxes.php:81
+msgid "Editor(s)"
+msgstr "Éditeur(s)"
+
+#: includes/class-meta-boxes.php:88
+msgid "DOI"
+msgstr "DOI"
+
+#: includes/class-meta-boxes.php:95
+msgid "Year"
+msgstr "Année"
+
+#: includes/class-meta-boxes.php:102
+msgid "Month"
+msgstr "Mois"
+
+#: includes/class-meta-boxes.php:109
+msgid "Journal/Booktitle"
+msgstr "Revue/Titre du livre"
+
+#: includes/class-meta-boxes.php:116
+msgid "Volume"
+msgstr "Volume"
+
+#: includes/class-meta-boxes.php:123
+msgid "Number/Issue"
+msgstr "Numéro/Édition"
+
+#: includes/class-meta-boxes.php:130
+msgid "Pages"
+msgstr "Pages"
+
+#: includes/class-meta-boxes.php:137
+msgid "Publisher"
+msgstr "Éditeur"
+
+#: includes/class-meta-boxes.php:144
+msgid "Address"
+msgstr "Adresse"
+
+#: includes/class-meta-boxes.php:151
+msgid "ISBN"
+msgstr "ISBN"
+
+#: includes/class-meta-boxes.php:158
+msgid "ISSN"
+msgstr "ISSN"
+
+#: includes/class-meta-boxes.php:165
+msgid "URL/Link"
+msgstr "URL/Lien"
+
+#: includes/class-meta-boxes.php:172
+msgid "Note"
+msgstr "Note"
+
+#: includes/class-meta-boxes.php:179
+msgid "Abstract"
+msgstr "Résumé"
+
+#: includes/class-meta-boxes.php:186
+msgid "Keywords"
+msgstr "Mots-clés"
+
+#: includes/class-meta-boxes.php:193
+msgid "BibTeX Key"
+msgstr "Clé BibTeX"
+
+#: includes/admin-pages.php:32
+msgid "Import/Export"
+msgstr "Importer/Exporter"
+
+#: includes/admin-pages.php:52
+msgid "Import from Crossref"
+msgstr "Importer depuis Crossref"
+
+#: includes/admin-pages.php:54
+msgid "Import publications using DOI (Digital Object Identifier) from Crossref.org. You can import multiple publications by entering multiple DOIs separated by spaces or new lines."
+msgstr "Importer des publications en utilisant le DOI (Digital Object Identifier) depuis Crossref.org. Vous pouvez importer plusieurs publications en saisissant plusieurs DOI séparés par des espaces ou des nouvelles lignes."
+
+#: includes/admin-pages.php:62
+msgid "DOI(s)"
+msgstr "DOI(s)"
+
+#: includes/admin-pages.php:71
+msgid "Enter one or more DOIs (e.g., 10.1000/xyz123)"
+msgstr "Entrez un ou plusieurs DOI (par ex., 10.1000/xyz123)"
+
+#: includes/admin-pages.php:74
+msgid "Examples:"
+msgstr "Exemples :"
+
+#: includes/admin-pages.php:82
+msgid "Import Publications"
+msgstr "Importer des publications"
+
+#: includes/admin-pages.php:93
+msgid "Export Publications"
+msgstr "Exporter des publications"
+
+#: includes/admin-pages.php:95
+msgid "Export your publications in various formats."
+msgstr "Exportez vos publications dans différents formats."
+
+#: includes/admin-pages.php:105
+msgid "Export Format"
+msgstr "Format d'exportation"
+
+#: includes/admin-pages.php:111
+msgid "BibTeX (.bib)"
+msgstr "BibTeX (.bib)"
+
+#: includes/admin-pages.php:112
+msgid "CSV (.csv)"
+msgstr "CSV (.csv)"
+
+#: includes/admin-pages.php:113
+msgid "JSON (.json)"
+msgstr "JSON (.json)"
+
+#: includes/admin-pages.php:119
+msgid "Export All Publications"
+msgstr "Exporter toutes les publications"
+
+#: includes/admin-pages.php:130
+msgid "Import BibTeX"
+msgstr "Importer BibTeX"
+
+#: includes/admin-pages.php:132
+msgid "Upload a BibTeX file (.bib) to import publications."
+msgstr "Téléchargez un fichier BibTeX (.bib) pour importer des publications."
+
+#: includes/admin-pages.php:140
+msgid "BibTeX File"
+msgstr "Fichier BibTeX"
+
+#: includes/admin-pages.php:148
+msgid "Import BibTeX File"
+msgstr "Importer un fichier BibTeX"
+
+#: includes/admin-pages.php:165
+msgid "Imported successfully!"
+msgstr "Importé avec succès !"
+
+#: includes/admin-pages.php:166
+msgid "Error:"
+msgstr "Erreur :"
+
+#: includes/admin-pages.php:167
+msgid "Processing..."
+msgstr "Traitement en cours..."
+
+#: includes/admin-pages.php:177
+msgid "Importing publications..."
+msgstr "Importation des publications..."
+
+#: includes/admin-pages.php:202
+msgid "Invalid nonce"
+msgstr "Nonce invalide"
+
+#: includes/admin-pages.php:207
+msgid "No DOI(s) provided"
+msgstr "Aucun DOI fourni"
+
+#: includes/admin-pages.php:220
+msgid "Successfully imported"
+msgstr "Importé avec succès"
+
+#: includes/admin-pages.php:221
+msgid "Failed to import"
+msgstr "Échec de l'importation"
+
+#: includes/admin-pages.php:231
+msgid "Invalid format"
+msgstr "Format invalide"
+
+#: includes/admin-pages.php:239
+msgid "No publications found"
+msgstr "Aucune publication trouvée"
+
+#: includes/admin-pages.php:278
+msgid "Error exporting publications"
+msgstr "Erreur lors de l'exportation des publications"
+
+#: includes/class-crossref-import.php:62
+msgid "Successfully imported publication:"
+msgstr "Publication importée avec succès :"
+
+#: includes/class-crossref-import.php:64
+msgid "Failed to import DOI:"
+msgstr "Échec de l'importation du DOI :"

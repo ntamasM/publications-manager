@@ -245,6 +245,42 @@ All data is stored in WordPress post meta:
 - AJAX-powered import
 - Better WordPress integration
 
+## Translation Support
+
+Publications Manager is **fully translatable** and ready for internationalization (i18n).
+
+### Available Languages
+
+- **English** (default)
+- **Greek (Ελληνικά)** - Complete translation
+- **Spanish (Español)** - Complete translation
+- **French (Français)** - Complete translation
+- **German (Deutsch)** - Complete translation
+- **Italian (Italiano)** - Complete translation
+- **Portuguese (Português-BR)** - Complete translation
+
+### Adding Your Language
+
+1. **Using Loco Translate** (Recommended):
+   - Install the [Loco Translate](https://wordpress.org/plugins/loco-translate/) plugin
+   - Go to **Loco Translate → Plugins → Publications Manager**
+   - Create a new translation for your language
+   - Save and you're done!
+
+2. **Using Poedit**:
+   - Download [Poedit](https://poedit.net/)
+   - Open `languages/publications-manager.pot`
+   - Create a translation for your language
+   - Save as `publications-manager-{locale}.po` in the `/languages` folder
+
+3. **Manual**:
+   - See `/languages/README.md` for detailed instructions
+
+The plugin follows the same translation approach as **teachPress**, prioritizing plugin translations over WordPress.org translations.
+
+**Text Domain**: `publications-manager`  
+**Domain Path**: `/languages`
+
 ## FAQ
 
 **Q: Can I migrate from teachPress to this plugin?**
