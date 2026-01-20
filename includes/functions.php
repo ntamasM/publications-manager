@@ -157,3 +157,67 @@ function pm_display_publication($post_id, $args = array())
 
     return $output;
 }
+
+/**
+ * Register publication meta fields for REST API and page builders
+ * Makes fields available in Bricks Builder, Elementor, and other page builders
+ * 
+ * @since 1.0.2
+ */
+function pm_register_meta_fields_for_rest()
+{
+    $fields = array(
+        'pm_type',
+        'pm_author',
+        'pm_editor',
+        'pm_doi',
+        'pm_year',
+        'pm_month',
+        'pm_journal',
+        'pm_volume',
+        'pm_number',
+        'pm_pages',
+        'pm_publisher',
+        'pm_address',
+        'pm_isbn',
+        'pm_issn',
+        'pm_url',
+        'pm_note',
+        'pm_abstract',
+        'pm_keywords',
+        'pm_bibtex_key',
+        'pm_booktitle',
+        'pm_chapter',
+        'pm_edition',
+        'pm_series',
+        'pm_howpublished',
+        'pm_organization',
+        'pm_institution',
+        'pm_school',
+        'pm_techtype',
+        'pm_crossref',
+        'pm_key',
+        'pm_urldate',
+        'pm_status',
+        'pm_issuetitle',
+        'pm_image_url',
+        'pm_rel_page',
+        'pm_comment',
+        'pm_award',
+        'pm_import_id',
+    );
+
+    foreach ($fields as $field) {
+        register_post_meta('publication', $field, array(
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'description' => sprintf(__('Publication field: %s', 'publications-manager'), str_replace('pm_', '', $field)),
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function () {
+                return current_user_can('edit_posts');
+            }
+        ));
+    }
+}
+add_action('init', 'pm_register_meta_fields_for_rest', 20);

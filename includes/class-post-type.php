@@ -79,7 +79,7 @@ class PM_Post_Type
             'menu_position'         => 20,
             'menu_icon'             => 'dashicons-book-alt',
             'supports'              => array('title', 'editor', 'thumbnail', 'custom-fields', 'revisions'),
-            'show_in_rest'          => false, // Disable Gutenberg
+            'show_in_rest'          => true, // Enable REST API for Bricks Builder and other page builders
         );
 
         register_post_type('publication', $args);
