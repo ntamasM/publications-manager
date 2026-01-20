@@ -305,5 +305,11 @@ GPL v2 or later - Same as teachPress
 
 ## Credits
 
-Built based on the excellent teachPress plugin by Michael Winkler.
+Built based on the excellent [teachPress](https://github.com/winkm89/teachPress) plugin by Michael Winkler.
 Crossref integration uses the Crossref REST API.
+
+## Related Links
+
+- **teachPress Plugin**: [https://github.com/winkm89/teachPress](https://github.com/winkm89/teachPress)
+- **teachPress on WordPress.org**: [https://wordpress.org/plugins/teachpress/](https://wordpress.org/plugins/teachpress/)
+- **Crossref REST API**: [https://www.crossref.org/documentation/retrieve-metadata/rest-api/](https://www.crossref.org/documentation/retrieve-metadata/rest-api/)
