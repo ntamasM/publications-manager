@@ -1,0 +1,195 @@
+/**
+ * Admin Styles for Publications Manager
+ */
+
+/* Meta box styling */
+.pm-field-wrapper {
+  transition: background-color 0.3s ease;
+}
+
+.pm-field-wrapper.pm-recommended {
+  background-color: #f0f6fc;
+  border-left: 3px solid #2271b1;
+  padding-left: 10px;
+}
+
+.pm-field-wrapper.pm-recommended th label:after {
+  content: " *";
+  color: #2271b1;
+  font-weight: bold;
+}
+
+/* Form table improvements */
+.form-table th {
+  width: 200px;
+}
+
+.form-table td .description {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #646970;
+}
+
+/* Meta box sections */
+.pm-details-grid {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Required field indicator */
+label.required:after {
+  content: " *";
+  color: #dc3232;
+}
+
+/* Publication list columns */
+.column-pm_type,
+.column-pm_author,
+.column-pm_date {
+  width: 15%;
+}
+
+/* Import/Export page specific styles */
+.pm-import-export-container {
+  max-width: 900px;
+}
+
+.pm-section {
+  background: #fff;
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #ccd0d4;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.pm-section h2 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Import results */
+#pm-import-results {
+  margin-top: 20px;
+}
+
+.pm-result-item {
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-left: 4px solid #46b450;
+  background: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pm-result-item.success {
+  border-left-color: #46b450;
+  background: #ecf7ed;
+}
+
+.pm-result-item.error {
+  border-left-color: #dc3232;
+  background: #fcf0f1;
+}
+
+.pm-result-item.warning {
+  border-left-color: #f0b849;
+  background: #fef8ee;
+}
+
+.pm-result-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.pm-result-message {
+  font-size: 13px;
+  color: #646970;
+}
+
+.pm-result-actions {
+  margin-left: auto;
+  padding-left: 15px;
+}
+
+/* Statistics */
+.pm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.pm-stat-box {
+  background: #f7f7f7;
+  padding: 20px;
+  border-left: 4px solid #2271b1;
+  text-align: center;
+  border-radius: 3px;
+}
+
+.pm-stat-number {
+  font-size: 36px;
+  font-weight: bold;
+  color: #2271b1;
+  line-height: 1;
+}
+
+.pm-stat-label {
+  color: #646970;
+  margin-top: 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Spinner positioning */
+#pm-import-spinner {
+  float: none;
+  margin-left: 10px;
+  visibility: hidden;
+}
+
+#pm-import-spinner.is-active {
+  visibility: visible;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+  .pm-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-table th {
+    width: auto;
+    padding: 10px;
+  }
+}
+
+/* Publication type indicator colors */
+.pm-type-article {
+  color: #2271b1;
+}
+.pm-type-book {
+  color: #135e96;
+}
+.pm-type-conference {
+  color: #d63638;
+}
+.pm-type-thesis {
+  color: #00a32a;
+}
+.pm-type-misc {
+  color: #646970;
+}
+
+/* Admin columns */
+.column-publication_type .pm-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0f0f1;
+  border-radius: 3px;
+  font-size: 12px;
+}
