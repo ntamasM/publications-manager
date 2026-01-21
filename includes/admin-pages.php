@@ -20,6 +20,9 @@ class PM_Admin_Pages
         add_action('admin_menu', array(__CLASS__, 'add_menu_pages'));
         add_action('admin_init', array(__CLASS__, 'register_settings'));
         add_action('wp_ajax_pm_import_doi', array(__CLASS__, 'ajax_import_doi'));
+
+        // Clean up team member connections when a publication is permanently deleted
+        add_action('before_delete_post', array(__CLASS__, 'cleanup_publication_connections'));
     }
 
     /**
@@ -38,8 +41,8 @@ class PM_Admin_Pages
 
         add_submenu_page(
             'edit.php?post_type=publication',
-            __('Settings', 'publications-manager'),
-            __('Settings', 'publications-manager'),
+            __('Settings and Info', 'publications-manager'),
+            __('Settings and Info', 'publications-manager'),
             'manage_options',
             'pm-settings',
             array(__CLASS__, 'render_settings_page')
@@ -333,6 +336,13 @@ class PM_Admin_Pages
         // Get current tab
         $current_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'settings';
 
+        // Handle cleanup orphaned connections action
+        if ($current_tab === 'debug' && isset($_GET['action']) && $_GET['action'] === 'cleanup_orphaned') {
+            check_admin_referer('pm_cleanup_orphaned');
+            $cleaned = self::cleanup_orphaned_connections();
+            echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(__('Successfully cleaned up %d orphaned connections.', 'publications-manager'), $cleaned) . '</p></div>';
+        }
+
         // Handle bulk process action
         $bulk_process_results = null;
         if ($current_tab === 'bulk-process' && isset($_GET['action']) && $_GET['action'] === 'process') {
@@ -364,7 +374,7 @@ class PM_Admin_Pages
                     <?php _e('Bulk Process', 'publications-manager'); ?>
                 </a>
                 <a href="?post_type=publication&page=pm-settings&tab=debug" class="nav-tab <?php echo $current_tab === 'debug' ? 'nav-tab-active' : ''; ?>">
-                    <?php _e('Debug Connections', 'publications-manager'); ?>
+                    <?php _e('Analytics', 'publications-manager'); ?>
                 </a>
             </h2>
 
@@ -616,6 +626,7 @@ class PM_Admin_Pages
         $author_stats = array();
         $duplicate_count = 0;
         $actual_total_connections = 0; // Count unique connections
+        $orphaned_count = 0; // Count connections to deleted publications
 
         foreach ($all_team_members as $member) {
             $pub_ids = get_post_meta($member->ID, 'pm_publication_id', false);
@@ -624,20 +635,37 @@ class PM_Admin_Pages
             $pub_ids = array_filter($pub_ids);
             $total_entries = count($pub_ids);
             $unique_pub_ids = array_unique($pub_ids);
+
+            // Validate that publications actually exist
+            $valid_pub_ids = array();
+            $orphaned_for_member = 0;
+            foreach ($unique_pub_ids as $pub_id) {
+                $post = get_post($pub_id);
+                if ($post && $post->post_type === 'publication' && $post->post_status === 'publish') {
+                    $valid_pub_ids[] = $pub_id;
+                } else {
+                    $orphaned_for_member++;
+                    $orphaned_count++;
+                }
+            }
+
+            $valid_count = count($valid_pub_ids);
             $unique_count = count($unique_pub_ids);
 
-            $actual_total_connections += $unique_count;
+            $actual_total_connections += $valid_count;
 
             if ($total_entries > $unique_count) {
                 $duplicate_count += ($total_entries - $unique_count);
             }
 
-            if ($unique_count > 0) {
+            if ($valid_count > 0 || $orphaned_for_member > 0) {
                 $author_stats[] = array(
                     'name' => $member->post_title,
-                    'count' => $unique_count,
+                    'count' => $valid_count,
                     'total_entries' => $total_entries,
-                    'duplicates' => $total_entries - $unique_count
+                    'duplicates' => $total_entries - $unique_count,
+                    'orphaned' => $orphaned_for_member,
+                    'member_id' => $member->ID
                 );
             }
         }
@@ -810,7 +838,11 @@ class PM_Admin_Pages
                             <div class="pm-author-item">
                                 <span class="pm-author-name">
                                     <?php echo esc_html($author['name']); ?>
-                                    <?php if (isset($author['duplicates']) && $author['duplicates'] > 0): ?>
+                                    <?php if (isset($author['orphaned']) && $author['orphaned'] > 0): ?>
+                                        <span style="color: #d63638; font-size: 12px; font-weight: normal;">
+                                            (<?php printf(__('%d deleted publications', 'publications-manager'), $author['orphaned']); ?>)
+                                        </span>
+                                    <?php elseif (isset($author['duplicates']) && $author['duplicates'] > 0): ?>
                                         <span style="color: #d63638; font-size: 12px; font-weight: normal;">
                                             (<?php printf(__('%d total, %d duplicates', 'publications-manager'), $author['total_entries'], $author['duplicates']); ?>)
                                         </span>
@@ -823,7 +855,18 @@ class PM_Admin_Pages
                 </div>
             <?php endif; ?>
 
-            <?php if ($duplicate_count > 0): ?>
+            <?php if ($orphaned_count > 0): ?>
+                <div class="notice notice-error inline" style="margin-top: 20px;">
+                    <p><strong><?php _e('Orphaned Connections Detected:', 'publications-manager'); ?></strong></p>
+                    <p><?php printf(__('Found %d connections to deleted publications. These are references to publications that no longer exist in your database.', 'publications-manager'), $orphaned_count); ?></p>
+                    <p>
+                        <strong><?php _e('Solution:', 'publications-manager'); ?></strong>
+                        <a href="<?php echo wp_nonce_url(admin_url('edit.php?post_type=publication&page=pm-settings&tab=debug&action=cleanup_orphaned'), 'pm_cleanup_orphaned'); ?>" class="button button-secondary" onclick="return confirm('<?php esc_attr_e('This will remove all connections to deleted publications. Continue?', 'publications-manager'); ?>');">
+                            <?php _e('Clean Up Orphaned Connections', 'publications-manager'); ?>
+                        </a>
+                    </p>
+                </div>
+            <?php elseif ($duplicate_count > 0): ?>
                 <div class="notice notice-error inline" style="margin-top: 20px;">
                     <p><strong><?php _e('Data Integrity Issue Detected:', 'publications-manager'); ?></strong></p>
                     <p><?php printf(__('Found %d duplicate meta entries. This happens when publications are processed multiple times. The counts above show unique publications only, but your database has duplicate entries.', 'publications-manager'), $duplicate_count); ?></p>
@@ -832,7 +875,12 @@ class PM_Admin_Pages
             <?php elseif ($pubs_without_links > 0): ?>
                 <div class="notice notice-warning inline" style="margin-top: 20px;">
                     <p><strong><?php _e('Action Required:', 'publications-manager'); ?></strong></p>
-                    <p><?php printf(__('You have %d publications without team member links. Visit the Bulk Process tab to automatically link them.', 'publications-manager'), $pubs_without_links); ?></p>
+                    <p><?php printf(__('You have %d publications without team member links.', 'publications-manager'), $pubs_without_links); ?></p>
+                    <p>
+                        <a href="<?php echo admin_url('edit.php?post_type=publication&page=pm-settings&tab=bulk-process'); ?>" class="button button-primary">
+                            <?php _e('Go to Bulk Process', 'publications-manager'); ?>
+                        </a>
+                    </p>
                 </div>
             <?php else: ?>
                 <div class="notice notice-success inline" style="margin-top: 20px;">
@@ -903,5 +951,99 @@ class PM_Admin_Pages
             'linked' => $linked,
             'details' => $details
         );
+    }
+
+    /**
+     * Clean up orphaned connections (team member meta pointing to deleted publications)
+     */
+    private static function cleanup_orphaned_connections()
+    {
+        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+
+        if (!post_type_exists($team_cpt_slug)) {
+            return 0;
+        }
+
+        $all_team_members = get_posts(array(
+            'post_type' => $team_cpt_slug,
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'fields' => 'ids'
+        ));
+
+        $cleaned_count = 0;
+
+        foreach ($all_team_members as $member_id) {
+            $pub_ids = get_post_meta($member_id, 'pm_publication_id', false);
+
+            foreach ($pub_ids as $pub_id) {
+                $post = get_post($pub_id);
+
+                // If publication doesn't exist or is not published, remove the meta
+                if (!$post || $post->post_type !== 'publication' || $post->post_status !== 'publish') {
+                    // Delete the specific pm_publication_id entry
+                    delete_post_meta($member_id, 'pm_publication_id', $pub_id);
+
+                    // Delete the corresponding pm_publication_{id} entry
+                    delete_post_meta($member_id, 'pm_publication_' . $pub_id);
+
+                    $cleaned_count++;
+                }
+            }
+        }
+
+        return $cleaned_count;
+    }
+
+    /**
+     * Clean up team member connections when a publication is deleted
+     */
+    public static function cleanup_publication_connections($post_id)
+    {
+        // Only proceed if this is a publication post type
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'publication') {
+            return;
+        }
+
+        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+
+        if (!post_type_exists($team_cpt_slug)) {
+            return;
+        }
+
+        // Get team members linked to this publication
+        $team_members = get_post_meta($post_id, 'pm_team_members', true);
+
+        if (is_array($team_members) && !empty($team_members)) {
+            foreach ($team_members as $member_id) {
+                // Delete the pm_publication_id entry
+                delete_post_meta($member_id, 'pm_publication_id', $post_id);
+
+                // Delete the pm_publication_{id} entry
+                delete_post_meta($member_id, 'pm_publication_' . $post_id);
+            }
+        }
+
+        // Also clean up any orphaned connections (in case the team_members array is outdated)
+        // Search all team members for this publication ID
+        $all_team_members = get_posts(array(
+            'post_type' => $team_cpt_slug,
+            'posts_per_page' => -1,
+            'post_status' => 'any',
+            'fields' => 'ids',
+            'meta_query' => array(
+                array(
+                    'key' => 'pm_publication_id',
+                    'value' => $post_id,
+                    'compare' => '='
+                )
+            )
+        ));
+
+        foreach ($all_team_members as $member_id) {
+            delete_post_meta($member_id, 'pm_publication_id', $post_id);
+            delete_post_meta($member_id, 'pm_publication_' . $post_id);
+        }
     }
 }

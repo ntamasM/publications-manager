@@ -108,6 +108,11 @@ class PM_Crossref_Import
                 $post_id = self::create_publication($publication_data);
 
                 if ($post_id) {
+                    // Process author relationships immediately after creation
+                    if (function_exists('pm_process_author_relationships')) {
+                        pm_process_author_relationships($post_id);
+                    }
+
                     $results['imported'][] = array(
                         'doi' => $doi,
                         'post_id' => $post_id,
