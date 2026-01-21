@@ -170,49 +170,57 @@ class PM_Crossref_Import
             $data['date'] = current_time('Y-m-d');
         }
 
-        // Authors
+        // Authors - Format as "GivenName FamilyName" separated by commas
         $data['author'] = '';
         if (isset($work->author) && is_array($work->author)) {
             $authors = array();
             foreach ($work->author as $author) {
                 $name_parts = array();
-                if (isset($author->family)) {
-                    $name_parts[] = $author->family;
-                }
+                // Given name first
                 if (isset($author->given)) {
                     $name_parts[] = $author->given;
                 }
+                // Family name last
+                if (isset($author->family)) {
+                    $name_parts[] = $author->family;
+                }
                 if (! empty($name_parts)) {
-                    $authors[] = implode(', ', $name_parts);
+                    $authors[] = implode(' ', $name_parts);
                 }
             }
-            $data['author'] = implode(' and ', $authors);
+            // Join with commas instead of " and "
+            $data['author'] = implode(', ', $authors);
         }
 
-        // Editors
+        // Editors - Format as "GivenName FamilyName" separated by commas
         $data['editor'] = '';
         if (isset($work->editor) && is_array($work->editor)) {
             $editors = array();
             foreach ($work->editor as $editor) {
                 $name_parts = array();
-                if (isset($editor->family)) {
-                    $name_parts[] = $editor->family;
-                }
+                // Given name first
                 if (isset($editor->given)) {
                     $name_parts[] = $editor->given;
                 }
+                // Family name last
+                if (isset($editor->family)) {
+                    $name_parts[] = $editor->family;
+                }
                 if (! empty($name_parts)) {
-                    $editors[] = implode(', ', $name_parts);
+                    $editors[] = implode(' ', $name_parts);
                 }
             }
-            $data['editor'] = implode(' and ', $editors);
+            // Join with commas instead of " and "
+            $data['editor'] = implode(', ', $editors);
         }
 
         // Generate BibTeX key
         if (! empty($data['author'])) {
-            $first_author = explode(' and ', $data['author'])[0];
-            $author_parts = explode(', ', $first_author);
-            $last_name = isset($author_parts[0]) ? $author_parts[0] : 'Unknown';
+            // Authors are now formatted as "Given Family, Given Family"
+            $first_author = explode(', ', $data['author'])[0];
+            $author_parts = explode(' ', $first_author);
+            // Last part is the family name
+            $last_name = isset($author_parts[count($author_parts) - 1]) ? $author_parts[count($author_parts) - 1] : 'Unknown';
         } else {
             $last_name = 'Unknown';
         }

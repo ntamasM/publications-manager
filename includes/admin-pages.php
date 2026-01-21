@@ -18,6 +18,7 @@ class PM_Admin_Pages
     public static function init()
     {
         add_action('admin_menu', array(__CLASS__, 'add_menu_pages'));
+        add_action('admin_init', array(__CLASS__, 'register_settings'));
         add_action('wp_ajax_pm_import_doi', array(__CLASS__, 'ajax_import_doi'));
     }
 
@@ -33,6 +34,15 @@ class PM_Admin_Pages
             'manage_options',
             'pm-import-export',
             array(__CLASS__, 'render_import_export_page')
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=publication',
+            __('Settings', 'publications-manager'),
+            __('Settings', 'publications-manager'),
+            'manage_options',
+            'pm-settings',
+            array(__CLASS__, 'render_settings_page')
         );
     }
 
@@ -269,7 +279,7 @@ class PM_Admin_Pages
                 </ul>
             </details>
         <?php endif; ?>
-<?php
+    <?php
     }
 
     /**
@@ -297,5 +307,601 @@ class PM_Admin_Pages
         } else {
             wp_send_json_error($results);
         }
+    }
+
+    /**
+     * Register settings
+     */
+    public static function register_settings()
+    {
+        register_setting('pm_settings', 'pm_team_cpt_slug', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_key',
+            'default' => 'team_member'
+        ));
+    }
+
+    /**
+     * Render settings page
+     */
+    public static function render_settings_page()
+    {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Get current tab
+        $current_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'settings';
+
+        // Handle bulk process action
+        $bulk_process_results = null;
+        if ($current_tab === 'bulk-process' && isset($_GET['action']) && $_GET['action'] === 'process') {
+            check_admin_referer('pm_bulk_process');
+            $bulk_process_results = self::process_all_publications();
+        }
+
+        // Save settings if form submitted
+        if (isset($_POST['pm_settings_submit'])) {
+            check_admin_referer('pm_settings_action', 'pm_settings_nonce');
+
+            $team_cpt_slug = isset($_POST['pm_team_cpt_slug']) ? sanitize_key($_POST['pm_team_cpt_slug']) : 'team_member';
+            update_option('pm_team_cpt_slug', $team_cpt_slug);
+
+            echo '<div class="notice notice-success is-dismissible"><p>' . __('Settings saved successfully.', 'publications-manager') . '</p></div>';
+        }
+
+        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+    ?>
+        <div class="wrap">
+            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+
+            <!-- Tabs -->
+            <h2 class="nav-tab-wrapper">
+                <a href="?post_type=publication&page=pm-settings&tab=settings" class="nav-tab <?php echo $current_tab === 'settings' ? 'nav-tab-active' : ''; ?>">
+                    <?php _e('Settings', 'publications-manager'); ?>
+                </a>
+                <a href="?post_type=publication&page=pm-settings&tab=bulk-process" class="nav-tab <?php echo $current_tab === 'bulk-process' ? 'nav-tab-active' : ''; ?>">
+                    <?php _e('Bulk Process', 'publications-manager'); ?>
+                </a>
+                <a href="?post_type=publication&page=pm-settings&tab=debug" class="nav-tab <?php echo $current_tab === 'debug' ? 'nav-tab-active' : ''; ?>">
+                    <?php _e('Debug Connections', 'publications-manager'); ?>
+                </a>
+            </h2>
+
+            <div class="pm-tab-content" style="margin-top: 20px;">
+                <?php
+                switch ($current_tab) {
+                    case 'settings':
+                        self::render_settings_tab($team_cpt_slug);
+                        break;
+                    case 'bulk-process':
+                        self::render_bulk_process_tab($bulk_process_results);
+                        break;
+                    case 'debug':
+                        self::render_debug_tab($team_cpt_slug);
+                        break;
+                }
+                ?>
+            </div>
+        </div>
+    <?php
+    }
+
+    /**
+     * Render settings tab
+     */
+    private static function render_settings_tab($team_cpt_slug)
+    {
+    ?>
+        <form method="post" action="">
+            <?php wp_nonce_field('pm_settings_action', 'pm_settings_nonce'); ?>
+
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="pm_team_cpt_slug"><?php _e('Team CPT Slug', 'publications-manager'); ?></label>
+                    </th>
+                    <td>
+                        <input
+                            type="text"
+                            name="pm_team_cpt_slug"
+                            id="pm_team_cpt_slug"
+                            value="<?php echo esc_attr($team_cpt_slug); ?>"
+                            class="regular-text" />
+                        <p class="description">
+                            <?php _e('Enter the slug of the Custom Post Type that contains team member profiles (e.g., team_member). Publications will be automatically linked to team members based on author names matching the team member post titles.', 'publications-manager'); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+            <p class="submit">
+                <input
+                    type="submit"
+                    name="pm_settings_submit"
+                    class="button button-primary"
+                    value="<?php esc_attr_e('Save Settings', 'publications-manager'); ?>" />
+            </p>
+        </form>
+
+        <hr>
+
+        <h2><?php _e('Author Linking Information', 'publications-manager'); ?></h2>
+        <div class="notice notice-info inline">
+            <p><strong><?php _e('How it works:', 'publications-manager'); ?></strong></p>
+            <ul style="list-style: disc; margin-left: 20px;">
+                <li><?php _e('Authors in publications should be formatted as "GivenName FamilyName" separated by commas.', 'publications-manager'); ?></li>
+                <li><?php _e('Example: "John Doe, Jane Smith, Bob Lee"', 'publications-manager'); ?></li>
+                <li><?php _e('The plugin will automatically match author names with team member post titles.', 'publications-manager'); ?></li>
+                <li><?php _e('When a match is found, a bidirectional relationship is created for Bricks Builder Query Loops.', 'publications-manager'); ?></li>
+                <li><?php _e('On the frontend, matched authors will be displayed as clickable links to their team member pages.', 'publications-manager'); ?></li>
+            </ul>
+        </div>
+
+        <h2><?php _e('How to Use in Bricks Builder', 'publications-manager'); ?></h2>
+        <div class="notice notice-info inline">
+            <p><strong><?php _e('On Team Member Page - Query Publications:', 'publications-manager'); ?></strong></p>
+            <ol>
+                <li><?php _e('Add Query Loop element', 'publications-manager'); ?></li>
+                <li><?php _e('Query Type: Posts', 'publications-manager'); ?></li>
+                <li><?php _e('Post Type: Publication', 'publications-manager'); ?></li>
+                <li><?php _e('The plugin will automatically filter to show only this member\'s publications', 'publications-manager'); ?></li>
+            </ol>
+
+            <p><strong><?php _e('Alternative - Manual Meta Query:', 'publications-manager'); ?></strong></p>
+            <ol>
+                <li><?php _e('Meta Query → Key:', 'publications-manager'); ?> <code>pm_publication_id</code></li>
+                <li><?php _e('Value:', 'publications-manager'); ?> <code>{post_id}</code></li>
+                <li><?php _e('Compare: = (equals)', 'publications-manager'); ?></li>
+            </ol>
+
+            <p><strong><?php _e('Display Authors with Links:', 'publications-manager'); ?></strong></p>
+            <p><?php _e('Use dynamic data:', 'publications-manager'); ?> <code>{cf_pm_author}</code></p>
+        </div>
+    <?php
+    }
+
+    /**
+     * Render bulk process tab
+     */
+    private static function render_bulk_process_tab($results = null)
+    {
+        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+        $pub_count = wp_count_posts('publication');
+        $team_count = post_type_exists($team_cpt_slug) ? wp_count_posts($team_cpt_slug) : null;
+    ?>
+        <div class="pm-bulk-process">
+            <?php if ($results): ?>
+                <!-- Results Section -->
+                <div class="notice notice-success">
+                    <h2><?php _e('✅ Processing Complete!', 'publications-manager'); ?></h2>
+                    <p><strong style="font-size: 24px; color: #2271b1;"><?php echo $results['processed']; ?> / <?php echo $results['total']; ?></strong></p>
+                    <p><?php _e('Publications processed successfully.', 'publications-manager'); ?></p>
+                    <p><strong><?php _e('Publications with team member links:', 'publications-manager'); ?></strong> <?php echo $results['linked']; ?></p>
+                </div>
+
+                <?php if (!empty($results['details'])): ?>
+                    <h2><?php _e('Results', 'publications-manager'); ?></h2>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th><?php _e('ID', 'publications-manager'); ?></th>
+                                <th><?php _e('Publication Title', 'publications-manager'); ?></th>
+                                <th><?php _e('Authors', 'publications-manager'); ?></th>
+                                <th><?php _e('Links Before', 'publications-manager'); ?></th>
+                                <th><?php _e('Links After', 'publications-manager'); ?></th>
+                                <th><?php _e('New Links', 'publications-manager'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($results['details'] as $detail): ?>
+                                <tr <?php echo $detail['new_links'] > 0 ? 'style="background:#d7f0d8;"' : ''; ?>>
+                                    <td><?php echo $detail['id']; ?></td>
+                                    <td><?php echo esc_html($detail['title']); ?></td>
+                                    <td><?php echo esc_html(substr($detail['authors'], 0, 50)) . '...'; ?></td>
+                                    <td><?php echo $detail['links_before']; ?></td>
+                                    <td><?php echo $detail['links_after']; ?></td>
+                                    <td><strong><?php echo ($detail['new_links'] > 0 ? '+' : '') . $detail['new_links']; ?></strong></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+
+            <?php else: ?>
+                <!-- Action Button -->
+                <?php if (!post_type_exists($team_cpt_slug) || ($team_count && $team_count->publish == 0)): ?>
+                    <div class="notice notice-warning">
+                        <h2><?php _e('⚠️ Warning', 'publications-manager'); ?></h2>
+                        <p><?php _e('No team members found. Please check:', 'publications-manager'); ?></p>
+                        <ul style="list-style: disc; margin-left: 20px;">
+                            <li><?php _e('The Team CPT Slug is correct in Settings', 'publications-manager'); ?></li>
+                            <li><?php _e('You have published team member posts', 'publications-manager'); ?></li>
+                        </ul>
+                    </div>
+                <?php else: ?>
+                    <p>
+                        <a href="<?php echo wp_nonce_url(admin_url('edit.php?post_type=publication&page=pm-settings&tab=bulk-process&action=process'), 'pm_bulk_process'); ?>" class="button button-primary button-hero">
+                            <?php _e('Start Processing Publications', 'publications-manager'); ?>
+                        </a>
+                    </p>
+                    <p class="description">
+                        <?php printf(__('This will process %d publications and link them to %d team members.', 'publications-manager'), $pub_count->publish, $team_count ? $team_count->publish : 0); ?>
+                    </p>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <hr style="margin: 30px 0;">
+
+            <!-- Informational Content -->
+            <h2><?php _e('About This Tool', 'publications-manager'); ?></h2>
+            <div class="notice notice-info inline">
+                <p><?php _e('This utility will process all existing publications and create relationships with team members based on author names.', 'publications-manager'); ?></p>
+                <p><strong><?php _e('What it does:', 'publications-manager'); ?></strong></p>
+                <ul style="list-style: disc; margin-left: 20px;">
+                    <li><?php _e('Parses author names from publications (comma-separated format)', 'publications-manager'); ?></li>
+                    <li><?php _e('Searches for matching team member post titles', 'publications-manager'); ?></li>
+                    <li><?php _e('Creates bidirectional relationships', 'publications-manager'); ?></li>
+                    <li><?php _e('Stores link data for frontend display', 'publications-manager'); ?></li>
+                </ul>
+            </div>
+
+            <h2><?php _e('Current Configuration', 'publications-manager'); ?></h2>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php _e('Team CPT Slug:', 'publications-manager'); ?></th>
+                    <td><?php echo esc_html($team_cpt_slug); ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php _e('Total Publications:', 'publications-manager'); ?></th>
+                    <td><?php echo $pub_count->publish; ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php _e('Total Team Members:', 'publications-manager'); ?></th>
+                    <td><?php echo $team_count ? $team_count->publish : 0; ?></td>
+                </tr>
+            </table>
+
+            <div class="notice notice-info inline">
+                <p><strong><?php _e('Before You Start:', 'publications-manager'); ?></strong></p>
+                <ul style="list-style: disc; margin-left: 20px;">
+                    <li><?php _e('Make sure your Team CPT Slug is configured correctly in Settings', 'publications-manager'); ?></li>
+                    <li><?php _e('Ensure author names in publications match team member post titles exactly', 'publications-manager'); ?></li>
+                    <li><?php _e('Author format should be: "John Doe, Jane Smith" (comma-separated)', 'publications-manager'); ?></li>
+                    <li><?php _e('Backup your database (recommended for large sites)', 'publications-manager'); ?></li>
+                </ul>
+            </div>
+        </div>
+    <?php
+    }
+
+    /**
+     * Render debug tab
+     */
+    private static function render_debug_tab($team_cpt_slug)
+    {
+        // Calculate statistics
+        $total_publications = wp_count_posts('publication');
+        $total_team_members = post_type_exists($team_cpt_slug) ? wp_count_posts($team_cpt_slug) : null;
+
+        // Count publications with/without links
+        $all_pubs = get_posts(array(
+            'post_type' => 'publication',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'fields' => 'ids'
+        ));
+
+        $pubs_with_links = 0;
+        $pubs_without_links = 0;
+        $total_connections = 0;
+
+        foreach ($all_pubs as $pub_id) {
+            $team_members = get_post_meta($pub_id, 'pm_team_members', true);
+            if (is_array($team_members) && !empty($team_members)) {
+                $pubs_with_links++;
+                $total_connections += count($team_members);
+            } else {
+                $pubs_without_links++;
+            }
+        }
+
+        // Get top authors with most publications
+        $all_team_members = post_type_exists($team_cpt_slug) ? get_posts(array(
+            'post_type' => $team_cpt_slug,
+            'posts_per_page' => -1,
+            'post_status' => 'publish'
+        )) : array();
+
+        $author_stats = array();
+        $duplicate_count = 0;
+        $actual_total_connections = 0; // Count unique connections
+
+        foreach ($all_team_members as $member) {
+            $pub_ids = get_post_meta($member->ID, 'pm_publication_id', false);
+
+            // Remove empty values and duplicates
+            $pub_ids = array_filter($pub_ids);
+            $total_entries = count($pub_ids);
+            $unique_pub_ids = array_unique($pub_ids);
+            $unique_count = count($unique_pub_ids);
+
+            $actual_total_connections += $unique_count;
+
+            if ($total_entries > $unique_count) {
+                $duplicate_count += ($total_entries - $unique_count);
+            }
+
+            if ($unique_count > 0) {
+                $author_stats[] = array(
+                    'name' => $member->post_title,
+                    'count' => $unique_count,
+                    'total_entries' => $total_entries,
+                    'duplicates' => $total_entries - $unique_count
+                );
+            }
+        }
+
+        usort($author_stats, function ($a, $b) {
+            return $b['count'] - $a['count'];
+        });
+
+        // Recalculate average based on unique connections
+        $avg_links_per_pub = $pubs_with_links > 0 ? round($actual_total_connections / $pubs_with_links, 1) : 0;
+
+        $avg_links_per_pub = $pubs_with_links > 0 ? round($total_connections / $pubs_with_links, 1) : 0;
+    ?>
+        <style>
+            .pm-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin: 20px 0;
+            }
+
+            .pm-stat-card {
+                background: #fff;
+                border: 1px solid #c3c4c7;
+                border-radius: 4px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+            }
+
+            .pm-stat-number {
+                font-size: 48px;
+                font-weight: bold;
+                color: #2271b1;
+                line-height: 1;
+                margin: 10px 0;
+            }
+
+            .pm-stat-label {
+                color: #50575e;
+                font-size: 14px;
+                margin-top: 8px;
+            }
+
+            .pm-stat-card.success .pm-stat-number {
+                color: #00a32a;
+            }
+
+            .pm-stat-card.warning .pm-stat-number {
+                color: #dba617;
+            }
+
+            .pm-stat-card.error .pm-stat-number {
+                color: #d63638;
+            }
+
+            .pm-top-authors {
+                background: #fff;
+                border: 1px solid #c3c4c7;
+                padding: 0;
+                margin: 20px 0;
+            }
+
+            .pm-top-authors h3 {
+                margin: 0;
+                padding: 15px 20px;
+                background: #f6f7f7;
+                border-bottom: 1px solid #c3c4c7;
+            }
+
+            .pm-author-list {
+                padding: 15px 20px;
+            }
+
+            .pm-author-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                border-bottom: 1px solid #f0f0f1;
+            }
+
+            .pm-author-item:last-child {
+                border-bottom: none;
+            }
+
+            .pm-author-name {
+                font-weight: 500;
+            }
+
+            .pm-author-count {
+                color: #2271b1;
+                font-weight: bold;
+            }
+
+            .pm-status-indicator {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
+
+            .pm-status-indicator.active {
+                background: #00a32a;
+            }
+
+            .pm-status-indicator.inactive {
+                background: #d63638;
+            }
+        </style>
+
+        <div class="pm-analytics">
+            <h2><?php _e('Connection Statistics', 'publications-manager'); ?></h2>
+
+            <div class="pm-stats-grid">
+                <div class="pm-stat-card">
+                    <div class="pm-stat-label"><?php _e('Total Publications', 'publications-manager'); ?></div>
+                    <div class="pm-stat-number"><?php echo number_format_i18n($total_publications->publish); ?></div>
+                </div>
+
+                <div class="pm-stat-card success">
+                    <div class="pm-stat-label"><?php _e('With Team Links', 'publications-manager'); ?></div>
+                    <div class="pm-stat-number"><?php echo number_format_i18n($pubs_with_links); ?></div>
+                    <div class="pm-stat-label"><?php echo $total_publications->publish > 0 ? round(($pubs_with_links / $total_publications->publish) * 100) . '%' : '0%'; ?></div>
+                </div>
+
+                <div class="pm-stat-card <?php echo $pubs_without_links > 0 ? 'warning' : ''; ?>">
+                    <div class="pm-stat-label"><?php _e('Without Links', 'publications-manager'); ?></div>
+                    <div class="pm-stat-number"><?php echo number_format_i18n($pubs_without_links); ?></div>
+                    <div class="pm-stat-label"><?php echo $total_publications->publish > 0 ? round(($pubs_without_links / $total_publications->publish) * 100) . '%' : '0%'; ?></div>
+                </div>
+
+                <div class="pm-stat-card">
+                    <div class="pm-stat-label"><?php _e('Total Connections', 'publications-manager'); ?></div>
+                    <div class="pm-stat-number"><?php echo number_format_i18n($actual_total_connections); ?></div>
+                    <?php if ($duplicate_count > 0): ?>
+                        <div class="pm-stat-label" style="color: #d63638; font-size: 12px;">
+                            <?php printf(__('(%d with duplicates)', 'publications-manager'), $total_connections); ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="pm-stat-card">
+                    <div class="pm-stat-label"><?php _e('Avg Links/Publication', 'publications-manager'); ?></div>
+                    <div class="pm-stat-number"><?php echo $avg_links_per_pub; ?></div>
+                </div>
+
+                <div class="pm-stat-card">
+                    <div class="pm-stat-label"><?php _e('Team Members', 'publications-manager'); ?></div>
+                    <div class="pm-stat-number"><?php echo $total_team_members ? number_format_i18n($total_team_members->publish) : 0; ?></div>
+                </div>
+            </div>
+
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php _e('Team CPT Status:', 'publications-manager'); ?></th>
+                    <td>
+                        <span class="pm-status-indicator <?php echo post_type_exists($team_cpt_slug) ? 'active' : 'inactive'; ?>"></span>
+                        <?php echo esc_html($team_cpt_slug); ?>
+                        <?php echo post_type_exists($team_cpt_slug) ? ' (' . __('Active', 'publications-manager') . ')' : ' (' . __('Not Found', 'publications-manager') . ')'; ?>
+                    </td>
+                </tr>
+            </table>
+
+            <?php if (!empty($author_stats)): ?>
+                <div class="pm-top-authors">
+                    <h3><?php _e('Top Authors by Publication Count', 'publications-manager'); ?></h3>
+                    <div class="pm-author-list">
+                        <?php foreach (array_slice($author_stats, 0, 10) as $author): ?>
+                            <div class="pm-author-item">
+                                <span class="pm-author-name">
+                                    <?php echo esc_html($author['name']); ?>
+                                    <?php if (isset($author['duplicates']) && $author['duplicates'] > 0): ?>
+                                        <span style="color: #d63638; font-size: 12px; font-weight: normal;">
+                                            (<?php printf(__('%d total, %d duplicates', 'publications-manager'), $author['total_entries'], $author['duplicates']); ?>)
+                                        </span>
+                                    <?php endif; ?>
+                                </span>
+                                <span class="pm-author-count"><?php echo number_format_i18n($author['count']); ?> <?php echo _n('publication', 'publications', $author['count'], 'publications-manager'); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($duplicate_count > 0): ?>
+                <div class="notice notice-error inline" style="margin-top: 20px;">
+                    <p><strong><?php _e('Data Integrity Issue Detected:', 'publications-manager'); ?></strong></p>
+                    <p><?php printf(__('Found %d duplicate meta entries. This happens when publications are processed multiple times. The counts above show unique publications only, but your database has duplicate entries.', 'publications-manager'), $duplicate_count); ?></p>
+                    <p><strong><?php _e('Solution:', 'publications-manager'); ?></strong> <?php _e('Go to the Bulk Process tab and click "Start Processing Publications" to clean up and rebuild all relationships.', 'publications-manager'); ?></p>
+                </div>
+            <?php elseif ($pubs_without_links > 0): ?>
+                <div class="notice notice-warning inline" style="margin-top: 20px;">
+                    <p><strong><?php _e('Action Required:', 'publications-manager'); ?></strong></p>
+                    <p><?php printf(__('You have %d publications without team member links. Visit the Bulk Process tab to automatically link them.', 'publications-manager'), $pubs_without_links); ?></p>
+                </div>
+            <?php else: ?>
+                <div class="notice notice-success inline" style="margin-top: 20px;">
+                    <p><strong><?php _e('Great!', 'publications-manager'); ?></strong> <?php _e('All publications are linked to team members.', 'publications-manager'); ?></p>
+                </div>
+            <?php endif; ?>
+        </div>
+<?php
+    }
+
+    /**
+     * Process all publications and create relationships
+     */
+    private static function process_all_publications()
+    {
+        // Check if the function exists
+        if (!function_exists('pm_process_author_relationships')) {
+            return array(
+                'total' => 0,
+                'processed' => 0,
+                'linked' => 0,
+                'details' => array(),
+                'error' => 'Function pm_process_author_relationships not found'
+            );
+        }
+
+        $publications = get_posts(array(
+            'post_type' => 'publication',
+            'posts_per_page' => -1,
+            'post_status' => 'publish'
+        ));
+
+        $total = count($publications);
+        $processed = 0;
+        $linked = 0;
+        $details = array();
+
+        foreach ($publications as $publication) {
+            $before_links = get_post_meta($publication->ID, 'pm_team_members', true);
+            $before_count = is_array($before_links) ? count($before_links) : 0;
+
+            // Process relationships
+            pm_process_author_relationships($publication->ID);
+
+            $after_links = get_post_meta($publication->ID, 'pm_team_members', true);
+            $after_count = is_array($after_links) ? count($after_links) : 0;
+
+            $authors = get_post_meta($publication->ID, 'pm_author', true);
+
+            $details[] = array(
+                'id' => $publication->ID,
+                'title' => $publication->post_title,
+                'authors' => $authors,
+                'links_before' => $before_count,
+                'links_after' => $after_count,
+                'new_links' => $after_count - $before_count
+            );
+
+            $processed++;
+            if ($after_count > 0) {
+                $linked++;
+            }
+        }
+
+        return array(
+            'total' => $total,
+            'processed' => $processed,
+            'linked' => $linked,
+            'details' => $details
+        );
     }
 }
