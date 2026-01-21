@@ -75,44 +75,41 @@ function pm_find_team_member_by_name($author_name)
         return false;
     }
 
-    // Query for team member with matching title
-    $args = array(
+    // Get all team members
+    $team_members = get_posts(array(
         'post_type'      => $team_cpt_slug,
         'post_status'    => 'publish',
-        'posts_per_page' => 1,
-        'title'          => $author_name,
+        'posts_per_page' => -1,
         'fields'         => 'ids'
-    );
+    ));
 
-    // WordPress doesn't support 'title' in WP_Query by default, use custom filter
-    add_filter('posts_where', 'pm_title_filter', 10, 2);
-    $query = new WP_Query($args);
-    remove_filter('posts_where', 'pm_title_filter', 10);
+    // Normalize the author name for comparison
+    $normalized_author = trim($author_name);
 
-    if ($query->have_posts()) {
-        return $query->posts[0];
+    // Check each team member's name variations
+    foreach ($team_members as $team_member_id) {
+        $name_variations = get_post_meta($team_member_id, 'pm_name_variations', true);
+
+        if (!empty($name_variations)) {
+            // Parse the variations (comma-separated)
+            $variations = array_map('trim', explode(',', $name_variations));
+
+            // Check if author name matches any variation
+            foreach ($variations as $variation) {
+                if (strcasecmp($variation, $normalized_author) === 0) {
+                    return $team_member_id;
+                }
+            }
+        }
+
+        // Fallback: check team member title if no variations are set
+        $team_member_title = get_the_title($team_member_id);
+        if (strcasecmp($team_member_title, $normalized_author) === 0) {
+            return $team_member_id;
+        }
     }
 
     return false;
-}
-
-/**
- * Filter to search by exact post title
- * 
- * @param string $where The WHERE clause
- * @param WP_Query $query The query object
- * @return string Modified WHERE clause
- * @since 1.0.4
- */
-function pm_title_filter($where, $query)
-{
-    global $wpdb;
-
-    if ($title = $query->get('title')) {
-        $where .= ' AND ' . $wpdb->posts . '.post_title = \'' . esc_sql($title) . '\'';
-    }
-
-    return $where;
 }
 
 /**

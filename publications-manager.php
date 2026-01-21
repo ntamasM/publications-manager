@@ -4,7 +4,9 @@
  * Plugin Name: Publications Manager
  * Plugin URI: https://ntamadakis.gr
  * Description: Advanced publication management using Custom Post Types with teachPress-compatible fields and Crossref import functionality
- * Version: 1.2.1
+ * Version: 2.0.0
+ * Requires at least: 5.0
+ * Requires PHP: 7.4
  * Author: Ntamadakis
  * Author URI: https://ntamadakis.gr
  * License: GPL v2 or later
@@ -19,7 +21,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('PM_VERSION', '1.2.1');
+define('PM_VERSION', '2.0.0');
 define('PM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PM_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('PM_PLUGIN_FILE', __FILE__);

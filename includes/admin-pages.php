@@ -442,10 +442,24 @@ class PM_Admin_Pages
             <ul style="list-style: disc; margin-left: 20px;">
                 <li><?php _e('Authors in publications should be formatted as "GivenName FamilyName" separated by commas.', 'publications-manager'); ?></li>
                 <li><?php _e('Example: "John Doe, Jane Smith, Bob Lee"', 'publications-manager'); ?></li>
-                <li><?php _e('The plugin will automatically match author names with team member post titles.', 'publications-manager'); ?></li>
+                <li><?php _e('The plugin will automatically match author names with team member post titles or name variations.', 'publications-manager'); ?></li>
                 <li><?php _e('When a match is found, a bidirectional relationship is created for Bricks Builder Query Loops.', 'publications-manager'); ?></li>
                 <li><?php _e('On the frontend, matched authors will be displayed as clickable links to their team member pages.', 'publications-manager'); ?></li>
             </ul>
+        </div>
+
+        <div class="notice notice-warning inline" style="margin-top: 15px;">
+            <p><strong><?php _e('📝 Setting Up Name Variations for Team Members', 'publications-manager'); ?></strong></p>
+            <p><?php _e('Authors often appear in different formats across publications (e.g., "John Smith", "J. Smith", "John A. Smith").', 'publications-manager'); ?></p>
+            <p><?php _e('To ensure accurate matching:', 'publications-manager'); ?></p>
+            <ol style="margin-left: 20px;">
+                <li><?php printf(__('Edit each team member in <strong>%s</strong>', 'publications-manager'), esc_html($team_cpt_slug)); ?></li>
+                <li><?php _e('Find the <strong>"Publication Name Variations"</strong> meta box', 'publications-manager'); ?></li>
+                <li><?php _e('Enter all possible name variations, separated by commas', 'publications-manager'); ?></li>
+                <li><?php _e('Example: <code>John Smith, J. Smith, John A. Smith</code>', 'publications-manager'); ?></li>
+                <li><?php _e('The matching system will check all variations when linking publications', 'publications-manager'); ?></li>
+            </ol>
+            <p style="margin-top: 10px;"><em><?php _e('💡 Tip: If no variations are set, the plugin will fallback to matching the team member post title.', 'publications-manager'); ?></em></p>
         </div>
 
         <h2><?php _e('How to Use in Bricks Builder', 'publications-manager'); ?></h2>
@@ -555,22 +569,6 @@ class PM_Admin_Pages
                     <li><?php _e('Stores link data for frontend display', 'publications-manager'); ?></li>
                 </ul>
             </div>
-
-            <h2><?php _e('Current Configuration', 'publications-manager'); ?></h2>
-            <table class="form-table">
-                <tr>
-                    <th scope="row"><?php _e('Team CPT Slug:', 'publications-manager'); ?></th>
-                    <td><?php echo esc_html($team_cpt_slug); ?></td>
-                </tr>
-                <tr>
-                    <th scope="row"><?php _e('Total Publications:', 'publications-manager'); ?></th>
-                    <td><?php echo $pub_count->publish; ?></td>
-                </tr>
-                <tr>
-                    <th scope="row"><?php _e('Total Team Members:', 'publications-manager'); ?></th>
-                    <td><?php echo $team_count ? $team_count->publish : 0; ?></td>
-                </tr>
-            </table>
 
             <div class="notice notice-info inline">
                 <p><strong><?php _e('Before You Start:', 'publications-manager'); ?></strong></p>

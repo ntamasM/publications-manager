@@ -104,11 +104,21 @@ class PM_Crossref_Import
             $publication_data = self::parse_crossref_data($work);
 
             if ($publication_data) {
-                // Create publication post
-                $post_id = self::create_publication($publication_data);
+                // Check if publication with this DOI already exists
+                $existing_post_id = self::find_publication_by_doi($publication_data['doi']);
+
+                if ($existing_post_id) {
+                    // Update existing publication
+                    $post_id = self::update_publication($existing_post_id, $publication_data);
+                    $action = 'updated';
+                } else {
+                    // Create new publication post
+                    $post_id = self::create_publication($publication_data);
+                    $action = 'created';
+                }
 
                 if ($post_id) {
-                    // Process author relationships immediately after creation
+                    // Process author relationships immediately after creation/update
                     if (function_exists('pm_process_author_relationships')) {
                         pm_process_author_relationships($post_id);
                     }
@@ -116,12 +126,13 @@ class PM_Crossref_Import
                     $results['imported'][] = array(
                         'doi' => $doi,
                         'post_id' => $post_id,
-                        'title' => $publication_data['title']
+                        'title' => $publication_data['title'],
+                        'action' => $action
                     );
                 } else {
                     $results['failed'][] = array(
                         'doi' => $doi,
-                        'error' => __('Failed to create publication post', 'publications-manager')
+                        'error' => __('Failed to create/update publication post', 'publications-manager')
                     );
                 }
             } else {
@@ -392,6 +403,60 @@ class PM_Crossref_Import
     }
 
     /**
+     * Find publication by DOI
+     * 
+     * @param string $doi DOI to search for
+     * @return int|false Post ID if found, false otherwise
+     */
+    private static function find_publication_by_doi($doi)
+    {
+        if (empty($doi)) {
+            return false;
+        }
+
+        // Normalize DOI: remove https://doi.org/ prefix and trim whitespace
+        $normalized_doi = trim($doi);
+        $normalized_doi = preg_replace('#^https?://doi\.org/#i', '', $normalized_doi);
+        $normalized_doi = strtolower($normalized_doi);
+
+        // Get all publications with any DOI
+        $args = array(
+            'post_type'      => 'publication',
+            'post_status'    => array('publish', 'draft', 'pending', 'private'),
+            'posts_per_page' => -1,
+            'meta_query'     => array(
+                array(
+                    'key'     => 'pm_doi',
+                    'compare' => 'EXISTS'
+                )
+            ),
+            'fields' => 'ids'
+        );
+
+        $query = new WP_Query($args);
+
+        if ($query->have_posts()) {
+            // Check each publication's DOI after normalization
+            foreach ($query->posts as $post_id) {
+                $stored_doi = get_post_meta($post_id, 'pm_doi', true);
+                if (!empty($stored_doi)) {
+                    // Normalize stored DOI
+                    $stored_normalized = trim($stored_doi);
+                    $stored_normalized = preg_replace('#^https?://doi\.org/#i', '', $stored_normalized);
+                    $stored_normalized = strtolower($stored_normalized);
+
+                    // Compare normalized DOIs
+                    if ($stored_normalized === $normalized_doi) {
+                        return $post_id;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Create publication post from data
      * 
      * @param array $data Publication data
@@ -448,6 +513,62 @@ class PM_Crossref_Import
 
         // Mark as imported
         update_post_meta($post_id, 'pm_import_id', current_time('timestamp'));
+
+        return $post_id;
+    }
+
+    /**
+     * Update existing publication post with new data
+     * 
+     * @param int $post_id Existing post ID
+     * @param array $data Publication data
+     * @return int|false Post ID on success, false on failure
+     */
+    private static function update_publication($post_id, $data)
+    {
+        if (empty($data['title']) || !$post_id) {
+            return false;
+        }
+
+        // Update post title if different
+        $current_title = get_the_title($post_id);
+        if ($current_title !== $data['title']) {
+            wp_update_post(array(
+                'ID'         => $post_id,
+                'post_title' => $data['title']
+            ));
+        }
+
+        // Update meta data
+        $meta_mapping = array(
+            'type'        => 'pm_type',
+            'bibtex'      => 'pm_bibtex',
+            'date'        => 'pm_date',
+            'author'      => 'pm_author',
+            'editor'      => 'pm_editor',
+            'doi'         => 'pm_doi',
+            'url'         => 'pm_url',
+            'volume'      => 'pm_volume',
+            'number'      => 'pm_number',
+            'issue'       => 'pm_issue',
+            'pages'       => 'pm_pages',
+            'publisher'   => 'pm_publisher',
+            'journal'     => 'pm_journal',
+            'booktitle'   => 'pm_booktitle',
+            'isbn'        => 'pm_isbn',
+            'abstract'    => 'pm_abstract',
+            'edition'     => 'pm_edition',
+        );
+
+        foreach ($meta_mapping as $key => $meta_key) {
+            if (isset($data[$key]) && !empty($data[$key])) {
+                update_post_meta($post_id, $meta_key, $data[$key]);
+            }
+        }
+
+        // Update import timestamp
+        update_post_meta($post_id, 'pm_import_id', current_time('timestamp'));
+        update_post_meta($post_id, 'pm_last_updated', current_time('timestamp'));
 
         return $post_id;
     }

@@ -72,15 +72,40 @@
     function displayImportResults(data) {
       var html = "";
 
+      // Debug: log the data
+      console.log("Import results data:", data);
+
+      // Count created vs updated
+      var createdCount = 0;
+      var updatedCount = 0;
+      $.each(data.imported, function (index, item) {
+        console.log("Item " + index + ":", item);
+        if (item.action === "updated") {
+          updatedCount++;
+        } else {
+          createdCount++;
+        }
+      });
+
       // Summary
       html += '<div class="notice notice-success"><p>';
       html += "<strong>Import Complete!</strong> ";
       html +=
-        "Successfully imported " +
+        "Successfully processed " +
         data.imported.length +
         " of " +
         data.total +
-        " publications.";
+        " publications";
+
+      if (createdCount > 0 && updatedCount > 0) {
+        html += " (" + createdCount + " new, " + updatedCount + " updated)";
+      } else if (updatedCount > 0) {
+        html += " (all updated)";
+      } else {
+        html += " (all new)";
+      }
+
+      html += ".";
       html += "</p></div>";
 
       // Successful imports
@@ -89,14 +114,30 @@
         html += '<div class="pm-results-list">';
 
         $.each(data.imported, function (index, item) {
-          html += '<div class="pm-result-item success">';
+          // Default to 'created' if action is not set
+          var action = item.action || "created";
+          var actionText = action === "updated" ? "UPDATED" : "NEW";
+          var actionClass = action === "updated" ? "updated" : "created";
+          var statusIcon = action === "updated" ? "↻" : "✓";
+          var statusMessage =
+            action === "updated"
+              ? "This publication already existed and was updated with latest data from Crossref"
+              : "This is a new publication that was just imported";
+
+          html += '<div class="pm-result-item success ' + actionClass + '">';
+          html += '<div class="pm-status-indicator">';
+          html += '<span class="pm-status-icon">' + statusIcon + "</span>";
+          html += '<span class="pm-action-badge">' + actionText + "</span>";
+          html += "</div>";
           html += '<div class="pm-result-content">';
           html +=
             '<div class="pm-result-title">' + escapeHtml(item.title) + "</div>";
           html +=
-            '<div class="pm-result-message">DOI: ' +
+            '<div class="pm-result-message"><strong>DOI:</strong> ' +
             escapeHtml(item.doi) +
-            "</div>";
+            '<br><em class="pm-status-message">' +
+            statusMessage +
+            "</em></div>";
           html += "</div>";
           html += '<div class="pm-result-actions">';
           html +=

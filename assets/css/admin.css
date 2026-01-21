@@ -156,6 +156,74 @@ label.required:after {
   visibility: visible;
 }
 
+/* Import result badges */
+.pm-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pm-status-icon {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.pm-result-item.created .pm-status-icon {
+  color: #00a32a;
+}
+
+.pm-result-item.updated .pm-status-icon {
+  color: #007cba;
+}
+
+.pm-action-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pm-result-item.created .pm-action-badge {
+  background-color: #00a32a;
+  color: #ffffff;
+}
+
+.pm-result-item.updated .pm-action-badge {
+  background-color: #007cba;
+  color: #ffffff;
+}
+
+.pm-result-item {
+  background: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-left: 4px solid #dcdcde;
+  border-radius: 3px;
+}
+
+.pm-result-item.created {
+  border-left-color: #00a32a;
+  background: #f0f9f2;
+}
+
+.pm-result-item.updated {
+  border-left-color: #007cba;
+  background: #f0f6fc;
+}
+
+.pm-status-message {
+  color: #646970;
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 5px;
+  display: block;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 782px) {
   .pm-stats-grid {

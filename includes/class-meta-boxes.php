@@ -20,7 +20,13 @@ class PM_Meta_Boxes
     {
         add_action('add_meta_boxes', array(__CLASS__, 'add_meta_boxes'));
         add_action('add_meta_boxes', array(__CLASS__, 'remove_default_meta_boxes'));
+        add_action('add_meta_boxes', array(__CLASS__, 'add_team_member_meta_boxes'));
         add_action('save_post_publication', array(__CLASS__, 'save_meta_boxes'), 10, 2);
+
+        // Save meta boxes for team member CPT
+        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+        add_action('save_post_' . $team_cpt_slug, array(__CLASS__, 'save_team_member_meta_boxes'), 10, 2);
+
         add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueue_scripts'));
     }
 
@@ -30,6 +36,27 @@ class PM_Meta_Boxes
     public static function remove_default_meta_boxes()
     {
         remove_meta_box('postcustom', 'publication', 'normal');
+    }
+
+    /**
+     * Add meta boxes for team member CPT
+     */
+    public static function add_team_member_meta_boxes()
+    {
+        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+
+        if (!post_type_exists($team_cpt_slug)) {
+            return;
+        }
+
+        add_meta_box(
+            'pm_team_name_variations',
+            __('Publication Name Variations', 'publications-manager'),
+            array(__CLASS__, 'render_team_name_variations_metabox'),
+            $team_cpt_slug,
+            'normal',
+            'high'
+        );
     }
 
     /**
@@ -558,7 +585,7 @@ class PM_Meta_Boxes
                 <option value="in_review" <?php selected($status, 'in_review'); ?>><?php _e('In Review', 'publications-manager'); ?></option>
             </select>
         </p>
-<?php
+    <?php
     }
 
     /**
@@ -640,6 +667,65 @@ class PM_Meta_Boxes
             } else {
                 delete_post_meta($post_id, $meta_key);
             }
+        }
+    }
+
+    /**
+     * Render team member name variations meta box
+     */
+    public static function render_team_name_variations_metabox($post)
+    {
+        wp_nonce_field('pm_team_member_meta', 'pm_team_member_nonce');
+        $name_variations = get_post_meta($post->ID, 'pm_name_variations', true);
+    ?>
+        <div class="pm-metabox-field">
+            <p class="description">
+                <?php _e('Enter all possible name variations as they appear in publications, separated by commas. For example:', 'publications-manager'); ?><br>
+                <code>George Arampatzis, G. Arampatzis, George J. Arampatzis</code>
+            </p>
+            <textarea
+                name="pm_name_variations"
+                id="pm_name_variations"
+                rows="3"
+                style="width: 100%; margin-top: 10px;"
+                placeholder="<?php esc_attr_e('Enter name variations separated by commas...', 'publications-manager'); ?>"><?php echo esc_textarea($name_variations); ?></textarea>
+            <p class="description" style="margin-top: 8px;">
+                <?php _e('These variations will be used to automatically match this team member to publications during import and bulk processing.', 'publications-manager'); ?>
+            </p>
+        </div>
+<?php
+    }
+
+    /**
+     * Save team member meta boxes
+     */
+    public static function save_team_member_meta_boxes($post_id, $post)
+    {
+        // Check if nonce is set
+        if (!isset($_POST['pm_team_member_nonce'])) {
+            return;
+        }
+
+        // Verify nonce
+        if (!wp_verify_nonce($_POST['pm_team_member_nonce'], 'pm_team_member_meta')) {
+            return;
+        }
+
+        // Check autosave
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        // Check permissions
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+
+        // Save name variations
+        if (isset($_POST['pm_name_variations'])) {
+            update_post_meta($post_id, 'pm_name_variations', sanitize_textarea_field($_POST['pm_name_variations']));
+        } else {
+            delete_post_meta($post_id, 'pm_name_variations');
         }
     }
 }

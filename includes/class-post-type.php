@@ -78,7 +78,7 @@ class PM_Post_Type
             'hierarchical'          => false,
             'menu_position'         => 20,
             'menu_icon'             => 'dashicons-book-alt',
-            'supports'              => array('title', 'editor', 'thumbnail', 'custom-fields', 'revisions'),
+            'supports'              => array('title', 'thumbnail', 'custom-fields', 'revisions'),
             'show_in_rest'          => true, // Enable REST API for Bricks Builder and other page builders
         );
 
