@@ -681,7 +681,7 @@ class PM_Meta_Boxes
         <div class="pm-metabox-field">
             <p class="description">
                 <?php _e('Enter all possible name variations as they appear in publications, separated by commas. For example:', 'publications-manager'); ?><br>
-                <code>George Arampatzis, G. Arampatzis, George J. Arampatzis</code>
+                <code>John Smith, J. Smith, John A. Smith</code>
             </p>
             <textarea
                 name="pm_name_variations"
