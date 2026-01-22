@@ -288,8 +288,31 @@ function pm_get_authors_with_links($post_id)
 }
 
 /**
- * Filter Bricks Builder dynamic data for pm_author field
- * Adds links to matched authors
+ * Get formatted publication type name
+ * 
+ * @param int $post_id Publication post ID
+ * @return string Formatted type name
+ */
+function pm_get_formatted_type($post_id)
+{
+    $type_slug = get_post_meta($post_id, 'pm_type', true);
+
+    if (empty($type_slug)) {
+        return '';
+    }
+
+    $type_data = PM_Publication_Types::get($type_slug);
+
+    if ($type_data && isset($type_data['i18n_singular'])) {
+        return $type_data['i18n_singular'];
+    }
+
+    return $type_slug;
+}
+
+/**
+ * Filter Bricks Builder dynamic data for pm_author and pm_type fields
+ * Adds links to matched authors and formats type names
  * 
  * @param string $content The content to filter
  * @param object $post The post object
@@ -308,30 +331,31 @@ function pm_filter_bricks_author_field($content, $post = null, $context = array(
         return $content;
     }
 
-    // Get raw author meta
-    $raw_author = get_post_meta($post->ID, 'pm_author', true);
-
-    // Check if we should process this field
-    $should_process = false;
-
-    // Check tag in context
+    // Check tag in context for pm_type
     if (is_array($context) && isset($context['tag'])) {
+        if (strpos($context['tag'], 'pm_type') !== false || strpos($context['tag'], 'post_meta:pm_type') !== false) {
+            return pm_get_formatted_type($post->ID);
+        }
+
         if (strpos($context['tag'], 'pm_author') !== false || strpos($context['tag'], 'post_meta:pm_author') !== false) {
-            $should_process = true;
+            return pm_get_authors_with_links($post->ID);
         }
     }
 
+    // Check if content matches raw type value
+    $raw_type = get_post_meta($post->ID, 'pm_type', true);
+    if (!empty($raw_type) && $content === $raw_type) {
+        return pm_get_formatted_type($post->ID);
+    }
+
     // Check if content matches raw author string
+    $raw_author = get_post_meta($post->ID, 'pm_author', true);
     if (!empty($raw_author) && $content === $raw_author) {
-        $should_process = true;
+        return pm_get_authors_with_links($post->ID);
     }
 
     // Check if this looks like an author field (contains comma-separated names)
     if (!empty($content) && strpos($content, ',') !== false && !empty($raw_author)) {
-        $should_process = true;
-    }
-
-    if ($should_process) {
         return pm_get_authors_with_links($post->ID);
     }
 
@@ -347,9 +371,18 @@ add_filter('bricks/dynamic_data/post_meta', 'pm_filter_bricks_author_post_meta',
 
 function pm_filter_bricks_author_post_meta($meta_value, $post_id, $meta_key)
 {
-    // Only process pm_author field
-    if ($meta_key === 'pm_author' && get_post_type($post_id) === 'publication') {
+    if (get_post_type($post_id) !== 'publication') {
+        return $meta_value;
+    }
+
+    // Process pm_author field
+    if ($meta_key === 'pm_author') {
         return pm_get_authors_with_links($post_id);
+    }
+
+    // Process pm_type field to return full type name
+    if ($meta_key === 'pm_type') {
+        return pm_get_formatted_type($post_id);
     }
 
     return $meta_value;
