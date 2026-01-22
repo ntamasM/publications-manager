@@ -204,7 +204,7 @@ class PM_Crossref_Import
                     $authors[] = implode(' ', $name_parts);
                 }
             }
-            // Join with commas instead of " and "
+            // Join with commas
             $data['author'] = implode(', ', $authors);
         }
 
@@ -226,13 +226,13 @@ class PM_Crossref_Import
                     $editors[] = implode(' ', $name_parts);
                 }
             }
-            // Join with commas instead of " and "
+            // Join with commas
             $data['editor'] = implode(', ', $editors);
         }
 
         // Generate BibTeX key
         if (! empty($data['author'])) {
-            // Authors are now formatted as "Given Family, Given Family"
+            // Authors are formatted as "Given Family, Given Family"
             $first_author = explode(', ', $data['author'])[0];
             $author_parts = explode(' ', $first_author);
             // Last part is the family name

@@ -26,7 +26,7 @@ function pm_format_authors($authors, $max = 0, $separator = ', ')
         return '';
     }
 
-    $author_array = explode(' and ', $authors);
+    $author_array = explode(', ', $authors);
 
     if ($max > 0 && count($author_array) > $max) {
         $author_array = array_slice($author_array, 0, $max);
