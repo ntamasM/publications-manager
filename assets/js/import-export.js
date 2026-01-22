@@ -118,7 +118,6 @@
           var action = item.action || "created";
           var actionText = action === "updated" ? "UPDATED" : "NEW";
           var actionClass = action === "updated" ? "updated" : "created";
-          var statusIcon = action === "updated" ? "↻" : "✓";
           var statusMessage =
             action === "updated"
               ? "This publication already existed and was updated with latest data from Crossref"
@@ -126,7 +125,6 @@
 
           html += '<div class="pm-result-item success ' + actionClass + '">';
           html += '<div class="pm-status-indicator">';
-          html += '<span class="pm-status-icon">' + statusIcon + "</span>";
           html += '<span class="pm-action-badge">' + actionText + "</span>";
           html += "</div>";
           html += '<div class="pm-result-content">';
