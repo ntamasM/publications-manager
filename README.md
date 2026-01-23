@@ -61,7 +61,8 @@ Full integration with Bricks Builder:
 
 1. Upload the `publications-manager` folder to `/wp-content/plugins/`
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Navigate to "Publications" in the admin menu
+3. (Optional) Configure team member CPT slug in **Publications > Settings**
+4. Navigate to "Publications" in the admin menu to add publications
 
 ## Usage
 
@@ -126,73 +127,9 @@ This will output: `<a href="/team/john-smith">John Smith</a>, Jane Doe, <a href=
 This will output: "Journal Article" instead of "article"
 
 **Show publications on team member pages:**
-Create a query loop for publications - it will automatically filter to show only that team member's publications. 4. Review the results and edit publications as needed
+Create a query loop for publications - it will automatically filter to show only that team member's publications.
 
-### Publication Types
-
-The plugin includes all teachPress publication types with the same default fields:
-
-- **article**: Journal Article (journal, volume, number, issue, pages)
-- **book**: Book (volume, number, publisher, address, edition, series)
-- **booklet**: Booklet (volume, address, howpublished)
-- **collection**: Collection (booktitle, volume, pages, publisher, etc.)
-- **conference**: Conference (booktitle, organization, publisher, etc.)
-- **bachelorthesis**: Bachelor Thesis (address, school, techtype)
-- **diplomathesis**: Diploma Thesis (address, school, techtype)
-- **inbook**: Book Chapter (volume, pages, publisher, chapter, etc.)
-- **incollection**: Book Section (volume, pages, publisher, etc.)
-- **inproceedings**: Proceedings Article (booktitle, pages, organization, etc.)
-- **manual**: Technical Manual (address, edition, organization, series)
-- **mastersthesis**: Masters Thesis (address, school, techtype)
-- **media**: Medium (publisher, address, howpublished)
-- **misc**: Miscellaneous (howpublished)
-- **online**: Online (howpublished)
-- **patent**: Patent (howpublished)
-- **periodical**: Periodical (howpublished)
-- **phdthesis**: PhD Thesis (school, address)
-- **presentation**: Presentation (howpublished, address)
-- **proceedings**: Proceedings (organization, publisher, address)
-- **techreport**: Technical Report (institution, address, techtype, number)
-- **unpublished**: Unpublished (howpublished)
-- **workingpaper**: Working Paper (howpublished)
-- **workshop**: Workshop (booktitle, organization, address)
-
-## Field Descriptions
-
-### Required Fields
-
-- **Title**: Publication title (set as post title)
-- **Publication Type**: Type of publication
-- **BibTeX Key**: Unique citation key
-- **Authors**: List of authors (format: "Smith, John and Doe, Jane")
-- **Publication Date**: Date of publication
-
-### Recommended Fields (vary by type)
-
-Automatically highlighted based on publication type selection
-
-### Optional Fields
-
-All other fields can be filled as needed
-
-## Developer Notes
-
-### Data Storage
-
-- Uses WordPress Custom Post Types (CPT)
-- All metadata stored in post meta (with `_pm_` prefix)
-- No custom database tables required
-- Compatible with standard WordPress queries
-
-### Hooks & Filters
-
-Available for extending functionality:
-
-```php
-// Modify publication types
-add_filter('pm_publication_types', function($types) {
-    // Add or modify types
-   How It Works
+## How It Works
 
 ### Author Matching System
 
@@ -222,30 +159,29 @@ When you save a publication:
 ### Technical Architecture
 
 ```
-
 publications-manager/
 ├── publications-manager.php (Main plugin file)
 ├── includes/
-│ ├── admin/
-│ │ ├── class-meta-boxes.php (Meta boxes & field handling)
-│ │ └── admin-pages.php (Import/export interface)
-│ ├── core/
-│ │ ├── class-post-type.php (CPT, columns, filters)
-│ │ └── class-publication-types.php (Type definitions)
-│ ├── integrations/
-│ │ ├── class-crossref-import.php (Crossref API)
-│ │ └── class-bricks-integration.php (Bricks filters)
-│ └── functions.php (Core helper functions)
+│   ├── admin/
+│   │   ├── class-meta-boxes.php (Meta boxes & field handling)
+│   │   └── admin-pages.php (Import/export interface)
+│   ├── core/
+│   │   ├── class-post-type.php (CPT, columns, filters)
+│   │   └── class-publication-types.php (Type definitions)
+│   ├── integrations/
+│   │   ├── class-crossref-import.php (Crossref API)
+│   │   └── class-bricks-integration.php (Bricks filters)
+│   └── functions.php (Core helper functions)
 ├── tools/ (Debug utilities)
 └── assets/ (CSS & JS)
-
-````
+```
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for complete technical documentation.
 
 ### Data Storage
 
 **Publications (post type: `publication`)**
+
 - `pm_authors` - Multiple meta entries (one per author)
 - `pm_year` - Extracted from `pm_date`
 - `pm_type` - Publication type slug
@@ -254,15 +190,42 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for complete technical documentation.
 - All other fields as standard post meta
 
 **Team Members (configurable CPT)**
+
 - `pm_name_variations` - Comma-separated name variations
 - `pm_publication_id` - Multiple entries (one per linked publication)
 - `pm_publication_{id}` - Individual publication data arrays
 
-## Compatibility
+## Publication Types
 
-- **WordPress**: 5.0+
-- **PHP**: 7.2+
-- **teachPress Compatible**: Uses the same field structure and logic
+The plugin includes all teachPress publication types:
+
+- **article**: Journal Article
+- **book**: Book
+- **booklet**: Booklet
+- **collection**: Collection
+- **conference**: Conference Paper
+- **bachelorthesis**: Bachelor Thesis
+- **diplomathesis**: Diploma Thesis
+- **inbook**: Book Chapter
+- **incollection**: Book Section
+- **inproceedings**: Proceedings Article
+- **manual**: Technical Manual
+- **mastersthesis**: Masters Thesis
+- **media**: Medium
+- **misc**: Miscellaneous
+- **online**: Online Publication
+- **patent**: Patent
+- **periodical**: Periodical
+- **phdthesis**: PhD Thesis
+- **presentation**: Presentation
+- **proceedings**: Proceedings
+- **techreport**: Technical Report
+- **unpublished**: Unpublished Work
+- **workingpaper**: Working Paper
+- **workshop**: Workshop
+
+## Comparison with teachPress
+
 Publications Manager is **inspired by teachPress** but takes a different approach to publication management.
 
 ### Similarities with teachPress ✅
@@ -276,19 +239,65 @@ Publications Manager is **inspired by teachPress** but takes a different approac
 ### Key Differences ⚡
 
 **Architecture:**
+
 - ✅ Uses WordPress Custom Post Types (not custom database tables)
 - ✅ Native WordPress admin interface
 - ✅ Works with all page builders
 - ✅ Standard WordPress queries
-API & Shortcodes
+
+**Author Handling:**
+
+- ✅ Each author stored separately (better for queries)
+- ✅ Automatic team member linking
+- ✅ Bidirectional relationships
+- ✅ Name variation matching
+- ❌ No author management UI (uses team member CPT)
+
+**Features:**
+
+- ✅ Advanced admin filters (by type, author, year)
+- ✅ Sortable columns
+- ✅ Bricks Builder integration
+- ✅ REST API ready
+- ❌ No built-in shortcodes for publication lists (use page builder)
+- ❌ No citation export yet (structure ready)
+
+**Use Case:**
+
+- **teachPress**: Best for individual researchers, simple publication lists
+- **Publications Manager**: Best for institutions, teams with page builder sites, complex author relationships
+
+### When to Choose Publications Manager
+
+Choose this plugin if you:
+
+- Use Bricks Builder (or another page builder)
+- Need automatic author-to-team member linking
+- Want publications to appear on team member pages automatically
+- Prefer WordPress CPT over custom tables
+- Need advanced filtering and sorting in admin
+- Want to query publications like any other WordPress post type
+
+### When to Choose teachPress
+
+Choose teachPress if you:
+
+- Need simple shortcode-based displays
+- Don't need team member integration
+- Want built-in citation export
+- Need the author management interface
+- Prefer a more mature, battle-tested solution
+
+## API & Shortcodes
 
 ### Shortcodes
 
 **Display authors with links:**
+
 ```php
 [pm_authors id="123"]  // Specific publication
 [pm_authors]           // Current publication
-````
+```
 
 ### Helper Functions
 
@@ -321,41 +330,11 @@ Fields available:
 - `pm_type` (string)
 - `pm_year` (string)
 - `pm_doi` (string)
-- And all other publication fieldsgration
-- Want built-in citation export
-- Need the author management interface
-- Prefer a more mature, battle-tested soluper functions)
-  ├── assets/
-  │ ├── css/
-  │ │ └── admin.css
-  │ └── js/
-  │ ├── admin.js
-  │ └── import-export.js
-  └── README.md
+- And all other publication fields
 
-```
+## FAQ
 
-### Database Schema
-
-All data is stored in WordPress post meta:
-
-- Meta key format: `_pm_[field_name]`
-- Example: `_pm_author`, `_pm_doi`, `_pm_bibtex`
-
-## Comparison with teachPress
-
-### Same as teachPress ✅
-
-- All 24 publication types
-- All publication fields
-- Same field recommendations per type
-- Same BibTeX structure
-- Crossref import functionality
-- Field-level compatibility
-
-### Different from teachPress ⚡
-
-- UseHow do I set up team member linking?**
+**Q: How do I set up team member linking?**
 A: Add a custom field `pm_name_variations` to each team member with comma-separated name variations. The plugin handles the rest automatically.
 
 **Q: Can I use a different team member post type?**
@@ -374,37 +353,14 @@ A: A migration tool would need to be developed. The fields are compatible, but t
 A: The publication post type uses the classic editor for better control over meta fields.
 
 **Q: How do I display publications on my site?**
-A: Use Bricks Builder (recommended) or create custom templates using the helper functions and shortcodes
+A: Use Bricks Builder (recommended) or create custom templates using the helper functions and shortcodes.
 
-- **English** (default)
-- **Greek (Ελληνικά)** - Complete translation
-- **Spanish (Español)** - Complete translation
-- **French (Français)** - Complete translation
-- **German (Deutsch)** - Complete translation
-- **Italian (Italiano)** - Complete translation
-- **Portuguese (Português-BR)** - Complete translation
+## Compatibility
 
-### Adding Your Language
-
-1. **Using Loco Translate** (Recommended):
-   - Install the [Loco Translate](https://wordpress.org/plugins/loco-translate/) plugin
-   - Go to **Loco Translate → Plugins → Publications Manager**
-   - Create a new translation for your language
-   - Save and you're done!
-
-2. **Using Poedit**:
-   - Download [Poedit](https://poedit.net/)
-   - Open `languages/publications-manager.pot`
-   - Create a translation for your language
-   - Save as `publications-manager-{locale}.po` in the `/languages` folder
-
-3. **Manual**:
-   - See `/languages/README.md` for detailed instructions
-
-The plugin follows the same translation approach as **teachPress**, prioritizing plugin translations over WordPress.org translations.
-
-**Text Domain**: `publications-manager`
-**Domain Path**: `/languages`
+- **WordPress**: 5.0+
+- **PHP**: 7.4+
+- **Bricks Builder**: Full integration
+- **Other Page Builders**: Compatible via REST API
 
 ## About
 
@@ -431,6 +387,7 @@ This plugin is **inspired by the excellent [teachPress](https://wordpress.org/pl
 ### Key Differences from teachPress
 
 While teachPress focuses on simplicity and standalone functionality, Publications Manager focuses on:
+
 - Deep integration with modern page builders
 - Team member relationship management
 - WordPress-native architecture
@@ -450,18 +407,3 @@ Both plugins are excellent choices depending on your specific needs. See the com
 GPL v2 or later
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
-## License
-
-GPL v2 or later - Same as teachPress
-
-## Credits
-
-Built based on the excellent [teachPress](https://github.com/winkm89/teachPress) plugin by Michael Winkler.
-Crossref integration uses the Crossref REST API.
-
-## Related Links
-
-- **teachPress Plugin**: [https://github.com/winkm89/teachPress](https://github.com/winkm89/teachPress)
-- **teachPress on WordPress.org**: [https://wordpress.org/plugins/teachpress/](https://wordpress.org/plugins/teachpress/)
-- **Crossref REST API**: [https://www.crossref.org/documentation/retrieve-metadata/rest-api/](https://www.crossref.org/documentation/retrieve-metadata/rest-api/)
-```
