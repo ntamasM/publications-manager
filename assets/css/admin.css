@@ -44,10 +44,20 @@ label.required:after {
 }
 
 /* Publication list columns */
-.column-pm_type,
-.column-pm_author,
-.column-pm_date {
-  width: 15%;
+.column-pm_type {
+  width: 12%;
+}
+
+.column-pm_authors {
+  width: 18%;
+}
+
+.column-pm_year {
+  width: 8%;
+}
+
+.column-title {
+  width: auto !important;
 }
 
 /* Import/Export page specific styles */
@@ -170,7 +180,7 @@ label.required:after {
   line-height: 1;
 }
 
-.pm-result-item.created .pm-status-icon {
+.pm-result-item.created .pmurl(about:blank#blocked)-status-icon {
   color: #00a32a;
 }
 

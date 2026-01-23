@@ -186,10 +186,9 @@ class PM_Crossref_Import
             $data['date'] = current_time('Y-m-d');
         }
 
-        // Authors - Format as "GivenName FamilyName" separated by commas
-        $data['author'] = '';
+        // Authors - Store as array of individual authors
+        $data['author'] = array();
         if (isset($work->author) && is_array($work->author)) {
-            $authors = array();
             foreach ($work->author as $author) {
                 $name_parts = array();
                 // Given name first
@@ -201,11 +200,9 @@ class PM_Crossref_Import
                     $name_parts[] = $author->family;
                 }
                 if (! empty($name_parts)) {
-                    $authors[] = implode(' ', $name_parts);
+                    $data['author'][] = implode(' ', $name_parts);
                 }
             }
-            // Join with commas
-            $data['author'] = implode(', ', $authors);
         }
 
         // Editors - Format as "GivenName FamilyName" separated by commas
@@ -231,9 +228,9 @@ class PM_Crossref_Import
         }
 
         // Generate BibTeX key
-        if (! empty($data['author'])) {
-            // Authors are formatted as "Given Family, Given Family"
-            $first_author = explode(', ', $data['author'])[0];
+        if (! empty($data['author']) && is_array($data['author'])) {
+            // Authors are now stored as array
+            $first_author = $data['author'][0];
             $author_parts = explode(' ', $first_author);
             // Last part is the family name
             $last_name = isset($author_parts[count($author_parts) - 1]) ? $author_parts[count($author_parts) - 1] : 'Unknown';
@@ -486,7 +483,6 @@ class PM_Crossref_Import
             'type'        => 'pm_type',
             'bibtex'      => 'pm_bibtex',
             'date'        => 'pm_date',
-            'author'      => 'pm_author',
             'editor'      => 'pm_editor',
             'doi'         => 'pm_doi',
             'url'         => 'pm_url',
@@ -505,6 +501,21 @@ class PM_Crossref_Import
         foreach ($meta_mapping as $key => $meta_key) {
             if (isset($data[$key]) && ! empty($data[$key])) {
                 update_post_meta($post_id, $meta_key, $data[$key]);
+            }
+        }
+
+        // Handle authors separately (multiple values)
+        if (isset($data['author']) && is_array($data['author']) && !empty($data['author'])) {
+            foreach ($data['author'] as $author) {
+                add_post_meta($post_id, 'pm_authors', sanitize_text_field($author));
+            }
+        }
+
+        // Extract and save year from date
+        if (isset($data['date']) && !empty($data['date'])) {
+            $year = substr($data['date'], 0, 4);
+            if (!empty($year) && is_numeric($year)) {
+                update_post_meta($post_id, 'pm_year', $year);
             }
         }
 
@@ -544,7 +555,6 @@ class PM_Crossref_Import
             'type'        => 'pm_type',
             'bibtex'      => 'pm_bibtex',
             'date'        => 'pm_date',
-            'author'      => 'pm_author',
             'editor'      => 'pm_editor',
             'doi'         => 'pm_doi',
             'url'         => 'pm_url',
@@ -563,6 +573,22 @@ class PM_Crossref_Import
         foreach ($meta_mapping as $key => $meta_key) {
             if (isset($data[$key]) && !empty($data[$key])) {
                 update_post_meta($post_id, $meta_key, $data[$key]);
+            }
+        }
+
+        // Handle authors separately (multiple values)
+        if (isset($data['author']) && is_array($data['author']) && !empty($data['author'])) {
+            delete_post_meta($post_id, 'pm_authors');
+            foreach ($data['author'] as $author) {
+                add_post_meta($post_id, 'pm_authors', sanitize_text_field($author));
+            }
+        }
+
+        // Extract and save year from date
+        if (isset($data['date']) && !empty($data['date'])) {
+            $year = substr($data['date'], 0, 4);
+            if (!empty($year) && is_numeric($year)) {
+                update_post_meta($post_id, 'pm_year', $year);
             }
         }
 

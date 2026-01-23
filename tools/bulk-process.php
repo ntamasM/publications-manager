@@ -166,12 +166,13 @@ if (!is_user_logged_in() || !current_user_can('manage_options')) {
                 $after_links = get_post_meta($publication->ID, 'pm_team_members', true);
                 $after_count = is_array($after_links) ? count($after_links) : 0;
 
-                $authors = get_post_meta($publication->ID, 'pm_author', true);
+                $authors = get_post_meta($publication->ID, 'pm_authors', false);
+                $authors_display = !empty($authors) ? implode(', ', $authors) : '';
 
                 $results[] = array(
                     'id' => $publication->ID,
                     'title' => $publication->post_title,
-                    'authors' => $authors,
+                    'authors' => $authors_display,
                     'links_before' => $before_count,
                     'links_after' => $after_count,
                     'new_links' => $after_count - $before_count

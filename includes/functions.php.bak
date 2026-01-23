@@ -1,25 +1,16 @@
 <?php
 
 /**
- * Core Helper Functions
- * Contains essential utility functions for the Publications Manager plugin
- *
- * @package Publications_Manager
- * @since 1.0.0
+ * Helper Functions
  */
 
 // Exit if accessed directly
-if (!defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 /**
  * Get publication meta field
- * 
- * @param int $post_id Publication post ID
- * @param string $key Meta key (without pm_ prefix)
- * @param bool $single Whether to return single value
- * @return mixed Meta value
  */
 function pm_get_meta($post_id, $key, $single = true)
 {
@@ -28,11 +19,6 @@ function pm_get_meta($post_id, $key, $single = true)
 
 /**
  * Format authors for display
- * 
- * @param string $authors Comma-separated author names
- * @param int $max Maximum authors to show (0 = all)
- * @param string $separator Separator between authors
- * @return string Formatted authors string
  */
 function pm_format_authors($authors, $max = 0, $separator = ', ')
 {
@@ -54,7 +40,7 @@ function pm_format_authors($authors, $max = 0, $separator = ', ')
  * Parse authors into array
  * 
  * @param array $authors_input The authors array
- * @return array Array of cleaned author names
+ * @return array Array of author names
  * @since 1.0.4
  */
 function pm_parse_authors($authors_input)
@@ -69,7 +55,6 @@ function pm_parse_authors($authors_input)
 
 /**
  * Find team member by name
- * Searches for team member matching the author name using name variations
  * 
  * @param string $author_name The author name to search for
  * @return int|false Post ID if found, false otherwise
@@ -123,7 +108,7 @@ function pm_find_team_member_by_name($author_name)
 
 /**
  * Create bidirectional relationship between publication and team member
- * Uses individual meta entries for better compatibility with page builders
+ * Uses individual meta entries instead of arrays for better Bricks compatibility
  * 
  * @param int $publication_id Publication post ID
  * @param int $team_member_id Team member post ID
@@ -144,6 +129,10 @@ function pm_create_team_relationship($publication_id, $team_member_id, $publicat
         update_post_meta($publication_id, 'pm_team_members', $pub_team_members);
     }
 
+    // Store individual meta entries on team member for Bricks compatibility
+    // Each publication gets its own meta entry with a unique key
+    $meta_key = 'pm_publication_' . $publication_id;
+
     // Get publication data if not provided
     if (empty($publication_title)) {
         $publication_title = get_the_title($publication_id);
@@ -153,8 +142,7 @@ function pm_create_team_relationship($publication_id, $team_member_id, $publicat
         $publication_slug = $post ? $post->post_name : '';
     }
 
-    // Store individual meta entry on team member for page builder compatibility
-    $meta_key = 'pm_publication_' . $publication_id;
+    // Store as individual meta entry
     update_post_meta($team_member_id, $meta_key, array(
         'publication_id' => $publication_id,
         'title' => $publication_title,
@@ -168,15 +156,14 @@ function pm_create_team_relationship($publication_id, $team_member_id, $publicat
 
 /**
  * Process author relationships for a publication
- * Creates bidirectional links between publications and team members
- * Called when a publication is saved
+ * This is called when a publication is saved
  * 
  * @param int $post_id The publication post ID
  * @since 1.0.4
  */
 function pm_process_author_relationships($post_id)
 {
-    // Get authors (stored as multiple values)
+    // Get authors (now stored as multiple values)
     $authors = get_post_meta($post_id, 'pm_authors', false);
 
     if (empty($authors)) {
@@ -193,9 +180,8 @@ function pm_process_author_relationships($post_id)
     delete_post_meta($post_id, 'pm_author_links');
 
     // Clear old relationships from team members
-    $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
     $old_relationships = get_posts(array(
-        'post_type' => $team_cpt_slug,
+        'post_type' => get_option('pm_team_cpt_slug', 'team_member'),
         'posts_per_page' => -1,
         'meta_query' => array(
             array(
@@ -212,7 +198,7 @@ function pm_process_author_relationships($post_id)
         delete_post_meta($team_member_id, 'pm_publication_id', $post_id);
     }
 
-    // Process each author
+    // Authors are already an array from get_post_meta with false parameter
     $author_links = array();
 
     foreach ($authors as $author_name) {
@@ -258,7 +244,7 @@ function pm_process_author_relationships_hook($post_id)
 
 /**
  * Format authors with links for display
- * Returns authors with HTML anchor tags for linked team members
+ * This function wraps matched authors in anchor tags
  * 
  * @param int $post_id Publication post ID
  * @return string Formatted authors with links
@@ -316,8 +302,114 @@ function pm_get_formatted_type($post_id)
 }
 
 /**
+ * Filter Bricks Builder dynamic data for pm_authors and pm_type fields
+ * Adds links to matched authors and formats type names
+ * 
+ * @param string $content The content to filter
+ * @param object $post The post object
+ * @param string|array $context The context/tag information
+ * @return string Filtered content
+ */
+function pm_filter_bricks_author_field($content, $post = null, $context = array())
+{
+    // Ensure we have a post object
+    if (!$post) {
+        $post = get_post();
+    }
+
+    // Only process if we're dealing with a publication
+    if (!is_object($post) || !isset($post->post_type) || $post->post_type !== 'publication') {
+        return $content;
+    }
+
+    // Check tag in context for pm_type
+    if (is_array($context) && isset($context['tag'])) {
+        if (strpos($context['tag'], 'pm_type') !== false || strpos($context['tag'], 'post_meta:pm_type') !== false) {
+            return pm_get_formatted_type($post->ID);
+        }
+
+        if (strpos($context['tag'], 'pm_authors') !== false || strpos($context['tag'], 'post_meta:pm_authors') !== false) {
+            return pm_get_authors_with_links($post->ID);
+        }
+    }
+
+    // Check if content matches raw type value
+    $raw_type = get_post_meta($post->ID, 'pm_type', true);
+    if (!empty($raw_type) && $content === $raw_type) {
+        return pm_get_formatted_type($post->ID);
+    }
+
+    return $content;
+}
+
+// Hook into Bricks with proper priority
+add_filter('bricks/dynamic_data/render_content', 'pm_filter_bricks_author_field', 20, 3);
+add_filter('bricks/dynamic_data/render_tag', 'pm_filter_bricks_author_field', 20, 3);
+
+// Also hook into post meta specifically
+add_filter('bricks/dynamic_data/post_meta', 'pm_filter_bricks_author_post_meta', 20, 3);
+
+function pm_filter_bricks_author_post_meta($meta_value, $post_id, $meta_key)
+{
+    if (get_post_type($post_id) !== 'publication') {
+        return $meta_value;
+    }
+
+    // Process pm_authors field
+    if ($meta_key === 'pm_authors') {
+        return pm_get_authors_with_links($post_id);
+    }
+
+    // Process pm_type field to return full type name
+    if ($meta_key === 'pm_type') {
+        return pm_get_formatted_type($post_id);
+    }
+
+    return $meta_value;
+}
+
+/**
+ * Add Bricks query filter for publications linked to team members
+ * This allows querying publications from a team member's page
+ * 
+ * @param array $results Query results
+ * @param object $query_obj Bricks query object
+ * @return array Modified results
+ */
+function pm_bricks_query_filter_publications($results, $query_obj)
+{
+    // Only process publication queries
+    if (!isset($query_obj->settings['post_type']) || $query_obj->settings['post_type'] !== 'publication') {
+        return $results;
+    }
+
+    // Check if we're on a team member page
+    $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+
+    if (is_singular($team_cpt_slug)) {
+        $team_member_id = get_the_ID();
+
+        // Get all publication IDs linked to this team member
+        $publication_ids = get_post_meta($team_member_id, 'pm_publication_id', false);
+
+        if (!empty($publication_ids)) {
+            // Modify the query to only include these publications
+            $query_obj->query_vars['post__in'] = $publication_ids;
+            $query_obj->query_vars['orderby'] = 'post__in'; // Maintain order
+        } else {
+            // No publications found - return empty
+            $query_obj->query_vars['post__in'] = array(0);
+        }
+    }
+
+    return $results;
+}
+
+add_filter('bricks/query/run', 'pm_bricks_query_filter_publications', 10, 2);
+
+/**
  * Get all publications linked to a team member
- * Returns array of publication data
+ * Returns array of publication data for easy looping in Bricks
  * 
  * @param int $team_member_id Team member post ID
  * @return array Array of publication data
@@ -371,12 +463,61 @@ function pm_authors_shortcode($atts)
     return pm_get_authors_with_links($post_id);
 }
 
+
+/**
+ * Get publication citation
+ */
+function pm_get_citation($post_id, $style = 'apa')
+{
+    $type = pm_get_meta($post_id, 'type');
+    $author = pm_get_meta($post_id, 'author');
+    $title = get_the_title($post_id);
+    $year = substr(pm_get_meta($post_id, 'date'), 0, 4);
+
+    $citation = '';
+
+    switch ($style) {
+        case 'apa':
+            $citation = pm_format_authors($author, 7) . ' (' . $year . '). ' . $title . '. ';
+
+            if ($type === 'article') {
+                $journal = pm_get_meta($post_id, 'journal');
+                $volume = pm_get_meta($post_id, 'volume');
+                $pages = pm_get_meta($post_id, 'pages');
+
+                if ($journal) {
+                    $citation .= '<em>' . $journal . '</em>';
+                    if ($volume) {
+                        $citation .= ', ' . $volume;
+                    }
+                    if ($pages) {
+                        $citation .= ', ' . $pages;
+                    }
+                    $citation .= '.';
+                }
+            } elseif ($type === 'book') {
+                $publisher = pm_get_meta($post_id, 'publisher');
+                if ($publisher) {
+                    $citation .= $publisher . '.';
+                }
+            }
+            break;
+
+        default:
+            $citation = $author . ' (' . $year . '). ' . $title;
+            break;
+    }
+
+    $doi = pm_get_meta($post_id, 'doi');
+    if ($doi) {
+        $citation .= ' https://doi.org/' . $doi;
+    }
+
+    return $citation;
+}
+
 /**
  * Get publication link
- * Returns the external URL, DOI link, or permalink
- * 
- * @param int $post_id Publication post ID
- * @return string Publication link
  */
 function pm_get_publication_link($post_id)
 {
@@ -393,31 +534,22 @@ function pm_get_publication_link($post_id)
 }
 
 /**
- * Display publication with formatted citation
- * 
- * @param int $post_id Publication post ID
- * @param array $args Display arguments
- * @return string HTML output
+ * Display publication
  */
 function pm_display_publication($post_id, $args = array())
 {
     $defaults = array(
         'show_abstract' => false,
         'show_links' => true,
+        'citation_style' => 'apa'
     );
 
     $args = wp_parse_args($args, $defaults);
 
     $output = '<div class="pm-publication" data-id="' . $post_id . '">';
 
-    // Title
-    $output .= '<div class="pm-title">' . esc_html(get_the_title($post_id)) . '</div>';
-
-    // Authors
-    $authors_html = pm_get_authors_with_links($post_id);
-    if ($authors_html) {
-        $output .= '<div class="pm-authors">' . $authors_html . '</div>';
-    }
+    // Citation
+    $output .= '<div class="pm-citation">' . pm_get_citation($post_id, $args['citation_style']) . '</div>';
 
     // Abstract
     if ($args['show_abstract']) {
@@ -439,6 +571,11 @@ function pm_display_publication($post_id, $args = array())
         $doi = pm_get_meta($post_id, 'doi');
         if ($doi) {
             $output .= ' <a href="https://doi.org/' . esc_attr($doi) . '" target="_blank" class="pm-link pm-link-doi">DOI</a>';
+        }
+
+        $bibtex = pm_get_meta($post_id, 'bibtex');
+        if ($bibtex) {
+            $output .= ' <a href="#" class="pm-link pm-link-bibtex" data-bibtex="' . esc_attr($bibtex) . '">' . __('BibTeX', 'publications-manager') . '</a>';
         }
 
         $output .= '</div>';
@@ -527,7 +664,8 @@ function pm_register_meta_fields_for_rest()
         }
     ));
 
-    // Register relationship meta fields
+    // Register relationship meta fields for Bricks Builder Query Loops
+    // These store publication/team member relationships
 
     // For publications: stores array of linked team member IDs
     register_post_meta('publication', 'pm_team_members', array(
@@ -565,6 +703,7 @@ function pm_register_meta_fields_for_rest()
     ));
 
     // For team members: register individual publication meta fields
+    // Each publication creates its own meta entry: pm_publication_{id}
     $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
     if (post_type_exists($team_cpt_slug)) {
         // Register the publication ID meta (used for queries)

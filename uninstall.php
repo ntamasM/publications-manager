@@ -25,7 +25,7 @@ $publications = get_posts(array(
 foreach ($publications as $pub_id) {
     // Delete all meta data associated with this publication
     delete_post_meta($pub_id, 'pm_type');
-    delete_post_meta($pub_id, 'pm_author');
+    delete_post_meta($pub_id, 'pm_authors');
     delete_post_meta($pub_id, 'pm_editor');
     delete_post_meta($pub_id, 'pm_title');
     delete_post_meta($pub_id, 'pm_booktitle');

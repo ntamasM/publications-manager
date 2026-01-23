@@ -147,7 +147,8 @@ $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
             echo '<h2>📚 Sample Publications & Their Relationships</h2>';
 
             foreach ($publications as $pub) {
-                $authors = get_post_meta($pub->ID, 'pm_author', true);
+                $authors = get_post_meta($pub->ID, 'pm_authors', false);
+                $authors = !empty($authors) ? implode(', ', $authors) : '';
                 $team_members = get_post_meta($pub->ID, 'pm_team_members', true);
                 $author_links = get_post_meta($pub->ID, 'pm_author_links', true);
 
@@ -301,7 +302,7 @@ $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
             </ol>
 
             <p><strong>Display Authors with Links:</strong></p>
-            <p>Use dynamic data: <code>{post_meta_pm_author}</code></p>
+            <p>Use dynamic data: <code>{post_meta_pm_authors}</code></p>
         </div>
     </div>
 </body>

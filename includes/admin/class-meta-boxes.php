@@ -225,16 +225,29 @@ class PM_Meta_Boxes
      */
     public static function render_authors_metabox($post)
     {
-        $author = get_post_meta($post->ID, 'pm_author', true);
+        $authors = get_post_meta($post->ID, 'pm_authors', false);
         $editor = get_post_meta($post->ID, 'pm_editor', true);
+
+        // Ensure we have at least one empty field
+        if (empty($authors)) {
+            $authors = array('');
+        }
 
     ?>
         <table class="form-table">
             <tr>
-                <th><label for="pm_author"><?php _e('Authors', 'publications-manager'); ?> *</label></th>
+                <th><label><?php _e('Authors', 'publications-manager'); ?> *</label></th>
                 <td>
-                    <textarea name="pm_author" id="pm_author" rows="3" class="large-text" required><?php echo esc_textarea($author); ?></textarea>
-                    <p class="description"><?php _e('List of authors (e.g., Smith, John and Doe, Jane)', 'publications-manager'); ?></p>
+                    <div id="pm-authors-wrapper">
+                        <?php foreach ($authors as $index => $author) : ?>
+                            <div class="pm-author-row" style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                                <input type="text" name="pm_authors[]" value="<?php echo esc_attr($author); ?>" class="large-text" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" <?php echo ($index === 0) ? 'required' : ''; ?> style="flex: 1;" />
+                                <button type="button" class="button pm-remove-author"><?php _e('Remove', 'publications-manager'); ?></button>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <button type="button" id="pm-add-author" class="button" style="margin-top: 10px;"><?php _e('Add Author', 'publications-manager'); ?></button>
+                    <p class="description"><?php _e('Enter each author separately. Click "Add Author" to add more authors.', 'publications-manager'); ?></p>
                 </td>
             </tr>
             <tr>
@@ -245,6 +258,29 @@ class PM_Meta_Boxes
                 </td>
             </tr>
         </table>
+
+        <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                // Add author field
+                $('#pm-add-author').on('click', function() {
+                    var newRow = '<div class="pm-author-row" style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">' +
+                        '<input type="text" name="pm_authors[]" value="" class="large-text" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" style="flex: 1;" />' +
+                        '<button type="button" class="button pm-remove-author"><?php _e('Remove', 'publications-manager'); ?></button>' +
+                        '</div>';
+                    $('#pm-authors-wrapper').append(newRow);
+                });
+
+                // Remove author field
+                $(document).on('click', '.pm-remove-author', function() {
+                    // Only remove if there's more than one author field
+                    if ($('.pm-author-row').length > 1) {
+                        $(this).closest('.pm-author-row').remove();
+                    } else {
+                        alert('<?php _e('At least one author is required.', 'publications-manager'); ?>');
+                    }
+                });
+            });
+        </script>
     <?php
     }
 
@@ -611,10 +647,10 @@ class PM_Meta_Boxes
         // Define all meta fields
         $meta_fields = array(
             'pm_type',
-            'pm_author',
             'pm_editor',
             'pm_doi',
             'pm_date',
+            'pm_year',
             'pm_journal',
             'pm_booktitle',
             'pm_issuetitle',
@@ -647,6 +683,33 @@ class PM_Meta_Boxes
             'pm_bibtex_key'
         );
 
+        // Extract year from date if pm_date is provided
+        if (isset($_POST['pm_date']) && !empty($_POST['pm_date'])) {
+            $date_value = sanitize_text_field($_POST['pm_date']);
+            // Extract year from date format (YYYY-MM-DD)
+            $year = substr($date_value, 0, 4);
+            if (!empty($year) && is_numeric($year)) {
+                $_POST['pm_year'] = $year;
+            }
+        }
+
+        // Handle pm_authors separately (multiple values)
+        if (isset($_POST['pm_authors']) && is_array($_POST['pm_authors'])) {
+            // Delete existing authors
+            delete_post_meta($post_id, 'pm_authors');
+
+            // Add each author as a separate meta value
+            foreach ($_POST['pm_authors'] as $author) {
+                $author = sanitize_text_field(trim($author));
+                if (!empty($author)) {
+                    add_post_meta($post_id, 'pm_authors', $author);
+                }
+            }
+        } else {
+            // No authors provided, delete all
+            delete_post_meta($post_id, 'pm_authors');
+        }
+
         // Save each field
         foreach ($meta_fields as $field) {
             $meta_key = $field;
@@ -655,7 +718,7 @@ class PM_Meta_Boxes
                 $value = $_POST[$field];
 
                 // Sanitize based on field type
-                if (in_array($field, array('pm_abstract', 'pm_note', 'pm_comment', 'pm_author', 'pm_editor'))) {
+                if (in_array($field, array('pm_abstract', 'pm_note', 'pm_comment', 'pm_editor'))) {
                     $value = sanitize_textarea_field($value);
                 } elseif (in_array($field, array('pm_url', 'pm_image_url', 'pm_image_ext'))) {
                     $value = esc_url_raw($value);

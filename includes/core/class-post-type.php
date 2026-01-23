@@ -26,6 +26,13 @@ class PM_Post_Type
         // Add custom columns
         add_filter('manage_publication_posts_columns', array(__CLASS__, 'add_custom_columns'));
         add_action('manage_publication_posts_custom_column', array(__CLASS__, 'custom_column_content'), 10, 2);
+
+        // Make columns sortable
+        add_filter('manage_edit-publication_sortable_columns', array(__CLASS__, 'sortable_columns'));
+
+        // Add filters/dropdowns
+        add_action('restrict_manage_posts', array(__CLASS__, 'add_admin_filters'));
+        add_filter('parse_query', array(__CLASS__, 'filter_by_meta'));
     }
 
     /**
@@ -107,7 +114,6 @@ class PM_Post_Type
         $new_columns['pm_type'] = __('Type', 'publications-manager');
         $new_columns['pm_authors'] = __('Authors', 'publications-manager');
         $new_columns['pm_year'] = __('Year', 'publications-manager');
-        $new_columns['date'] = $columns['date'];
 
         return $new_columns;
     }
@@ -129,13 +135,12 @@ class PM_Post_Type
                 break;
 
             case 'pm_authors':
-                $authors = get_post_meta($post_id, 'pm_author', true);
-                if ($authors) {
-                    $author_list = explode(' and ', $authors);
-                    if (count($author_list) > 2) {
-                        echo esc_html($author_list[0]) . ' et al.';
+                $authors = get_post_meta($post_id, 'pm_authors', false);
+                if (!empty($authors)) {
+                    if (count($authors) > 2) {
+                        echo esc_html($authors[0]) . ' et al.';
                     } else {
-                        echo esc_html(str_replace(' and ', ', ', $authors));
+                        echo esc_html(implode(', ', $authors));
                     }
                 } else {
                     echo '—';
@@ -151,5 +156,155 @@ class PM_Post_Type
                 }
                 break;
         }
+    }
+
+    /**
+     * Make columns sortable
+     */
+    public static function sortable_columns($columns)
+    {
+        $columns['pm_type'] = 'pm_type';
+        $columns['pm_authors'] = 'pm_authors';
+        $columns['pm_year'] = 'pm_year';
+        return $columns;
+    }
+
+    /**
+     * Add filter dropdowns to admin list
+     */
+    public static function add_admin_filters($post_type)
+    {
+        if ('publication' !== $post_type) {
+            return;
+        }
+
+        // Type filter
+        $types = PM_Publication_Types::get_all();
+        $current_type = isset($_GET['pm_type']) ? sanitize_text_field($_GET['pm_type']) : '';
+
+        echo '<select name="pm_type" id="pm_type">';
+        echo '<option value="">' . __('All Types', 'publications-manager') . '</option>';
+        foreach ($types as $type_key => $type_data) {
+            printf(
+                '<option value="%s"%s>%s</option>',
+                esc_attr($type_key),
+                selected($current_type, $type_key, false),
+                esc_html($type_data['i18n_singular'])
+            );
+        }
+        echo '</select>';
+
+        // Year filter
+        global $wpdb;
+        $years = $wpdb->get_col("
+            SELECT DISTINCT meta_value 
+            FROM {$wpdb->postmeta} 
+            WHERE meta_key = 'pm_year' 
+            AND meta_value != '' 
+            ORDER BY meta_value DESC
+        ");
+
+        if (!empty($years)) {
+            $current_year = isset($_GET['pm_year']) ? sanitize_text_field($_GET['pm_year']) : '';
+
+            echo '<select name="pm_year" id="pm_year">';
+            echo '<option value="">' . __('All Years', 'publications-manager') . '</option>';
+            foreach ($years as $year) {
+                printf(
+                    '<option value="%s"%s>%s</option>',
+                    esc_attr($year),
+                    selected($current_year, $year, false),
+                    esc_html($year)
+                );
+            }
+            echo '</select>';
+        }
+
+        // Author filter
+        global $wpdb;
+        $authors = $wpdb->get_col("
+            SELECT DISTINCT meta_value 
+            FROM {$wpdb->postmeta} 
+            WHERE meta_key = 'pm_authors' 
+            AND meta_value != '' 
+            ORDER BY meta_value ASC
+        ");
+
+        if (!empty($authors)) {
+            $current_author = isset($_GET['pm_author_filter']) ? sanitize_text_field($_GET['pm_author_filter']) : '';
+
+            echo '<select name="pm_author_filter" id="pm_author_filter">';
+            echo '<option value="">' . __('All Authors', 'publications-manager') . '</option>';
+            foreach ($authors as $author) {
+                printf(
+                    '<option value="%s"%s>%s</option>',
+                    esc_attr($author),
+                    selected($current_author, $author, false),
+                    esc_html($author)
+                );
+            }
+            echo '</select>';
+        }
+    }
+
+    /**
+     * Filter publications by meta values
+     */
+    public static function filter_by_meta($query)
+    {
+        global $pagenow;
+
+        if (!is_admin() || $pagenow !== 'edit.php' || !isset($_GET['post_type']) || $_GET['post_type'] !== 'publication') {
+            return $query;
+        }
+
+        $meta_query = array();
+
+        // Filter by type
+        if (isset($_GET['pm_type']) && !empty($_GET['pm_type'])) {
+            $meta_query[] = array(
+                'key' => 'pm_type',
+                'value' => sanitize_text_field($_GET['pm_type']),
+                'compare' => '='
+            );
+        }
+
+        // Filter by year
+        if (isset($_GET['pm_year']) && !empty($_GET['pm_year'])) {
+            $meta_query[] = array(
+                'key' => 'pm_year',
+                'value' => sanitize_text_field($_GET['pm_year']),
+                'compare' => '='
+            );
+        }
+
+        // Filter by author
+        if (isset($_GET['pm_author_filter']) && !empty($_GET['pm_author_filter'])) {
+            $meta_query[] = array(
+                'key' => 'pm_authors',
+                'value' => sanitize_text_field($_GET['pm_author_filter']),
+                'compare' => '='
+            );
+        }
+
+        if (!empty($meta_query)) {
+            $query->set('meta_query', $meta_query);
+        }
+
+        // Handle sorting
+        $orderby = $query->get('orderby');
+
+        // Set default sorting to pm_date DESC if no sorting is specified
+        if (empty($orderby)) {
+            $query->set('meta_key', 'pm_date');
+            $query->set('orderby', 'meta_value');
+            $query->set('order', 'DESC');
+        } elseif (in_array($orderby, array('pm_type', 'pm_authors', 'pm_year'))) {
+            // Handle custom column sorting
+            $query->set('meta_key', $orderby);
+            $query->set('orderby', 'meta_value');
+        }
+
+        return $query;
     }
 }

@@ -480,7 +480,7 @@ class PM_Admin_Pages
             </ol>
 
             <p><strong><?php _e('Display Authors with Links:', 'publications-manager'); ?></strong></p>
-            <p><?php _e('Use dynamic data:', 'publications-manager'); ?> <code>{cf_pm_author}</code></p>
+            <p><?php _e('Use dynamic data:', 'publications-manager'); ?> <code>{cf_pm_authors}</code></p>
         </div>
     <?php
     }
@@ -926,7 +926,8 @@ class PM_Admin_Pages
             $after_links = get_post_meta($publication->ID, 'pm_team_members', true);
             $after_count = is_array($after_links) ? count($after_links) : 0;
 
-            $authors = get_post_meta($publication->ID, 'pm_author', true);
+            $authors = get_post_meta($publication->ID, 'pm_authors', false);
+            $authors = !empty($authors) ? implode(', ', $authors) : '';
 
             $details[] = array(
                 'id' => $publication->ID,
