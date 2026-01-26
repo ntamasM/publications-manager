@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('PM_VERSION', '2.3.0');
+define('PM_VERSION', '2.3.1');
 define('PM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PM_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('PM_PLUGIN_FILE', __FILE__);
@@ -65,6 +65,9 @@ class Publications_Manager
      */
     private function __construct()
     {
+        // Load translations immediately
+        $this->load_textdomain();
+
         // Initialize plugin
         add_action('init', array($this, 'init'));
         add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
@@ -82,9 +85,6 @@ class Publications_Manager
      */
     public function init()
     {
-        // Load text domain for translations
-        $this->load_textdomain();
-
         // Initialize publication types first
         PM_Publication_Types::register_all();
 
@@ -106,6 +106,7 @@ class Publications_Manager
 
     /**
      * Load text domain for translations
+     * Called directly in constructor to ensure translations are loaded before any hooks fire
      * Similar to teachPress approach - prioritize plugin's own translations
      * 
      * @since 1.0.0
@@ -160,14 +161,12 @@ class Publications_Manager
      */
     public function activate()
     {
-        // Make sure our post type is registered
-        require_once PM_PLUGIN_DIR . 'includes/class-post-type.php';
-        PM_Post_Type::register_post_type();
-
         // Set transient to flush rewrite rules on next init
         set_transient('pm_flush_rewrite_rules', true, 60);
 
-        // Flush rewrite rules
+        // Note: Post type registration happens on 'init' hook
+        // We don't need to manually register here
+        // Just flush rewrite rules after the post types are registered
         flush_rewrite_rules();
     }
 

@@ -1,6 +1,6 @@
 # Publications Manager
 
-**Version:** 2.3.0  
+**Version:** 2.3.1  
 **Author:** Ntamadakis  
 **License:** GPL v2 or later
 
@@ -239,7 +239,13 @@ The plugin includes all teachPress publication types:
 
 ## Changelog
 
-### 2.3.0 (Current)
+### 2.3.1 (Current)
+
+- **Fixed translation loading timing** - resolved WordPress 6.7+ compatibility warnings
+- **Improved plugin initialization** - translations now load in constructor for early availability
+- **Code optimization** - streamlined hook registration and initialization process
+
+### 2.3.0
 
 - **Removed deprecated Bulk Process feature** - manual linking via Authors taxonomy is more reliable
 - **Cleaned up translation files** - reduced from 348 to 248 unique strings
