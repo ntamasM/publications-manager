@@ -147,14 +147,20 @@ $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
             echo '<h2>📚 Sample Publications & Their Relationships</h2>';
 
             foreach ($publications as $pub) {
-                $authors = get_post_meta($pub->ID, 'pm_authors', false);
-                $authors = !empty($authors) ? implode(', ', $authors) : '';
+                // Get authors from taxonomy
+                $author_terms = get_the_terms($pub->ID, 'pm_author');
+                $authors = '';
+                if ($author_terms && !is_wp_error($author_terms)) {
+                    $author_names = wp_list_pluck($author_terms, 'name');
+                    $authors = implode(', ', $author_names);
+                }
+
                 $team_members = get_post_meta($pub->ID, 'pm_team_members', true);
                 $author_links = get_post_meta($pub->ID, 'pm_author_links', true);
 
                 echo '<div class="code">';
                 echo '<strong>Publication ID ' . $pub->ID . ':</strong> ' . esc_html($pub->post_title) . '<br>';
-                echo '<strong>Authors String:</strong> ' . esc_html($authors) . '<br>';
+                echo '<strong>Authors (from pm_author taxonomy):</strong> ' . esc_html($authors) . '<br>';
                 echo '<strong>Linked Team Members (Array):</strong> ';
                 if (is_array($team_members) && !empty($team_members)) {
                     echo '<span class="success">✓ ' . count($team_members) . ' linked</span><br>';

@@ -41,8 +41,8 @@ class PM_Admin_Pages
 
         add_submenu_page(
             'edit.php?post_type=publication',
-            __('Settings and Info', 'publications-manager'),
-            __('Settings and Info', 'publications-manager'),
+            __('Tools', 'publications-manager'),
+            __('Tools', 'publications-manager'),
             'manage_options',
             'pm-settings',
             array(__CLASS__, 'render_settings_page')
@@ -442,24 +442,22 @@ class PM_Admin_Pages
             <ul style="list-style: disc; margin-left: 20px;">
                 <li><?php _e('Authors in publications should be formatted as "GivenName FamilyName" separated by commas.', 'publications-manager'); ?></li>
                 <li><?php _e('Example: "John Doe, Jane Smith, Bob Lee"', 'publications-manager'); ?></li>
-                <li><?php _e('The plugin will automatically match author names with team member post titles or name variations.', 'publications-manager'); ?></li>
-                <li><?php _e('When a match is found, a bidirectional relationship is created for Bricks Builder Query Loops.', 'publications-manager'); ?></li>
-                <li><?php _e('On the frontend, matched authors will be displayed as clickable links to their team member pages.', 'publications-manager'); ?></li>
+                <li><?php _e('Link authors to team members via Publications → Authors menu.', 'publications-manager'); ?></li>
+                <li><?php _e('Use the Bulk Process to auto-link authors by exact name match.', 'publications-manager'); ?></li>
+                <li><?php _e('Linked authors will be displayed as clickable links to their team member pages.', 'publications-manager'); ?></li>
             </ul>
         </div>
 
         <div class="notice notice-warning inline" style="margin-top: 15px;">
-            <p><strong><?php _e('📝 Setting Up Name Variations for Team Members', 'publications-manager'); ?></strong></p>
-            <p><?php _e('Authors often appear in different formats across publications (e.g., "John Smith", "J. Smith", "John A. Smith").', 'publications-manager'); ?></p>
-            <p><?php _e('To ensure accurate matching:', 'publications-manager'); ?></p>
+            <p><strong><?php _e('📝 Linking Authors to Team Members', 'publications-manager'); ?></strong></p>
+            <p><?php _e('After importing publications, you need to link author terms to team member profiles:', 'publications-manager'); ?></p>
             <ol style="margin-left: 20px;">
-                <li><?php printf(__('Edit each team member in <strong>%s</strong>', 'publications-manager'), esc_html($team_cpt_slug)); ?></li>
-                <li><?php _e('Find the <strong>"Publication Name Variations"</strong> meta box', 'publications-manager'); ?></li>
-                <li><?php _e('Enter all possible name variations, separated by commas', 'publications-manager'); ?></li>
-                <li><?php _e('Example: <code>John Smith, J. Smith, John A. Smith</code>', 'publications-manager'); ?></li>
-                <li><?php _e('The matching system will check all variations when linking publications', 'publications-manager'); ?></li>
+                <li><?php _e('Go to <strong>Publications → Authors</strong>', 'publications-manager'); ?></li>
+                <li><?php _e('Edit an author term', 'publications-manager'); ?></li>
+                <li><?php _e('Select the corresponding team member from the dropdown', 'publications-manager'); ?></li>
+                <li><?php _e('Or use <strong>Bulk Process</strong> below to auto-link by exact name match', 'publications-manager'); ?></li>
             </ol>
-            <p style="margin-top: 10px;"><em><?php _e('💡 Tip: If no variations are set, the plugin will fallback to matching the team member post title.', 'publications-manager'); ?></em></p>
+            <p style="margin-top: 10px;"><em><?php _e('💡 Tip: Once linked, the cf_author_team_url field will be available in Bricks Builder for query loops.', 'publications-manager'); ?></em></p>
         </div>
 
         <h2><?php _e('How to Use in Bricks Builder', 'publications-manager'); ?></h2>
@@ -592,7 +590,7 @@ class PM_Admin_Pages
         $total_publications = wp_count_posts('publication');
         $total_team_members = post_type_exists($team_cpt_slug) ? wp_count_posts($team_cpt_slug) : null;
 
-        // Count publications with/without links
+        // Count publications with/without links using author taxonomy
         $all_pubs = get_posts(array(
             'post_type' => 'publication',
             'posts_per_page' => -1,
@@ -605,66 +603,74 @@ class PM_Admin_Pages
         $total_connections = 0;
 
         foreach ($all_pubs as $pub_id) {
-            $team_members = get_post_meta($pub_id, 'pm_team_members', true);
-            if (is_array($team_members) && !empty($team_members)) {
+            // Get author terms for this publication
+            $author_terms = get_the_terms($pub_id, 'pm_author');
+            $has_link = false;
+
+            if ($author_terms && !is_wp_error($author_terms)) {
+                foreach ($author_terms as $term) {
+                    $team_member_id = get_term_meta($term->term_id, 'pm_team_member_id', true);
+                    if ($team_member_id && get_post_status($team_member_id) === 'publish') {
+                        $has_link = true;
+                        $total_connections++;
+                    }
+                }
+            }
+
+            if ($has_link) {
                 $pubs_with_links++;
-                $total_connections += count($team_members);
             } else {
                 $pubs_without_links++;
             }
         }
 
-        // Get top authors with most publications
-        $all_team_members = post_type_exists($team_cpt_slug) ? get_posts(array(
-            'post_type' => $team_cpt_slug,
-            'posts_per_page' => -1,
-            'post_status' => 'publish'
-        )) : array();
+        // Get top authors with most publications using taxonomy
+        $all_author_terms = get_terms(array(
+            'taxonomy' => 'pm_author',
+            'hide_empty' => false
+        ));
 
         $author_stats = array();
         $duplicate_count = 0;
-        $actual_total_connections = 0; // Count unique connections
-        $orphaned_count = 0; // Count connections to deleted publications
+        $actual_total_connections = 0;
+        $orphaned_count = 0;
 
-        foreach ($all_team_members as $member) {
-            $pub_ids = get_post_meta($member->ID, 'pm_publication_id', false);
+        if ($all_author_terms && !is_wp_error($all_author_terms)) {
+            foreach ($all_author_terms as $term) {
+                // Count publications for this author
+                $pub_count = $term->count;
 
-            // Remove empty values and duplicates
-            $pub_ids = array_filter($pub_ids);
-            $total_entries = count($pub_ids);
-            $unique_pub_ids = array_unique($pub_ids);
+                // Check if linked to team member
+                $team_member_id = get_term_meta($term->term_id, 'pm_team_member_id', true);
 
-            // Validate that publications actually exist
-            $valid_pub_ids = array();
-            $orphaned_for_member = 0;
-            foreach ($unique_pub_ids as $pub_id) {
-                $post = get_post($pub_id);
-                if ($post && $post->post_type === 'publication' && $post->post_status === 'publish') {
-                    $valid_pub_ids[] = $pub_id;
-                } else {
-                    $orphaned_for_member++;
-                    $orphaned_count++;
+                if ($team_member_id) {
+                    // Check if team member still exists
+                    $member = get_post($team_member_id);
+                    if ($member && $member->post_status === 'publish') {
+                        $actual_total_connections += $pub_count;
+
+                        // Find existing entry or create new one
+                        $found = false;
+                        foreach ($author_stats as &$stat) {
+                            if ($stat['member_id'] === $team_member_id) {
+                                $stat['count'] += $pub_count;
+                                $found = true;
+                                break;
+                            }
+                        }
+
+                        if (!$found) {
+                            $author_stats[] = array(
+                                'name' => $member->post_title,
+                                'count' => $pub_count,
+                                'total_entries' => $pub_count,
+                                'duplicates' => 0,
+                                'orphaned' => 0,
+                                'member_id' => $team_member_id
+                            );
+                        }
+                    }
                 }
-            }
-
-            $valid_count = count($valid_pub_ids);
-            $unique_count = count($unique_pub_ids);
-
-            $actual_total_connections += $valid_count;
-
-            if ($total_entries > $unique_count) {
-                $duplicate_count += ($total_entries - $unique_count);
-            }
-
-            if ($valid_count > 0 || $orphaned_for_member > 0) {
-                $author_stats[] = array(
-                    'name' => $member->post_title,
-                    'count' => $valid_count,
-                    'total_entries' => $total_entries,
-                    'duplicates' => $total_entries - $unique_count,
-                    'orphaned' => $orphaned_for_member,
-                    'member_id' => $member->ID
-                );
             }
         }
 
@@ -920,14 +926,19 @@ class PM_Admin_Pages
             $before_links = get_post_meta($publication->ID, 'pm_team_members', true);
             $before_count = is_array($before_links) ? count($before_links) : 0;
 
-            // Process relationships
+            // Process relationships (deprecated - now handled automatically)
             pm_process_author_relationships($publication->ID);
 
             $after_links = get_post_meta($publication->ID, 'pm_team_members', true);
             $after_count = is_array($after_links) ? count($after_links) : 0;
 
-            $authors = get_post_meta($publication->ID, 'pm_authors', false);
-            $authors = !empty($authors) ? implode(', ', $authors) : '';
+            // Get authors from taxonomy
+            $author_terms = get_the_terms($publication->ID, 'pm_author');
+            $authors = '';
+            if ($author_terms && !is_wp_error($author_terms)) {
+                $author_names = wp_list_pluck($author_terms, 'name');
+                $authors = implode(', ', $author_names);
+            }
 
             $details[] = array(
                 'id' => $publication->ID,

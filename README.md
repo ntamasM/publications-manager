@@ -1,53 +1,69 @@
 # Publications Manager
 
-**Version:** 2.0.5  
+**Version:** 2.2.1  
 **Author:** Ntamadakis  
 **License:** GPL v2 or later
 
-A modern WordPress plugin for managing academic publications with team member integration and advanced page builder support. Designed for research institutions, academic departments, and individual researchers who need to showcase publications with automatic author-to-team member linking.
+A modern WordPress plugin for managing academic publications with automatic author-to-team member linking and advanced page builder support. Designed for research institutions, academic departments, and individual researchers.
 
 ## Key Features
 
 ### 📚 Publication Management
 
-- **Custom Post Type**: Dedicated "Publications" post type
+- **Custom Post Type**: Dedicated "Publications" post type with full WordPress integration
 - **24 Publication Types**: Journal articles, books, conference papers, theses, and more
-- **Multiple Authors**: Each author stored separately for better querying and filtering
-- **Publication Year**: Automatically extracted from publication date
-- **Rich Metadata**: DOI, journal, volume, pages, publisher, abstract, and more
+- **Author Taxonomy**: Authors stored as custom taxonomy (`pm_author`) for:
+  - Better querying and filtering
+  - Seamless page builder integration
+  - Individual author pages/archives
+  - Term meta for team member links
+- **Rich Metadata**: DOI, journal, volume, pages, publisher, abstract, ISBN, ISSN, keywords, and more
+- **Automatic Year Extraction**: Publication year automatically extracted from post date
 
 ### 👥 Team Member Integration
 
-The plugin's standout feature is **automatic linking between publications and team members**:
+The plugin's standout feature is **bidirectional linking between authors and team members**:
 
-- **Automatic Matching**: Authors are automatically matched to team members using name variations
-- **Bidirectional Links**: Publications link to team members, and team members link to publications
-- **Flexible Name Matching**: Supports multiple name variations (e.g., "John Doe", "J. Doe", "Doe, John")
-- **Page Builder Ready**: Works seamlessly with Bricks Builder and other page builders
+- **Author Taxonomy**: Each author is a reusable taxonomy term
+- **Manual Linking**: Link author terms to team members via the Authors taxonomy admin
+- **Bidirectional Relationships**:
+  - Authors link to team member profiles
+  - Team member pages show all their publications
+- **Bricks Builder Ready**: Full integration via custom fields and query loops
 
 **How it works:**
 
-1. Create team members (using any CPT - configurable via settings)
-2. Add name variations to each team member (e.g., "Smith, J.", "John Smith", "J. Smith")
-3. When saving a publication, authors are automatically matched to team members
-4. Team member pages automatically show their publications
-5. Publication author names become clickable links to team member profiles
+1. Configure your Team CPT slug in Publications → Tools
+2. Create publications with authors (authors are saved as taxonomy terms)
+3. In Publications → Authors, link each author term to a team member
+4. Author names automatically become clickable links to team member pages
+5. Team member pages show their publications via Bricks query loops
 
 ### 🎨 Bricks Builder Integration
 
-Full integration with Bricks Builder:
+Full integration with Bricks Builder for maximum design flexibility:
 
-- **Dynamic Fields**: Display authors with automatic team member links
-- **Formatted Types**: Publication types show as readable names (e.g., "Journal Article" instead of "article")
-- **Query Filters**: Team member pages automatically filter publications
-- **Custom Fields**: All publication fields available as dynamic data
+**Dynamic Fields Available:**
+
+- `{post_meta:pm_type}` - Formatted publication type (e.g., "Journal Article")
+- `{post_meta:pm_authors}` - Authors with automatic team member links
+- `{term_meta:pm_author_team_url}` - Team member URL for an author term
+- All publication meta fields (pm_doi, pm_journal, pm_volume, etc.)
+
+**Query Loops:**
+
+- Team member pages automatically show their publications
+- Filter by publication type, year, or author
+- Full support for Bricks' dynamic data system
 
 ### 🌐 Crossref Import
 
-- Import publications directly from Crossref using DOI
-- Batch import multiple publications at once
-- Automatically populates all fields from Crossref metadata
-- Authors automatically stored as separate values
+Import publications directly from Crossref using DOI:
+
+- Batch import multiple DOIs at once
+- Automatically populates all metadata fields
+- Authors automatically created as taxonomy terms
+- Smart field mapping for optimal data quality
 
 ### 📊 Admin Features
 
@@ -61,139 +77,136 @@ Full integration with Bricks Builder:
 
 1. Upload the `publications-manager` folder to `/wp-content/plugins/`
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. (Optional) Configure team member CPT slug in **Publications > Settings**
-4. Navigate to "Publications" in the admin menu to add publications
+3. Go to Publications → Tools and configure your Team CPT slug
+4. Start creating publications!
 
-## Usage
+## Quick Start Guide
 
-### Setting Up Team Members
+### 1. Configure Team CPT Slug
 
-Before adding publications, set up your team members for automatic linking:
+1. Go to **Publications → Tools**
+2. Enter your Team CPT Slug (e.g., `team_member`, `staff`, `researcher`)
+3. Save settings
 
-1. **Configure Team Member CPT** (if not using default):
-   - Go to **Publications > Settings**
-   - Set the team member post type slug (default: `team_member`)
+### 2. Create Publications
 
-2. **Add Name Variations to Team Members**:
-   - Edit each team member
-   - Add a custom field: `pm_name_variations`
-   - Enter all name variations, separated by commas
-   - Example: `John Smith, Smith J., J. Smith, Smith, John`
+1. Go to **Publications → Add New**
+2. Enter the publication title and content
+3. Select the **Publication Type** from the dropdown
+4. **Add Authors** using the repeatable fields:
+   - Enter each author's full name
+   - Click "Add Author" for additional authors
+   - Authors are automatically saved as taxonomy terms
+5. Fill in metadata fields (DOI, Journal, Volume, Pages, etc.)
+6. Set the publication date (year is auto-extracted)
+7. Publish
 
-### Adding Publications Manually
+### 3. Link Authors to Team Members
 
-1. Go to **Publications > Add New**
-2. Enter the publication title
-3. Select the **Publication Type**
-4. **Add Authors** (repeatable fields):
-   - Click "Add Author" to add fields
-   - Enter each author's name exactly as it appears in the publication
-   - If the name matches a team member variation, it will be linked automatically
-   - Click "Remove" to delete author fields
-5. Fill in other fields:
-   - **Publication Date**: Date of publication (format: YYYY-MM-DD)
-   - **Publication Year**: Auto-filled from date
-   - **DOI**, **Journal**, **Volume**, etc.
-6. Publish
+1. Go to **Publications → Authors**
+2. Click "Edit" on an author term
+3. Select the linked team member from the dropdown
+4. Save - the plugin will automatically store the team member URL
+5. Author names will now link to team member pages on your site
 
-### Importing from Crossref
+### 4. Import from Crossref (Optional)
 
-1. Go to **Publications > Import/Export**
-2. Enter one or more DOIs (one per line):
-   ```
-   10.1038/nature12373
-   10.1126/science.1259855
-   ```
+1. Go to **Publications → Import/Export**
+2. Enter DOI(s) in the textarea (one per line or space-separated)
 3. Click **Import Publications**
-4. Authors are automatically saved as separate values
-5. Edit publications to refine author matching if needed
+4. Authors are automatically created as taxonomy terms
+5. Link authors to team members as described in step 3
 
-### Using in Bricks Builder
+## Bricks Builder Usage
 
-**Display authors with team member links:**
+### Display Authors with Links
 
-```
-{cf_pm_authors}
-```
-
-This will output: `<a href="/team/john-smith">John Smith</a>, Jane Doe, <a href="/team/mike-jones">Mike Jones</a>`
-
-**Display formatted type:**
+In any Bricks element:
 
 ```
-{cf_pm_type}
+{post_meta:pm_authors}
 ```
 
-This will output: "Journal Article" instead of "article"
+Output: `<a href="/team/john-smith">John Smith</a>, Jane Doe`
 
-**Show publications on team member pages:**
-Create a query loop for publications - it will automatically filter to show only that team member's publications.
+### Get Author Term URL
 
-## How It Works
-
-### Author Matching System
-
-When you save a publication:
-
-1. **Authors are stored individually** (not as comma-separated string)
-   - Each author gets their own meta entry: `pm_authors`
-   - Stored with `single=false` for proper WordPress multiple values
-
-2. **Team member matching runs automatically**:
-   - Plugin searches all team members
-   - Checks `pm_name_variations` custom field
-   - Case-insensitive matching
-   - Falls back to team member title if no variations
-
-3. **Bidirectional relationships created**:
-   - Publication stores: `pm_team_members` (array of IDs)
-   - Publication stores: `pm_author_links` (URLs for each matched author)
-   - Team member stores: `pm_publication_id` (individual entries)
-   - Team member stores: `pm_publication_{id}` (publication data)
-
-4. **Links appear automatically**:
-   - In Bricks Builder dynamic fields
-   - In admin columns
-   - In shortcodes
-
-### Technical Architecture
+When looping through author terms:
 
 ```
-publications-manager/
-├── publications-manager.php (Main plugin file)
-├── includes/
-│   ├── admin/
-│   │   ├── class-meta-boxes.php (Meta boxes & field handling)
-│   │   └── admin-pages.php (Import/export interface)
-│   ├── core/
-│   │   ├── class-post-type.php (CPT, columns, filters)
-│   │   └── class-publication-types.php (Type definitions)
-│   ├── integrations/
-│   │   ├── class-crossref-import.php (Crossref API)
-│   │   └── class-bricks-integration.php (Bricks filters)
-│   └── functions.php (Core helper functions)
-├── tools/ (Debug utilities)
-└── assets/ (CSS & JS)
+{term_meta:pm_author_team_url}
 ```
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for complete technical documentation.
+Returns the team member permalink for the current author.
 
-### Data Storage
+### Display Publication Fields
 
-**Publications (post type: `publication`)**
+All fields available as dynamic data:
 
-- `pm_authors` - Multiple meta entries (one per author)
-- `pm_year` - Extracted from `pm_date`
+- `{post_meta:pm_type}` - Formatted type name
+- `{post_meta:pm_doi}` - DOI
+- `{post_meta:pm_journal}` - Journal name
+- `{post_meta:pm_volume}` - Volume
+- `{post_meta:pm_pages}` - Pages
+- `{post_meta:pm_year}` - Year
+- `{post_meta:pm_abstract}` - Abstract
+
+### Team Member Publications
+
+On team member single pages, create a query loop for publications - the plugin automatically filters to show only that team member's publications.
+
+## Developer Information
+
+### Database Schema
+
+**Post Meta (Publications)**
+
 - `pm_type` - Publication type slug
-- `pm_team_members` - Array of linked team member IDs
-- `pm_author_links` - Array mapping author names to URLs
-- All other fields as standard post meta
+- `pm_doi`, `pm_journal`, `pm_volume`, `pm_pages`, etc. - Publication fields
+- `pm_year` - Auto-extracted from post date
+- `pm_abstract` - Abstract text
 
-**Team Members (configurable CPT)**
+**Term Meta (Author Taxonomy)**
 
-- `pm_name_variations` - Comma-separated name variations
-- `pm_publication_id` - Multiple entries (one per linked publication)
-- `pm_publication_{id}` - Individual publication data arrays
+- `pm_team_member_id` - Linked team member post ID
+- `pm_author_team_url` - Team member permalink (cached for performance)
+
+**Post Meta (Team Members)**
+
+- `pm_author_term_id` - Connected author term IDs (bidirectional link)
+
+### Filters & Hooks
+
+**Bricks Builder Filters:**
+
+- `bricks/dynamic_data/render_content` - Filters pm_type and pm_authors output
+- `bricks/dynamic_data/post_meta` - Filters post meta values
+- `bricks/dynamic_data/term_meta` - Filters author term meta
+- `bricks/query/run` - Auto-filters publications on team member pages
+
+### Helper Functions
+
+```php
+// Get formatted publication type name
+$type = pm_get_formatted_type($post_id);
+
+// Find team member by author name
+$team_member_id = pm_find_team_member_by_name($author_name);
+
+// Get authors HTML with team member links
+$authors_html = PM_Author_Taxonomy::get_authors_html($post_id);
+
+// Get team member URL for an author term
+$url = PM_Author_Taxonomy::get_author_team_url($term_id);
+```
+
+### Shortcodes
+
+```php
+// Display authors for current or specific publication
+[pm_authors]
+[pm_authors id="123"]
+```
 
 ## Publication Types
 
@@ -224,113 +237,75 @@ The plugin includes all teachPress publication types:
 - **workingpaper**: Working Paper
 - **workshop**: Workshop
 
-## Comparison with teachPress
+## Changelog
 
-Publications Manager is **inspired by teachPress** but takes a different approach to publication management.
+### 2.2.1 (Current)
 
-### Similarities with teachPress ✅
+- Fixed bulk process link counting and display
+- Improved team member matching algorithm in bulk process
+- Added old data migration from `pm_authors` meta to taxonomy
+- Added "Terms" column to bulk process results
+- Deprecated old relationship functions (now use taxonomy system)
+- Updated documentation and README
+- Cleaned up deprecated code
 
-- All 24 publication types (article, book, conference, etc.)
-- Complete field set for academic publications
+### 2.2.0
+
+- Changed term meta field from `cf_author_team_url` to `pm_author_team_url`
+- Added `cf_pm_author_team_url` Bricks Builder accessor for consistency
+- Updated Bricks integration for proper term meta handling
+- Renamed "Settings and Info" menu to "Tools"
+- Improved author URL migration system with transient flag
+- Added migration from v2.1 to ensure all term meta is updated
+
+### 2.1.0
+
+- **Major Update**: Migrated from `pm_authors` meta field to `pm_author` custom taxonomy
+- Added author taxonomy with full term meta support
+- Implemented manual author-to-team member linking via WordPress admin
+- Added bidirectional relationship tracking between authors and team members
+- Removed automatic name-based matching (now manual via Authors admin)
+- Updated Bricks Builder integration for taxonomy support
+- Added term meta fields for storing team member links and URLs
+- Improved admin UI with custom columns for linked team members
+
+### 2.0.4
+
+- Added Bricks Builder integration with dynamic data filters
+- Improved team member relationship handling
+- Added REST API support for all meta fields
+- Enhanced query filtering on team member pages
+
+### 1.0.0
+
+- Initial release with CPT-based architecture
+- 24 publication types compatible with teachPress
 - Crossref import functionality
-- BibTeX-compatible structure
-- Same publication type definitions
+- Basic team member integration
 
-### Key Differences ⚡
+## Tools & Utilities
 
-**Architecture:**
+### Bulk Process Tool
 
-- ✅ Uses WordPress Custom Post Types (not custom database tables)
-- ✅ Native WordPress admin interface
-- ✅ Works with all page builders
-- ✅ Standard WordPress queries
-
-**Author Handling:**
-
-- ✅ Each author stored separately (better for queries)
-- ✅ Automatic team member linking
-- ✅ Bidirectional relationships
-- ✅ Name variation matching
-- ❌ No author management UI (uses team member CPT)
+Located in `tools/bulk-process.php` - processes all publications to create/update author-team member relationships.
 
 **Features:**
 
-- ✅ Advanced admin filters (by type, author, year)
-- ✅ Sortable columns
-- ✅ Bricks Builder integration
-- ✅ REST API ready
-- ❌ No built-in shortcodes for publication lists (use page builder)
-- ❌ No citation export yet (structure ready)
+- Migrates old `pm_authors` meta to taxonomy terms
+- Matches author names to team member titles
+- Creates bidirectional links
+- Shows detailed before/after statistics
 
-**Use Case:**
+**Usage:**
 
-- **teachPress**: Best for individual researchers, simple publication lists
-- **Publications Manager**: Best for institutions, teams with page builder sites, complex author relationships
+1. Access via: `your-site.com/wp-content/plugins/publications-manager/tools/bulk-process.php`
+2. Requires admin privileges
+3. Delete after use for security
 
-### When to Choose Publications Manager
+### Debug Tools
 
-Choose this plugin if you:
-
-- Use Bricks Builder (or another page builder)
-- Need automatic author-to-team member linking
-- Want publications to appear on team member pages automatically
-- Prefer WordPress CPT over custom tables
-- Need advanced filtering and sorting in admin
-- Want to query publications like any other WordPress post type
-
-### When to Choose teachPress
-
-Choose teachPress if you:
-
-- Need simple shortcode-based displays
-- Don't need team member integration
-- Want built-in citation export
-- Need the author management interface
-- Prefer a more mature, battle-tested solution
-
-## API & Shortcodes
-
-### Shortcodes
-
-**Display authors with links:**
-
-```php
-[pm_authors id="123"]  // Specific publication
-[pm_authors]           // Current publication
-```
-
-### Helper Functions
-
-```php
-// Get authors with team member links (HTML)
-$authors_html = pm_get_authors_with_links($post_id);
-
-// Get formatted publication type name
-$type_name = pm_get_formatted_type($post_id);
-
-// Get all publications for a team member
-$publications = pm_get_team_member_publications($team_member_id);
-
-// Process author relationships manually
-pm_process_author_relationships($post_id);
-```
-
-### REST API
-
-All meta fields are registered for REST API access:
-
-```
-GET /wp-json/wp/v2/publication
-GET /wp-json/wp/v2/publication/{id}
-```
-
-Fields available:
-
-- `pm_authors` (array)
-- `pm_type` (string)
-- `pm_year` (string)
-- `pm_doi` (string)
-- And all other publication fields
+- `tools/debug.php` - General plugin debugging
+- `tools/debug-connections.php` - Debug author-team member connections
 
 ## FAQ
 

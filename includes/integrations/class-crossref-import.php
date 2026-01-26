@@ -200,10 +200,16 @@ class PM_Crossref_Import
                     $name_parts[] = $author->family;
                 }
                 if (! empty($name_parts)) {
-                    $data['author'][] = implode(' ', $name_parts);
+                    $full_name = implode(' ', $name_parts);
+                    $data['author'][] = $full_name;
+                    // Debug logging
+                    error_log('PM Crossref Import: Adding author: ' . $full_name);
                 }
             }
         }
+
+        // Debug logging
+        error_log('PM Crossref Import: Total authors found: ' . count($data['author']));
 
         // Editors - Format as "GivenName FamilyName" separated by commas
         $data['editor'] = '';
@@ -504,10 +510,31 @@ class PM_Crossref_Import
             }
         }
 
-        // Handle authors separately (multiple values)
+        // Handle authors as taxonomy terms
+        error_log('[PM Import CREATE] Post ID: ' . $post_id);
+        error_log('[PM Import CREATE] Author data exists: ' . (isset($data['author']) ? 'YES' : 'NO'));
+        error_log('[PM Import CREATE] Author is array: ' . (isset($data['author']) && is_array($data['author']) ? 'YES' : 'NO'));
+        error_log('[PM Import CREATE] Author count: ' . (isset($data['author']) && is_array($data['author']) ? count($data['author']) : '0'));
+
         if (isset($data['author']) && is_array($data['author']) && !empty($data['author'])) {
-            foreach ($data['author'] as $author) {
-                add_post_meta($post_id, 'pm_authors', sanitize_text_field($author));
+            error_log('[PM Import CREATE] Authors: ' . print_r($data['author'], true));
+            $author_term_ids = array();
+
+            foreach ($data['author'] as $author_name) {
+                error_log('[PM Import CREATE] Processing author: ' . $author_name);
+                if (!empty($author_name) && class_exists('PM_Author_Taxonomy')) {
+                    $term_id = PM_Author_Taxonomy::get_or_create_author_term($author_name);
+                    error_log('[PM Import CREATE] Term ID returned: ' . $term_id);
+                    if ($term_id && !is_wp_error($term_id)) {
+                        $author_term_ids[] = $term_id;
+                    }
+                }
+            }
+
+            error_log('[PM Import CREATE] Total term IDs: ' . count($author_term_ids));
+            if (!empty($author_term_ids)) {
+                $result = wp_set_object_terms($post_id, $author_term_ids, 'pm_author', false);
+                error_log('[PM Import CREATE] wp_set_object_terms result: ' . print_r($result, true));
             }
         }
 
@@ -576,11 +603,31 @@ class PM_Crossref_Import
             }
         }
 
-        // Handle authors separately (multiple values)
+        // Handle authors as taxonomy terms
+        error_log('[PM Import UPDATE] Post ID: ' . $post_id);
+        error_log('[PM Import UPDATE] Author data exists: ' . (isset($data['author']) ? 'YES' : 'NO'));
+        error_log('[PM Import UPDATE] Author is array: ' . (isset($data['author']) && is_array($data['author']) ? 'YES' : 'NO'));
+        error_log('[PM Import UPDATE] Author count: ' . (isset($data['author']) && is_array($data['author']) ? count($data['author']) : '0'));
+
         if (isset($data['author']) && is_array($data['author']) && !empty($data['author'])) {
-            delete_post_meta($post_id, 'pm_authors');
-            foreach ($data['author'] as $author) {
-                add_post_meta($post_id, 'pm_authors', sanitize_text_field($author));
+            error_log('[PM Import UPDATE] Authors: ' . print_r($data['author'], true));
+            $author_term_ids = array();
+
+            foreach ($data['author'] as $author_name) {
+                error_log('[PM Import UPDATE] Processing author: ' . $author_name);
+                if (!empty($author_name) && class_exists('PM_Author_Taxonomy')) {
+                    $term_id = PM_Author_Taxonomy::get_or_create_author_term($author_name);
+                    error_log('[PM Import UPDATE] Term ID returned: ' . $term_id);
+                    if ($term_id && !is_wp_error($term_id)) {
+                        $author_term_ids[] = $term_id;
+                    }
+                }
+            }
+
+            error_log('[PM Import UPDATE] Total term IDs: ' . count($author_term_ids));
+            if (!empty($author_term_ids)) {
+                $result = wp_set_object_terms($post_id, $author_term_ids, 'pm_author', false);
+                error_log('[PM Import UPDATE] wp_set_object_terms result: ' . print_r($result, true));
             }
         }
 

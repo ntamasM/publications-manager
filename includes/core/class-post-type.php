@@ -135,12 +135,13 @@ class PM_Post_Type
                 break;
 
             case 'pm_authors':
-                $authors = get_post_meta($post_id, 'pm_authors', false);
-                if (!empty($authors)) {
-                    if (count($authors) > 2) {
-                        echo esc_html($authors[0]) . ' et al.';
+                $terms = get_the_terms($post_id, 'pm_author');
+                if ($terms && !is_wp_error($terms)) {
+                    $author_names = wp_list_pluck($terms, 'name');
+                    if (count($author_names) > 2) {
+                        echo esc_html($author_names[0]) . ' et al.';
                     } else {
-                        echo esc_html(implode(', ', $authors));
+                        echo esc_html(implode(', ', $author_names));
                     }
                 } else {
                     echo '—';
@@ -220,27 +221,25 @@ class PM_Post_Type
             echo '</select>';
         }
 
-        // Author filter
-        global $wpdb;
-        $authors = $wpdb->get_col("
-            SELECT DISTINCT meta_value 
-            FROM {$wpdb->postmeta} 
-            WHERE meta_key = 'pm_authors' 
-            AND meta_value != '' 
-            ORDER BY meta_value ASC
-        ");
+        // Author filter - using taxonomy
+        $author_terms = get_terms(array(
+            'taxonomy' => 'pm_author',
+            'hide_empty' => true,
+            'orderby' => 'name',
+            'order' => 'ASC'
+        ));
 
-        if (!empty($authors)) {
+        if (!empty($author_terms) && !is_wp_error($author_terms)) {
             $current_author = isset($_GET['pm_author_filter']) ? sanitize_text_field($_GET['pm_author_filter']) : '';
 
             echo '<select name="pm_author_filter" id="pm_author_filter">';
             echo '<option value="">' . __('All Authors', 'publications-manager') . '</option>';
-            foreach ($authors as $author) {
+            foreach ($author_terms as $term) {
                 printf(
                     '<option value="%s"%s>%s</option>',
-                    esc_attr($author),
-                    selected($current_author, $author, false),
-                    esc_html($author)
+                    esc_attr($term->slug),
+                    selected($current_author, $term->slug, false),
+                    esc_html($term->name)
                 );
             }
             echo '</select>';
@@ -278,13 +277,15 @@ class PM_Post_Type
             );
         }
 
-        // Filter by author
+        // Filter by author - using taxonomy
         if (isset($_GET['pm_author_filter']) && !empty($_GET['pm_author_filter'])) {
-            $meta_query[] = array(
-                'key' => 'pm_authors',
-                'value' => sanitize_text_field($_GET['pm_author_filter']),
-                'compare' => '='
+            $tax_query = $query->get('tax_query') ?: array();
+            $tax_query[] = array(
+                'taxonomy' => 'pm_author',
+                'field' => 'slug',
+                'terms' => sanitize_text_field($_GET['pm_author_filter'])
             );
+            $query->set('tax_query', $tax_query);
         }
 
         if (!empty($meta_query)) {
@@ -299,7 +300,13 @@ class PM_Post_Type
             $query->set('meta_key', 'pm_date');
             $query->set('orderby', 'meta_value');
             $query->set('order', 'DESC');
-        } elseif (in_array($orderby, array('pm_type', 'pm_authors', 'pm_year'))) {
+        } elseif ($orderby === 'pm_authors') {
+            // Sorting by authors is not supported with taxonomy
+            // Fall back to default sorting
+            $query->set('meta_key', 'pm_date');
+            $query->set('orderby', 'meta_value');
+            $query->set('order', 'DESC');
+        } elseif (in_array($orderby, array('pm_type', 'pm_year'))) {
             // Handle custom column sorting
             $query->set('meta_key', $orderby);
             $query->set('orderby', 'meta_value');

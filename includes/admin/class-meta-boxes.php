@@ -40,23 +40,12 @@ class PM_Meta_Boxes
 
     /**
      * Add meta boxes for team member CPT
+     * Note: Team member connections are now managed through the Authors taxonomy
      */
     public static function add_team_member_meta_boxes()
     {
-        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
-
-        if (!post_type_exists($team_cpt_slug)) {
-            return;
-        }
-
-        add_meta_box(
-            'pm_team_name_variations',
-            __('Publication Name Variations', 'publications-manager'),
-            array(__CLASS__, 'render_team_name_variations_metabox'),
-            $team_cpt_slug,
-            'normal',
-            'high'
-        );
+        // No meta boxes needed - connections are managed via Authors taxonomy
+        // where you can link author terms to team members
     }
 
     /**
@@ -80,7 +69,7 @@ class PM_Meta_Boxes
             __('Authors & Editors', 'publications-manager'),
             array(__CLASS__, 'render_authors_metabox'),
             'publication',
-            'normal',
+            'side',
             'high'
         );
 
@@ -221,50 +210,53 @@ class PM_Meta_Boxes
     }
 
     /**
-     * Render Authors metabox
+     * Render Authors metabox - Using custom UI for taxonomy
      */
     public static function render_authors_metabox($post)
     {
-        $authors = get_post_meta($post->ID, 'pm_authors', false);
-        $editor = get_post_meta($post->ID, 'pm_editor', true);
+        $terms = get_the_terms($post->ID, 'pm_author');
+        $authors = array();
+
+        if ($terms && !is_wp_error($terms)) {
+            foreach ($terms as $term) {
+                $authors[] = $term->name;
+            }
+        }
 
         // Ensure we have at least one empty field
         if (empty($authors)) {
             $authors = array('');
         }
 
+        $editor = get_post_meta($post->ID, 'pm_editor', true);
+
     ?>
-        <table class="form-table">
-            <tr>
-                <th><label><?php _e('Authors', 'publications-manager'); ?> *</label></th>
-                <td>
-                    <div id="pm-authors-wrapper">
-                        <?php foreach ($authors as $index => $author) : ?>
-                            <div class="pm-author-row" style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
-                                <input type="text" name="pm_authors[]" value="<?php echo esc_attr($author); ?>" class="large-text" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" <?php echo ($index === 0) ? 'required' : ''; ?> style="flex: 1;" />
-                                <button type="button" class="button pm-remove-author"><?php _e('Remove', 'publications-manager'); ?></button>
-                            </div>
-                        <?php endforeach; ?>
+        <div class="inside">
+            <div id="pm-authors-wrapper">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;"><?php _e('Authors', 'publications-manager'); ?> *</label>
+                <p class="description" style="margin-top: 0; margin-bottom: 10px;"><?php _e('Enter each author name. Authors will be created as terms and can be linked to team members.', 'publications-manager'); ?></p>
+
+                <?php foreach ($authors as $index => $author) : ?>
+                    <div class="pm-author-row" style="margin-bottom: 8px; display: flex; gap: 5px;">
+                        <input type="text" name="pm_authors[]" value="<?php echo esc_attr($author); ?>" class="widefat" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" <?php echo ($index === 0) ? 'required' : ''; ?> style="flex: 1;" />
+                        <button type="button" class="button pm-remove-author"><?php _e('Remove', 'publications-manager'); ?></button>
                     </div>
-                    <button type="button" id="pm-add-author" class="button" style="margin-top: 10px;"><?php _e('Add Author', 'publications-manager'); ?></button>
-                    <p class="description"><?php _e('Enter each author separately. Click "Add Author" to add more authors.', 'publications-manager'); ?></p>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="pm_editor"><?php _e('Editors', 'publications-manager'); ?></label></th>
-                <td>
-                    <textarea name="pm_editor" id="pm_editor" rows="3" class="large-text"><?php echo esc_textarea($editor); ?></textarea>
-                    <p class="description"><?php _e('List of editors (if applicable)', 'publications-manager'); ?></p>
-                </td>
-            </tr>
-        </table>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" id="pm-add-author" class="button button-secondary" style="margin-top: 10px; width: 100%;"><?php _e('+ Add Author', 'publications-manager'); ?></button>
+
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd;">
+                <label for="pm_editor" style="display: block; margin-bottom: 5px; font-weight: 600;"><?php _e('Editors', 'publications-manager'); ?></label>
+                <textarea name="pm_editor" id="pm_editor" rows="3" class="widefat" placeholder="<?php esc_attr_e('Optional: List of editors', 'publications-manager'); ?>"><?php echo esc_textarea($editor); ?></textarea>
+            </div>
+        </div>
 
         <script type="text/javascript">
             jQuery(document).ready(function($) {
                 // Add author field
                 $('#pm-add-author').on('click', function() {
-                    var newRow = '<div class="pm-author-row" style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">' +
-                        '<input type="text" name="pm_authors[]" value="" class="large-text" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" style="flex: 1;" />' +
+                    var newRow = '<div class="pm-author-row" style="margin-bottom: 8px; display: flex; gap: 5px;">' +
+                        '<input type="text" name="pm_authors[]" value="" class="widefat" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" style="flex: 1;" />' +
                         '<button type="button" class="button pm-remove-author"><?php _e('Remove', 'publications-manager'); ?></button>' +
                         '</div>';
                     $('#pm-authors-wrapper').append(newRow);
@@ -621,7 +613,7 @@ class PM_Meta_Boxes
                 <option value="in_review" <?php selected($status, 'in_review'); ?>><?php _e('In Review', 'publications-manager'); ?></option>
             </select>
         </p>
-    <?php
+<?php
     }
 
     /**
@@ -693,21 +685,25 @@ class PM_Meta_Boxes
             }
         }
 
-        // Handle pm_authors separately (multiple values)
+        // Handle pm_authors as taxonomy terms
         if (isset($_POST['pm_authors']) && is_array($_POST['pm_authors'])) {
-            // Delete existing authors
-            delete_post_meta($post_id, 'pm_authors');
+            $author_names = array_filter(array_map('trim', $_POST['pm_authors']));
+            $author_term_ids = array();
 
-            // Add each author as a separate meta value
-            foreach ($_POST['pm_authors'] as $author) {
-                $author = sanitize_text_field(trim($author));
-                if (!empty($author)) {
-                    add_post_meta($post_id, 'pm_authors', $author);
+            foreach ($author_names as $author_name) {
+                if (!empty($author_name)) {
+                    $term_id = PM_Author_Taxonomy::get_or_create_author_term($author_name);
+                    if ($term_id) {
+                        $author_term_ids[] = $term_id;
+                    }
                 }
             }
+
+            // Set the terms for this post
+            wp_set_object_terms($post_id, $author_term_ids, 'pm_author', false);
         } else {
-            // No authors provided, delete all
-            delete_post_meta($post_id, 'pm_authors');
+            // No authors provided, clear terms
+            wp_set_object_terms($post_id, array(), 'pm_author', false);
         }
 
         // Save each field
@@ -734,61 +730,12 @@ class PM_Meta_Boxes
     }
 
     /**
-     * Render team member name variations meta box
-     */
-    public static function render_team_name_variations_metabox($post)
-    {
-        wp_nonce_field('pm_team_member_meta', 'pm_team_member_nonce');
-        $name_variations = get_post_meta($post->ID, 'pm_name_variations', true);
-    ?>
-        <div class="pm-metabox-field">
-            <p class="description">
-                <?php _e('Enter all possible name variations as they appear in publications, separated by commas. For example:', 'publications-manager'); ?><br>
-                <code>John Smith, J. Smith, John A. Smith</code>
-            </p>
-            <textarea
-                name="pm_name_variations"
-                id="pm_name_variations"
-                rows="3"
-                style="width: 100%; margin-top: 10px;"
-                placeholder="<?php esc_attr_e('Enter name variations separated by commas...', 'publications-manager'); ?>"><?php echo esc_textarea($name_variations); ?></textarea>
-            <p class="description" style="margin-top: 8px;">
-                <?php _e('These variations will be used to automatically match this team member to publications during import and bulk processing.', 'publications-manager'); ?>
-            </p>
-        </div>
-<?php
-    }
-
-    /**
      * Save team member meta boxes
+     * Legacy function - kept for compatibility
      */
     public static function save_team_member_meta_boxes($post_id, $post)
     {
-        // Check if nonce is set
-        if (!isset($_POST['pm_team_member_nonce'])) {
-            return;
-        }
-
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['pm_team_member_nonce'], 'pm_team_member_meta')) {
-            return;
-        }
-
-        // Check autosave
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
-
-        // Check permissions
-        if (!current_user_can('edit_post', $post_id)) {
-            return;
-        }
-
-        // Save name variations
-        if (isset($_POST['pm_name_variations'])) {
-            update_post_meta($post_id, 'pm_name_variations', sanitize_textarea_field($_POST['pm_name_variations']));
-        } else {
-            delete_post_meta($post_id, 'pm_name_variations');
-        }
+        // No longer needed - connections are managed via Authors taxonomy
+        return;
     }
 }

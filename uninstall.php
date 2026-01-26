@@ -25,7 +25,6 @@ $publications = get_posts(array(
 foreach ($publications as $pub_id) {
     // Delete all meta data associated with this publication
     delete_post_meta($pub_id, 'pm_type');
-    delete_post_meta($pub_id, 'pm_authors');
     delete_post_meta($pub_id, 'pm_editor');
     delete_post_meta($pub_id, 'pm_title');
     delete_post_meta($pub_id, 'pm_booktitle');
@@ -55,11 +54,26 @@ foreach ($publications as $pub_id) {
     delete_post_meta($pub_id, 'pm_issn');
     delete_post_meta($pub_id, 'pm_keywords');
     delete_post_meta($pub_id, 'pm_bibtex');
-    delete_post_meta($pub_id, 'pm_team_members');
-    delete_post_meta($pub_id, 'pm_author_links');
 
     // Force delete the publication post
     wp_delete_post($pub_id, true);
+}
+
+// Delete author taxonomy and all its terms
+$author_terms = get_terms(array(
+    'taxonomy' => 'pm_author',
+    'hide_empty' => false,
+    'fields' => 'ids'
+));
+
+if (!is_wp_error($author_terms) && !empty($author_terms)) {
+    foreach ($author_terms as $term_id) {
+        // Delete term meta
+        delete_term_meta($term_id, 'pm_team_member_id');
+        delete_term_meta($term_id, 'pm_author_team_url');
+        // Delete the term
+        wp_delete_term($term_id, 'pm_author');
+    }
 }
 
 // Clean up team member relationships
@@ -78,6 +92,12 @@ if (post_type_exists($team_cpt_slug)) {
         "DELETE FROM {$wpdb->postmeta} 
         WHERE meta_key LIKE 'pm_publication_%'"
     );
+
+    // Delete all pm_author_term_id meta entries from team members
+    $wpdb->query(
+        "DELETE FROM {$wpdb->postmeta} 
+        WHERE meta_key = 'pm_author_term_id'"
+    );
 }
 
 // Delete plugin options
@@ -85,6 +105,7 @@ delete_option('pm_team_cpt_slug');
 
 // Delete any transients
 delete_transient('pm_flush_rewrite_rules');
+delete_transient('pm_author_url_migrated_v2.2');
 
 // Clear any scheduled events (if any were created)
 wp_clear_scheduled_hook('pm_cleanup_hook'); // Example, adjust if you have cron jobs

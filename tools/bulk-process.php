@@ -31,6 +31,12 @@ if (!is_user_logged_in() || !current_user_can('manage_options')) {
     wp_die('You do not have permission to access this page.');
 }
 
+// Load plugin functions
+$plugin_dir = dirname(__DIR__);
+if (file_exists($plugin_dir . '/includes/functions.php')) {
+    require_once($plugin_dir . '/includes/functions.php');
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -155,24 +161,128 @@ if (!is_user_logged_in() || !current_user_can('manage_options')) {
             $errors = 0;
 
             $results = array();
+            $debug_info = array();
 
             foreach ($publications as $publication) {
-                $before_links = get_post_meta($publication->ID, 'pm_team_members', true);
-                $before_count = is_array($before_links) ? count($before_links) : 0;
+                // FIRST: Check if we need to migrate old pm_authors meta to taxonomy
+                $author_terms = get_the_terms($publication->ID, 'pm_author');
+                $old_authors = get_post_meta($publication->ID, 'pm_authors', true);
 
-                // Process relationships
-                pm_process_author_relationships($publication->ID);
+                // If no taxonomy terms but old meta field exists, migrate it
+                if ((!$author_terms || is_wp_error($author_terms)) && !empty($old_authors)) {
+                    $author_names = array_map('trim', explode(',', $old_authors));
+                    $term_ids = array();
 
-                $after_links = get_post_meta($publication->ID, 'pm_team_members', true);
-                $after_count = is_array($after_links) ? count($after_links) : 0;
+                    foreach ($author_names as $author_name) {
+                        if (empty($author_name)) continue;
 
-                $authors = get_post_meta($publication->ID, 'pm_authors', false);
-                $authors_display = !empty($authors) ? implode(', ', $authors) : '';
+                        // Check if term exists
+                        $term = get_term_by('name', $author_name, 'pm_author');
+
+                        if (!$term) {
+                            // Create new term
+                            $result = wp_insert_term($author_name, 'pm_author');
+                            if (!is_wp_error($result)) {
+                                $term_ids[] = $result['term_id'];
+                            }
+                        } else {
+                            $term_ids[] = $term->term_id;
+                        }
+                    }
+
+                    // Assign terms to publication
+                    if (!empty($term_ids)) {
+                        wp_set_object_terms($publication->ID, $term_ids, 'pm_author');
+                    }
+
+                    // Refresh author_terms after migration
+                    $author_terms = get_the_terms($publication->ID, 'pm_author');
+                }
+
+                // Count connected team members before
+                $before_count = 0;
+                $after_count = 0;
+                $author_details = array();
+                $term_count = 0;
+
+                if ($author_terms && !is_wp_error($author_terms)) {
+                    $term_count = count($author_terms);
+                    foreach ($author_terms as $term) {
+                        $team_member_id = get_term_meta($term->term_id, 'pm_team_member_id', true);
+                        if ($team_member_id && get_post_status($team_member_id) === 'publish') {
+                            $before_count++;
+                        }
+                    }
+                }
+
+                // Try to auto-link unlinked author terms to team members by matching names
+                if ($author_terms && !is_wp_error($author_terms)) {
+                    foreach ($author_terms as $term) {
+                        // Skip if already linked
+                        $existing_link = get_term_meta($term->term_id, 'pm_team_member_id', true);
+                        if ($existing_link) {
+                            continue;
+                        }
+
+                        // Try to find team member by exact name match
+                        $team_members = get_posts(array(
+                            'post_type' => $team_cpt_slug,
+                            'post_status' => 'publish',
+                            'posts_per_page' => -1,
+                            'orderby' => 'title',
+                            'order' => 'ASC'
+                        ));
+
+                        $team_member_id = false;
+                        foreach ($team_members as $member) {
+                            if (trim($member->post_title) === trim($term->name)) {
+                                $team_member_id = $member->ID;
+                                break;
+                            }
+                        }
+
+                        if ($team_member_id) {
+                            // Create the link
+                            update_term_meta($term->term_id, 'pm_team_member_id', $team_member_id);
+
+                            // Store the team member URL for Bricks Builder custom field access
+                            $team_member_url = get_permalink($team_member_id);
+                            update_term_meta($term->term_id, 'pm_author_team_url', $team_member_url);
+
+                            // Create bidirectional link
+                            $existing_links = get_post_meta($team_member_id, 'pm_author_term_id', false);
+                            if (!in_array($term->term_id, $existing_links)) {
+                                add_post_meta($team_member_id, 'pm_author_term_id', $term->term_id);
+                            }
+                        }
+                    }
+                }
+
+                // Count after - refresh terms to get updated meta
+                $author_terms = get_the_terms($publication->ID, 'pm_author');
+                if ($author_terms && !is_wp_error($author_terms)) {
+                    foreach ($author_terms as $term) {
+                        // Clear cache to get fresh data
+                        wp_cache_delete($term->term_id, 'term_meta');
+                        $team_member_id = get_term_meta($term->term_id, 'pm_team_member_id', true);
+                        if ($team_member_id && get_post_status($team_member_id) === 'publish') {
+                            $after_count++;
+                        }
+                    }
+                }
+
+                // Get authors from taxonomy for display
+                $authors_display = '';
+                if ($author_terms && !is_wp_error($author_terms)) {
+                    $author_names = wp_list_pluck($author_terms, 'name');
+                    $authors_display = implode(', ', $author_names);
+                }
 
                 $results[] = array(
                     'id' => $publication->ID,
                     'title' => $publication->post_title,
                     'authors' => $authors_display,
+                    'term_count' => $term_count,
                     'links_before' => $before_count,
                     'links_after' => $after_count,
                     'new_links' => $after_count - $before_count
@@ -199,6 +309,7 @@ if (!is_user_logged_in() || !current_user_can('manage_options')) {
                 echo '<th>ID</th>';
                 echo '<th>Publication Title</th>';
                 echo '<th>Authors</th>';
+                echo '<th>Terms</th>';
                 echo '<th>Links Before</th>';
                 echo '<th>Links After</th>';
                 echo '<th>New Links</th>';
@@ -211,6 +322,7 @@ if (!is_user_logged_in() || !current_user_can('manage_options')) {
                     echo '<td>' . $result['id'] . '</td>';
                     echo '<td>' . esc_html($result['title']) . '</td>';
                     echo '<td>' . esc_html(substr($result['authors'], 0, 50)) . '...</td>';
+                    echo '<td>' . $result['term_count'] . '</td>';
                     echo '<td>' . $result['links_before'] . '</td>';
                     echo '<td>' . $result['links_after'] . '</td>';
                     echo '<td><strong>' . ($result['new_links'] > 0 ? '+' : '') . $result['new_links'] . '</strong></td>';

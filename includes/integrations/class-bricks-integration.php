@@ -25,6 +25,9 @@ class PM_Bricks_Integration
         add_filter('bricks/dynamic_data/render_tag', array(__CLASS__, 'filter_dynamic_data'), 20, 3);
         add_filter('bricks/dynamic_data/post_meta', array(__CLASS__, 'filter_post_meta'), 20, 3);
 
+        // Filter term meta for author taxonomy custom fields
+        add_filter('bricks/dynamic_data/term_meta', array(__CLASS__, 'filter_term_meta'), 20, 3);
+
         // Filter queries for team member publications
         add_filter('bricks/query/run', array(__CLASS__, 'filter_team_publications_query'), 10, 2);
     }
@@ -48,7 +51,7 @@ class PM_Bricks_Integration
             }
 
             if (strpos($context['tag'], 'pm_authors') !== false || strpos($context['tag'], 'post_meta:pm_authors') !== false) {
-                return pm_get_authors_with_links($post->ID);
+                return PM_Author_Taxonomy::get_authors_html($post->ID);
             }
         }
 
@@ -71,11 +74,32 @@ class PM_Bricks_Integration
         }
 
         if ($meta_key === 'pm_authors') {
-            return pm_get_authors_with_links($post_id);
+            return PM_Author_Taxonomy::get_authors_html($post_id);
         }
 
         if ($meta_key === 'pm_type') {
             return pm_get_formatted_type($post_id);
+        }
+
+        return $meta_value;
+    }
+
+    /**
+     * Filter term meta for author taxonomy
+     * Makes cf_pm_author_team_url accessible in Bricks Builder
+     */
+    public static function filter_term_meta($meta_value, $term_id, $meta_key)
+    {
+        // Check if this is an author term
+        $term = get_term($term_id);
+        if (!$term || is_wp_error($term) || $term->taxonomy !== 'pm_author') {
+            return $meta_value;
+        }
+
+        // Return the stored URL for cf_pm_author_team_url
+        if ($meta_key === 'pm_author_team_url') {
+            $stored_url = get_term_meta($term_id, 'pm_author_team_url', true);
+            return $stored_url ? $stored_url : $meta_value;
         }
 
         return $meta_value;
