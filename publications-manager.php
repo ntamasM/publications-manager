@@ -34,6 +34,8 @@ require_once PM_PLUGIN_DIR . 'includes/admin/class-meta-boxes.php';
 require_once PM_PLUGIN_DIR . 'includes/admin/admin-pages.php';
 require_once PM_PLUGIN_DIR . 'includes/integrations/class-crossref-import.php';
 require_once PM_PLUGIN_DIR . 'includes/integrations/class-bricks-integration.php';
+require_once PM_PLUGIN_DIR . 'includes/helpers/class-publication-helpers.php';
+require_once PM_PLUGIN_DIR . 'includes/helpers/class-team-member-helpers.php';
 require_once PM_PLUGIN_DIR . 'includes/functions.php';
 
 /**

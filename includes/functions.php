@@ -2,7 +2,7 @@
 
 /**
  * Core Helper Functions
- * Contains essential utility functions for the Publications Manager plugin
+ * Backward-compatible wrapper functions for the Publications Manager plugin
  *
  * @package Publications_Manager
  * @since 1.0.0
@@ -12,6 +12,10 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// ============================================================================
+// PUBLICATION FUNCTIONS - Wrappers for PM_Publication_Helpers
+// ============================================================================
 
 /**
  * Get publication meta field
@@ -23,7 +27,18 @@ if (!defined('ABSPATH')) {
  */
 function pm_get_meta($post_id, $key, $single = true)
 {
-    return get_post_meta($post_id, 'pm_' . $key, $single);
+    return PM_Publication_Helpers::get_meta($post_id, $key, $single);
+}
+
+/**
+ * Get formatted publication type name
+ * 
+ * @param int $post_id Publication post ID
+ * @return string Formatted type name
+ */
+function pm_get_formatted_type($post_id)
+{
+    return PM_Publication_Helpers::get_formatted_type($post_id);
 }
 
 /**
@@ -36,18 +51,7 @@ function pm_get_meta($post_id, $key, $single = true)
  */
 function pm_format_authors($authors, $max = 0, $separator = ', ')
 {
-    if (empty($authors)) {
-        return '';
-    }
-
-    $author_array = explode(', ', $authors);
-
-    if ($max > 0 && count($author_array) > $max) {
-        $author_array = array_slice($author_array, 0, $max);
-        return implode($separator, $author_array) . ' et al.';
-    }
-
-    return implode($separator, $author_array);
+    return PM_Publication_Helpers::format_authors($authors, $max, $separator);
 }
 
 /**
@@ -55,66 +59,56 @@ function pm_format_authors($authors, $max = 0, $separator = ', ')
  * 
  * @param array $authors_input The authors array
  * @return array Array of cleaned author names
- * @since 1.0.4
  */
 function pm_parse_authors($authors_input)
 {
-    if (empty($authors_input) || !is_array($authors_input)) {
-        return array();
-    }
-
-    // Clean and filter the array
-    return array_filter(array_map('trim', $authors_input));
+    return PM_Publication_Helpers::parse_authors($authors_input);
 }
 
 /**
+ * Format authors with links for display
+ * 
+ * @param int $post_id Publication post ID
+ * @return string Formatted authors with links
+ */
+function pm_get_authors_with_links($post_id)
+{
+    return PM_Publication_Helpers::get_authors_html($post_id);
+}
+
+// ============================================================================
+// TEAM MEMBER FUNCTIONS - Wrappers for PM_Team_Member_Helpers
+// ============================================================================
+
+/**
  * Find team member by author name
- * Searches for existing author term and returns linked team member
  * 
  * @param string $author_name The author name to search for
  * @return int|false Post ID if found, false otherwise
- * @since 1.0.4
- * @since 2.1.0 Updated to use author taxonomy connections
  */
 function pm_find_team_member_by_name($author_name)
 {
-    $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
-
-    // Check if the post type exists
-    if (!post_type_exists($team_cpt_slug)) {
-        return false;
-    }
-
-    // Normalize the author name
-    $normalized_author = trim($author_name);
-
-    // First, check if an author term exists for this name
-    $term = get_term_by('name', $normalized_author, 'pm_author');
-
-    if ($term && !is_wp_error($term)) {
-        // Check if this author term is linked to a team member
-        $team_member_id = get_term_meta($term->term_id, 'pm_team_member_id', true);
-
-        if ($team_member_id && get_post_status($team_member_id) === 'publish') {
-            return (int) $team_member_id;
-        }
-    }
-
-    // Fallback: check if team member title matches author name exactly
-    $team_members = get_posts(array(
-        'post_type'      => $team_cpt_slug,
-        'post_status'    => 'publish',
-        'posts_per_page' => 1,
-        'title'          => $normalized_author,
-        'fields'         => 'ids'
-    ));
-
-    if (!empty($team_members)) {
-        return $team_members[0];
-    }
-
-    return false;
+    return PM_Team_Member_Helpers::find_by_name($author_name);
 }
+
+/**
+ * Get all publications linked to a team member
+ * 
+ * @param int $team_member_id Team member post ID
+ * @return array Array of publication data
+ */
+function pm_get_team_member_publications($team_member_id)
+{
+    return PM_Team_Member_Helpers::get_publications_data($team_member_id);
+}
+
+// ============================================================================
+// DEPRECATED FUNCTIONS - Kept for backward compatibility
+// ============================================================================
+
+// ============================================================================
+// DEPRECATED FUNCTIONS - Kept for backward compatibility
+// ============================================================================
 
 /**
  * Create bidirectional relationship between publication and team member
@@ -122,133 +116,44 @@ function pm_find_team_member_by_name($author_name)
  * 
  * @deprecated 2.2.0 Use PM_Author_Taxonomy methods instead
  * @param int $publication_id Publication post ID
- * @param int $team_member_id Team member post ID
+ * @param int $team_member_id Team member post ID (unused)
  * @param string $publication_title Publication title (unused)
  * @param string $publication_slug Publication slug (unused)
- * @since 1.0.4
  */
 function pm_create_team_relationship($publication_id, $team_member_id, $publication_title = '', $publication_slug = '')
 {
-    // Deprecated: Relationships are now managed through pm_author taxonomy
     _deprecated_function(__FUNCTION__, '2.2.0', 'PM_Author_Taxonomy methods');
-    return;
 }
 
 /**
- * Process author relationships for a publication - DEPRECATED
- * This function is no longer used as author relationships are now handled
- * automatically by PM_Author_Taxonomy::get_or_create_author_term()
- * Kept for backward compatibility
+ * Process author relationships for a publication
+ * DEPRECATED: Now handled automatically by PM_Author_Taxonomy
  * 
- * @param int $post_id The publication post ID
- * @since 1.0.4
  * @deprecated 2.1.0 Use PM_Author_Taxonomy instead
+ * @param int $post_id The publication post ID
  */
 function pm_process_author_relationships($post_id)
 {
-    // This function is deprecated
-    // Author-to-team-member linking now happens automatically
-    // in PM_Author_Taxonomy::get_or_create_author_term()
-    // when author terms are created or saved
-    return;
+    _deprecated_function(__FUNCTION__, '2.1.0', 'PM_Author_Taxonomy');
 }
 
 /**
  * Hook to process author relationships when publication is saved
+ * DEPRECATED: Relationships now managed automatically via taxonomy
+ * 
+ * @deprecated 2.2.1
  */
 add_action('save_post_publication', 'pm_process_author_relationships_hook', 20, 1);
 
 function pm_process_author_relationships_hook($post_id)
 {
-    // Check if this is an autosave
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-        return;
-    }
-
-    // Check user permissions
-    if (!current_user_can('edit_post', $post_id)) {
-        return;
-    }
-
-    pm_process_author_relationships($post_id);
+    // No longer needed - taxonomy system handles this
+    return;
 }
 
-/**
- * Format authors with links for display
- * Returns authors with HTML anchor tags for linked team members
- * 
- * @param int $post_id Publication post ID
- * @return string Formatted authors with links
- * @since 1.0.4
- */
-function pm_get_authors_with_links($post_id)
-{
-    // Use the taxonomy class method
-    return PM_Author_Taxonomy::get_authors_html($post_id);
-}
-
-/**
- * Get formatted publication type name
- * 
- * @param int $post_id Publication post ID
- * @return string Formatted type name
- */
-function pm_get_formatted_type($post_id)
-{
-    $type_slug = get_post_meta($post_id, 'pm_type', true);
-
-    if (empty($type_slug)) {
-        return '';
-    }
-
-    $type_data = PM_Publication_Types::get($type_slug);
-
-    if ($type_data && isset($type_data['i18n_singular'])) {
-        return $type_data['i18n_singular'];
-    }
-
-    return $type_slug;
-}
-
-/**
- * Get all publications linked to a team member
- * Returns array of publication data
- * 
- * @param int $team_member_id Team member post ID
- * @return array Array of publication data
- * @since 1.0.4
- */
-function pm_get_team_member_publications($team_member_id)
-{
-    global $wpdb;
-
-    // Get all pm_publication_{id} meta keys for this team member
-    $publication_metas = $wpdb->get_results($wpdb->prepare(
-        "SELECT meta_key, meta_value FROM {$wpdb->postmeta} 
-        WHERE post_id = %d 
-        AND meta_key LIKE 'pm_publication_%%' 
-        AND meta_key != 'pm_publication_id'",
-        $team_member_id
-    ));
-
-    $publications = array();
-
-    foreach ($publication_metas as $meta) {
-        $data = maybe_unserialize($meta->meta_value);
-        if (is_array($data) && isset($data['publication_id'])) {
-            $publications[] = $data;
-        }
-    }
-
-    return $publications;
-}
-
-/**
- * Shortcode to display authors with links
- * Usage: [pm_authors id="123"] or [pm_authors] (uses current post)
- * 
- * @since 1.0.4
- */
+// ============================================================================
+// SHORTCODES
+// ============================================================================
 add_shortcode('pm_authors', 'pm_authors_shortcode');
 
 function pm_authors_shortcode($atts)
