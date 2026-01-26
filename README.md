@@ -1,6 +1,6 @@
 # Publications Manager
 
-**Version:** 2.2.1  
+**Version:** 2.3.0  
 **Author:** Ntamadakis  
 **License:** GPL v2 or later
 
@@ -239,7 +239,16 @@ The plugin includes all teachPress publication types:
 
 ## Changelog
 
-### 2.2.1 (Current)
+### 2.3.0 (Current)
+
+- **Removed deprecated Bulk Process feature** - manual linking via Authors taxonomy is more reliable
+- **Cleaned up translation files** - reduced from 348 to 248 unique strings
+- **Updated uninstall process** - removed deprecated meta field references
+- **Code cleanup** - removed old bulk processing functions and references
+- **Translation improvements** - fixed Greek and other language files
+- **Performance improvements** - streamlined codebase by removing unused features
+
+### 2.2.1
 
 - Fixed bulk process link counting and display
 - Improved team member matching algorithm in bulk process

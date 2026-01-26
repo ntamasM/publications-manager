@@ -23,37 +23,50 @@ $publications = get_posts(array(
 ));
 
 foreach ($publications as $pub_id) {
-    // Delete all meta data associated with this publication
-    delete_post_meta($pub_id, 'pm_type');
-    delete_post_meta($pub_id, 'pm_editor');
-    delete_post_meta($pub_id, 'pm_title');
-    delete_post_meta($pub_id, 'pm_booktitle');
-    delete_post_meta($pub_id, 'pm_journal');
-    delete_post_meta($pub_id, 'pm_volume');
-    delete_post_meta($pub_id, 'pm_number');
-    delete_post_meta($pub_id, 'pm_pages');
-    delete_post_meta($pub_id, 'pm_publisher');
-    delete_post_meta($pub_id, 'pm_address');
-    delete_post_meta($pub_id, 'pm_edition');
-    delete_post_meta($pub_id, 'pm_chapter');
-    delete_post_meta($pub_id, 'pm_institution');
-    delete_post_meta($pub_id, 'pm_school');
-    delete_post_meta($pub_id, 'pm_howpublished');
-    delete_post_meta($pub_id, 'pm_organization');
-    delete_post_meta($pub_id, 'pm_series');
-    delete_post_meta($pub_id, 'pm_year');
-    delete_post_meta($pub_id, 'pm_month');
-    delete_post_meta($pub_id, 'pm_note');
-    delete_post_meta($pub_id, 'pm_key');
-    delete_post_meta($pub_id, 'pm_annote');
-    delete_post_meta($pub_id, 'pm_crossref');
-    delete_post_meta($pub_id, 'pm_doi');
-    delete_post_meta($pub_id, 'pm_url');
-    delete_post_meta($pub_id, 'pm_abstract');
-    delete_post_meta($pub_id, 'pm_isbn');
-    delete_post_meta($pub_id, 'pm_issn');
-    delete_post_meta($pub_id, 'pm_keywords');
-    delete_post_meta($pub_id, 'pm_bibtex');
+    // Delete all current meta data fields
+    $meta_fields = array(
+        'pm_type',
+        'pm_doi',
+        'pm_issn',
+        'pm_year',
+        'pm_month',
+        'pm_journal',
+        'pm_volume',
+        'pm_number',
+        'pm_issue',
+        'pm_pages',
+        'pm_chapter',
+        'pm_publisher',
+        'pm_address',
+        'pm_edition',
+        'pm_series',
+        'pm_institution',
+        'pm_organization',
+        'pm_school',
+        'pm_howpublished',
+        'pm_techtype',
+        'pm_isbn',
+        'pm_crossref',
+        'pm_key',
+        'pm_url',
+        'pm_urldate',
+        'pm_image_url',
+        'pm_image_ext',
+        'pm_rel_page',
+        'pm_abstract',
+        'pm_note',
+        'pm_comment',
+        'pm_status',
+        'pm_bibtex_key',
+        'pm_team_members',
+        'pm_author_links',
+        'pm_import_id',
+        'pm_last_updated'
+    );
+
+    foreach ($meta_fields as $field) {
+        delete_post_meta($pub_id, $field);
+    }
 
     // Force delete the publication post
     wp_delete_post($pub_id, true);
@@ -81,19 +94,13 @@ $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
 if (post_type_exists($team_cpt_slug)) {
     global $wpdb;
 
-    // Delete all pm_publication_id meta entries from team members
+    // Delete pm_publication_id meta entries (current relationship tracking)
     $wpdb->query(
         "DELETE FROM {$wpdb->postmeta} 
         WHERE meta_key = 'pm_publication_id'"
     );
 
-    // Delete all pm_publication_{id} meta entries from team members
-    $wpdb->query(
-        "DELETE FROM {$wpdb->postmeta} 
-        WHERE meta_key LIKE 'pm_publication_%'"
-    );
-
-    // Delete all pm_author_term_id meta entries from team members
+    // Delete pm_author_term_id meta entries (author-to-team-member links)
     $wpdb->query(
         "DELETE FROM {$wpdb->postmeta} 
         WHERE meta_key = 'pm_author_term_id'"
@@ -103,12 +110,9 @@ if (post_type_exists($team_cpt_slug)) {
 // Delete plugin options
 delete_option('pm_team_cpt_slug');
 
-// Delete any transients
+// Delete transients
 delete_transient('pm_flush_rewrite_rules');
 delete_transient('pm_author_url_migrated_v2.2');
 
-// Clear any scheduled events (if any were created)
-wp_clear_scheduled_hook('pm_cleanup_hook'); // Example, adjust if you have cron jobs
-
-// Flush rewrite rules to clean up custom post type rules
+// Flush rewrite rules to clean up custom post type and taxonomy rules
 flush_rewrite_rules();

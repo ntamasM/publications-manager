@@ -2,501 +2,1036 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Publications Manager 1.0.0\n"
+"Project-Id-Version: Publications Manager 2.2.1\n"
 "Report-Msgid-Bugs-To: https://ntamadakis.gr\n"
-"POT-Creation-Date: 2026-01-20 10:00+0000\n"
-"PO-Revision-Date: 2026-01-20 12:00+0000\n"
-"Last-Translator: Auto-generated\n"
-"Language-Team: German\n"
+"POT-Creation-Date: 2026-01-26 13:28+0000\n"
+"PO-Revision-Date: 2026-01-26 13:28+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#. Plugin Name of the plugin
-msgid "Publications Manager"
-msgstr "Publikationsverwaltung"
-
-#. Description of the plugin
-msgid "Advanced publication management using Custom Post Types with teachPress-compatible fields and Crossref import functionality"
-msgstr "Erweiterte Publikationsverwaltung mit benutzerdefinierten Beitragstypen, teachPress-kompatiblen Feldern und Crossref-Importfunktion"
-
-#: includes/class-post-type.php:38
-msgctxt "Post type general name"
-msgid "Publications"
-msgstr "Publikationen"
-
-#: includes/class-post-type.php:39
-msgctxt "Post type singular name"
-msgid "Publication"
-msgstr "Publikation"
-
-#: includes/class-post-type.php:40
-msgctxt "Admin Menu text"
-msgid "Publications"
-msgstr "Publikationen"
-
-#: includes/class-post-type.php:41
-msgctxt "Add New on Toolbar"
-msgid "Publication"
-msgstr "Publikation"
-
-#: includes/class-post-type.php:42
-msgid "Add New"
-msgstr "Neu hinzufügen"
-
-#: includes/class-post-type.php:43
-msgid "Add New Publication"
-msgstr "Neue Publikation hinzufügen"
-
-#: includes/class-post-type.php:44
-msgid "New Publication"
-msgstr "Neue Publikation"
-
-#: includes/class-post-type.php:45
-msgid "Edit Publication"
-msgstr "Publikation bearbeiten"
-
-#: includes/class-post-type.php:46
-msgid "View Publication"
-msgstr "Publikation ansehen"
-
-#: includes/class-post-type.php:47
-msgid "All Publications"
-msgstr "Alle Publikationen"
-
-#: includes/class-post-type.php:48
-msgid "Search Publications"
-msgstr "Publikationen suchen"
-
-#: includes/class-post-type.php:49
-msgid "Parent Publications:"
-msgstr "Übergeordnete Publikationen:"
-
-#: includes/class-post-type.php:50
-msgid "No publications found."
-msgstr "Keine Publikationen gefunden."
-
-#: includes/class-post-type.php:51
-msgid "No publications found in Trash."
-msgstr "Keine Publikationen im Papierkorb gefunden."
-
-#: includes/class-post-type.php:52
-msgctxt "Overrides the \"Featured Image\" phrase"
-msgid "Publication Cover Image"
-msgstr "Publikations-Titelbild"
-
-#: includes/class-post-type.php:53
-msgctxt "Overrides the \"Set featured image\" phrase"
-msgid "Set cover image"
-msgstr "Titelbild festlegen"
-
-#: includes/class-post-type.php:54
-msgctxt "Overrides the \"Remove featured image\" phrase"
-msgid "Remove cover image"
-msgstr "Titelbild entfernen"
-
-#: includes/class-post-type.php:55
-msgctxt "Overrides the \"Use as featured image\" phrase"
-msgid "Use as cover image"
-msgstr "Als Titelbild verwenden"
-
-#: includes/class-post-type.php:56
-msgctxt "The post type archive label used in nav menus"
-msgid "Publication archives"
-msgstr "Publikationsarchiv"
-
-#: includes/class-post-type.php:57
-msgctxt "Overrides the \"Insert into post\" phrase"
-msgid "Insert into publication"
-msgstr "In Publikation einfügen"
-
-#: includes/class-post-type.php:58
-msgctxt "Overrides the \"Uploaded to this post\" phrase"
-msgid "Uploaded to this publication"
-msgstr "Zu dieser Publikation hochgeladen"
-
-#: includes/class-post-type.php:59
-msgid "Filter publications list"
-msgstr "Publikationsliste filtern"
-
-#: includes/class-post-type.php:60
-msgid "Publications list navigation"
-msgstr "Navigation der Publikationsliste"
-
-#: includes/class-post-type.php:61
-msgid "Publications list"
-msgstr "Publikationsliste"
-
-#: includes/class-publication-types.php:32
-msgid "Journal Article"
-msgstr "Zeitschriftenartikel"
-
-#: includes/class-publication-types.php:33
-msgid "Journal Articles"
-msgstr "Zeitschriftenartikel"
-
-#: includes/class-publication-types.php:42
-msgid "Book"
-msgstr "Buch"
-
-#: includes/class-publication-types.php:43
-msgid "Books"
-msgstr "Bücher"
-
-#: includes/class-publication-types.php:52
-msgid "Booklet"
-msgstr "Broschüre"
-
-#: includes/class-publication-types.php:53
-msgid "Booklets"
-msgstr "Broschüren"
-
-#: includes/class-publication-types.php:62
-msgid "Collection"
-msgstr "Sammlung"
-
-#: includes/class-publication-types.php:63
-msgid "Collections"
-msgstr "Sammlungen"
-
-#: includes/class-publication-types.php:72
-msgid "Conference"
-msgstr "Konferenz"
-
-#: includes/class-publication-types.php:73
-msgid "Conferences"
-msgstr "Konferenzen"
-
-#: includes/class-publication-types.php:82
-msgid "Bachelor Thesis"
-msgstr "Bachelorarbeit"
-
-#: includes/class-publication-types.php:83
-msgid "Bachelor Theses"
-msgstr "Bachelorarbeiten"
-
-#: includes/class-publication-types.php:92
-msgid "Diploma Thesis"
-msgstr "Diplomarbeit"
-
-#: includes/class-publication-types.php:93
-msgid "Diploma Theses"
-msgstr "Diplomarbeiten"
-
-#: includes/class-publication-types.php:102
-msgid "Book Chapter"
-msgstr "Buchkapitel"
-
-#: includes/class-publication-types.php:103
-msgid "Book Chapters"
-msgstr "Buchkapitel"
-
-#: includes/class-publication-types.php:112
-msgid "Book Section"
-msgstr "Buchabschnitt"
-
-#: includes/class-publication-types.php:113
-msgid "Book Sections"
-msgstr "Buchabschnitte"
-
-#: includes/class-publication-types.php:122
-msgid "Proceedings Article"
-msgstr "Tagungsbandartikel"
-
-#: includes/class-publication-types.php:123
-msgid "Proceedings Articles"
-msgstr "Tagungsbandartikel"
-
-#: includes/class-publication-types.php:132
-msgid "Technical Manual"
-msgstr "Technisches Handbuch"
-
-#: includes/class-publication-types.php:133
-msgid "Technical Manuals"
-msgstr "Technische Handbücher"
-
-#: includes/class-publication-types.php:142
-msgid "Master Thesis"
-msgstr "Masterarbeit"
-
-#: includes/class-publication-types.php:143
-msgid "Master Theses"
-msgstr "Masterarbeiten"
-
-#: includes/class-publication-types.php:152
-msgid "Miscellaneous"
-msgstr "Sonstiges"
-
-#: includes/class-publication-types.php:162
-msgid "PhD Thesis"
-msgstr "Doktorarbeit"
-
-#: includes/class-publication-types.php:163
-msgid "PhD Theses"
-msgstr "Doktorarbeiten"
-
-#: includes/class-publication-types.php:172
-msgid "Proceedings"
-msgstr "Tagungsband"
-
-#: includes/class-publication-types.php:182
-msgid "Technical Report"
-msgstr "Technischer Bericht"
-
-#: includes/class-publication-types.php:183
-msgid "Technical Reports"
-msgstr "Technische Berichte"
-
-#: includes/class-publication-types.php:192
-msgid "Unpublished"
-msgstr "Unveröffentlicht"
-
-#: includes/class-publication-types.php:202
-msgid "Working Paper"
-msgstr "Arbeitspapier"
-
-#: includes/class-publication-types.php:203
-msgid "Working Papers"
-msgstr "Arbeitspapiere"
-
-#: includes/class-publication-types.php:212
-msgid "Presentation"
-msgstr "Präsentation"
-
-#: includes/class-publication-types.php:213
-msgid "Presentations"
-msgstr "Präsentationen"
-
-#: includes/class-publication-types.php:222
-msgid "Poster"
-msgstr "Poster"
-
-#: includes/class-publication-types.php:223
-msgid "Posters"
-msgstr "Poster"
-
-#: includes/class-publication-types.php:232
-msgid "Online"
-msgstr "Online"
-
-#: includes/class-publication-types.php:242
-msgid "Patent"
-msgstr "Patent"
-
-#: includes/class-publication-types.php:243
-msgid "Patents"
-msgstr "Patente"
-
-#: includes/class-publication-types.php:252
-msgid "Periodical"
-msgstr "Zeitschrift"
-
-#: includes/class-publication-types.php:253
-msgid "Periodicals"
-msgstr "Zeitschriften"
-
-#: includes/class-meta-boxes.php:39
-msgid "Publication Details"
-msgstr "Publikationsdetails"
-
-#: includes/class-meta-boxes.php:52
-msgid "Publication Type"
-msgstr "Publikationstyp"
-
-#: includes/class-meta-boxes.php:74
-msgid "Author(s)"
-msgstr "Autor(en)"
-
-#: includes/class-meta-boxes.php:81
-msgid "Editor(s)"
-msgstr "Herausgeber"
-
-#: includes/class-meta-boxes.php:88
-msgid "DOI"
-msgstr "DOI"
-
-#: includes/class-meta-boxes.php:95
-msgid "Year"
-msgstr "Jahr"
-
-#: includes/class-meta-boxes.php:102
-msgid "Month"
-msgstr "Monat"
-
-#: includes/class-meta-boxes.php:109
-msgid "Journal/Booktitle"
-msgstr "Zeitschrift/Buchtitel"
-
-#: includes/class-meta-boxes.php:116
-msgid "Volume"
-msgstr "Band"
-
-#: includes/class-meta-boxes.php:123
-msgid "Number/Issue"
-msgstr "Nummer/Ausgabe"
-
-#: includes/class-meta-boxes.php:130
-msgid "Pages"
-msgstr "Seiten"
-
-#: includes/class-meta-boxes.php:137
-msgid "Publisher"
-msgstr "Verlag"
-
-#: includes/class-meta-boxes.php:144
-msgid "Address"
-msgstr "Adresse"
-
-#: includes/class-meta-boxes.php:151
-msgid "ISBN"
-msgstr "ISBN"
-
-#: includes/class-meta-boxes.php:158
-msgid "ISSN"
-msgstr "ISSN"
-
-#: includes/class-meta-boxes.php:165
-msgid "URL/Link"
-msgstr "URL/Link"
-
-#: includes/class-meta-boxes.php:172
-msgid "Note"
-msgstr "Notiz"
-
-#: includes/class-meta-boxes.php:179
+#: includes/admin/admin-pages.php:737
+msgid "%d deleted publications"
+msgstr "%d gelöschte Veröffentlichungen"
+
+#: includes/admin/admin-pages.php:741
+msgid "%d total, %d duplicates"
+msgstr "%d gesamt, %d Duplikate"
+
+#: includes/admin/admin-pages.php:700
+msgid "(%d with duplicates)"
+msgstr "(%d mit Duplikaten)"
+
+#: includes/admin/class-meta-boxes.php:246
+msgid "+ Add Author"
+msgstr "+ Autor hinzufügen"
+
+#: includes/admin/admin-pages.php:466
+msgid "- shows \"Journal Article\" instead of \"article\""
+msgstr ""
+
+#: includes/admin/class-meta-boxes.php:549
 msgid "Abstract"
 msgstr "Zusammenfassung"
 
-#: includes/class-meta-boxes.php:186
-msgid "Keywords"
-msgstr "Schlüsselwörter"
+#: includes/admin/class-meta-boxes.php:99
+msgid "Abstract & Notes"
+msgstr "Zusammenfassung & Notizen"
 
-#: includes/class-meta-boxes.php:193
-msgid "BibTeX Key"
-msgstr "BibTeX-Schlüssel"
+#: includes/admin/admin-pages.php:770
+msgid "Action Required:"
+msgstr "Handlungsbedarf:"
 
-#: includes/admin-pages.php:32
-msgid "Import/Export"
-msgstr "Importieren/Exportieren"
+#: includes/admin/admin-pages.php:722
+msgid "Active"
+msgstr "Aktiv"
 
-#: includes/admin-pages.php:52
-msgid "Import from Crossref"
-msgstr "Aus Crossref importieren"
+#: includes/core/class-post-type.php:49
+msgid "Add New"
+msgstr "Neu hinzufügen"
 
-#: includes/admin-pages.php:54
-msgid "Import publications using DOI (Digital Object Identifier) from Crossref.org. You can import multiple publications by entering multiple DOIs separated by spaces or new lines."
-msgstr "Publikationen mittels DOI (Digital Object Identifier) von Crossref.org importieren. Sie können mehrere Publikationen importieren, indem Sie mehrere DOIs durch Leerzeichen oder neue Zeilen getrennt eingeben."
+#: includes/core/class-author-taxonomy.php:54
+msgid "Add New Author"
+msgstr "Neuen Autor hinzufügen"
 
-#: includes/admin-pages.php:62
-msgid "DOI(s)"
-msgstr "DOI(s)"
+#: includes/core/class-post-type.php:50
+msgid "Add New Publication"
+msgstr "Neue Publikation hinzufügen"
 
-#: includes/admin-pages.php:71
-msgid "Enter one or more DOIs (e.g., 10.1000/xyz123)"
-msgstr "Geben Sie einen oder mehrere DOIs ein (z.B. 10.1000/xyz123)"
+#: includes/admin/admin-pages.php:455
+msgid "Add Query Loop element"
+msgstr "Abfrageschleifenelement hinzufügen"
 
-#: includes/admin-pages.php:74
-msgid "Examples:"
-msgstr "Beispiele:"
+#: includes/admin/class-meta-boxes.php:89
+msgid "Additional Information"
+msgstr "Zusätzliche Informationen"
 
-#: includes/admin-pages.php:82
-msgid "Import Publications"
-msgstr "Publikationen importieren"
+#: includes/admin/class-meta-boxes.php:559
+msgid "Additional notes or remarks"
+msgstr "Zusätzliche Hinweise oder Anmerkungen"
 
-#: includes/admin-pages.php:93
-msgid "Export Publications"
-msgstr "Publikationen exportieren"
+#: includes/admin/class-meta-boxes.php:384
+msgid "Address"
+msgstr "Adresse"
 
-#: includes/admin-pages.php:95
-msgid "Export your publications in various formats."
-msgstr "Exportieren Sie Ihre Publikationen in verschiedenen Formaten."
+#: includes/admin/admin-pages.php:441
+msgid "After creating publications, link author terms to team member profiles:"
+msgstr "Verknüpfen Sie nach der Erstellung von Veröffentlichungen Autorbegriffe mit Teammitglied-Profilen:"
 
-#: includes/admin-pages.php:105
-msgid "Export Format"
-msgstr "Exportformat"
+#: includes/core/class-author-taxonomy.php:49
+#: includes/core/class-post-type.php:236
+msgid "All Authors"
+msgstr "Alle Autoren"
 
-#: includes/admin-pages.php:111
+#: includes/core/class-post-type.php:54
+msgid "All Publications"
+msgstr "Alle Publikationen"
+
+#: includes/admin/admin-pages.php:135
+#: includes/core/class-post-type.php:187
+msgid "All Types"
+msgstr "Alle Typen"
+
+#: includes/core/class-post-type.php:212
+msgid "All Years"
+msgstr "Alle Jahre"
+
+#: includes/admin/admin-pages.php:775
+msgid "All publications are linked to team members."
+msgstr "Alle Veröffentlichungen sind mit Teammitgliedern verknüpft."
+
+#: includes/admin/admin-pages.php:367
+msgid "Analytics"
+msgstr "Analysen"
+
+#: includes/admin/class-meta-boxes.php:205
+msgid "Any award or distinction received"
+msgstr "Erhaltene Auszeichnungen oder Ehrungen"
+
+#: includes/admin/class-meta-boxes.php:271
+msgid "At least one author is required."
+msgstr "Mindestens ein Autor ist erforderlich."
+
+#: includes/admin/admin-pages.php:426
+msgid "Author Linking Information"
+msgstr "Informationen zur Autorenverknüpfung"
+
+#: includes/functions.php:343
+msgid "Author link data"
+msgstr "Autorenlink-Daten"
+
+#: includes/admin/class-meta-boxes.php:236
+#: includes/core/class-author-taxonomy.php:56
+#: includes/core/class-post-type.php:115
+msgid "Authors"
+msgstr "Autoren"
+
+#: includes/admin/class-meta-boxes.php:69
+msgid "Authors & Editors"
+msgstr "Autoren & Herausgeber"
+
+#: includes/admin/admin-pages.php:430
+msgid "Authors are stored as taxonomy terms in the pm_author taxonomy"
+msgstr "Autoren werden als Taxonomiebegriffe in der pm_author-Taxonomie gespeichert"
+
+#: includes/admin/admin-pages.php:706
+msgid "Avg Links/Publication"
+msgstr "Durchschn. Links/Veröffentlichung"
+
+#: includes/admin/class-meta-boxes.php:202
+msgid "Award"
+msgstr "Auszeichnung"
+
+#: includes/core/class-publication-types.php:83
+msgid "Bachelor Theses"
+msgstr "Bachelorarbeiten"
+
+#: includes/core/class-publication-types.php:82
+msgid "Bachelor Thesis"
+msgstr "Bachelorarbeit"
+
+#: includes/admin/admin-pages.php:123
 msgid "BibTeX (.bib)"
 msgstr "BibTeX (.bib)"
 
-#: includes/admin-pages.php:112
+#: includes/admin/class-meta-boxes.php:188
+msgid "BibTeX Key"
+msgstr "BibTeX-Schlüssel"
+
+#: includes/admin/class-meta-boxes.php:461
+msgid "BibTeX cross-reference key"
+msgstr "BibTeX-Querverweisschlüssel"
+
+#: includes/core/class-publication-types.php:42
+msgid "Book"
+msgstr "Buch"
+
+#: includes/core/class-publication-types.php:102
+msgid "Book Chapter"
+msgstr "Buchkapitel"
+
+#: includes/core/class-publication-types.php:103
+msgid "Book Chapters"
+msgstr "Buchkapitel"
+
+#: includes/core/class-publication-types.php:112
+msgid "Book Section"
+msgstr "Buchabschnitt"
+
+#: includes/core/class-publication-types.php:113
+msgid "Book Sections"
+msgstr "Buchabschnitte"
+
+#: includes/admin/class-meta-boxes.php:321
+msgid "Book Title"
+msgstr "Buchtitel"
+
+#: includes/admin/class-meta-boxes.php:403
+msgid "Book or journal series"
+msgstr "Buch- oder Zeitschriftenreihe"
+
+#: includes/core/class-publication-types.php:52
+msgid "Booklet"
+msgstr "Broschüre"
+
+#: includes/core/class-publication-types.php:53
+msgid "Booklets"
+msgstr "Broschüren"
+
+#: includes/core/class-publication-types.php:43
+msgid "Books"
+msgstr "Bücher"
+
+#: includes/admin/admin-pages.php:124
 msgid "CSV (.csv)"
 msgstr "CSV (.csv)"
 
-#: includes/admin-pages.php:113
+#: includes/admin/class-meta-boxes.php:368
+msgid "Chapter"
+msgstr "Kapitel"
+
+#: includes/admin/class-meta-boxes.php:371
+msgid "Chapter number or title"
+msgstr "Kapitelnummer oder -titel"
+
+#: includes/admin/admin-pages.php:759
+msgid "Clean Up Orphaned Connections"
+msgstr "Verwaiste Verbindungen bereinigen"
+
+#: includes/admin/admin-pages.php:444
+msgid "Click \"Edit\" on an author term"
+msgstr ""
+
+#: includes/core/class-publication-types.php:62
+msgid "Collection"
+msgstr "Sammlung"
+
+#: includes/core/class-publication-types.php:63
+msgid "Collections"
+msgstr "Sammlungen"
+
+#: includes/core/class-publication-types.php:72
+msgid "Conference"
+msgstr "Konferenz"
+
+#: includes/core/class-publication-types.php:73
+msgid "Conferences"
+msgstr "Konferenzen"
+
+#: includes/admin/admin-pages.php:675
+msgid "Connection Statistics"
+msgstr "Verbindungsstatistiken"
+
+#: includes/admin/class-meta-boxes.php:498
+msgid "Cover Image URL"
+msgstr "Cover-Bild-URL"
+
+#: includes/admin/class-meta-boxes.php:458
+msgid "Cross Reference"
+msgstr "Querverweis"
+
+#: includes/admin/class-meta-boxes.php:588
+msgid "DOI"
+msgstr "DOI"
+
+#: includes/admin/admin-pages.php:76
+msgid "DOI(s)"
+msgstr "DOI(s)"
+
+#: includes/admin/admin-pages.php:765
+msgid "Data Integrity Issue Detected:"
+msgstr "Problem mit Datenintegrität erkannt:"
+
+#: includes/admin/class-meta-boxes.php:198
+msgid "Date of publication"
+msgstr "Veröffentlichungsdatum"
+
+#: includes/admin/class-meta-boxes.php:494
+msgid "Date when the URL was last accessed"
+msgstr "Datum des letzten URL-Zugriffs"
+
+#: includes/admin/class-meta-boxes.php:590
+msgid "Digital Object Identifier"
+msgstr "Digitaler Objektbezeichner"
+
+#: includes/core/class-publication-types.php:93
+msgid "Diploma Theses"
+msgstr "Diplomarbeiten"
+
+#: includes/core/class-publication-types.php:92
+msgid "Diploma Thesis"
+msgstr "Diplomarbeit"
+
+#: includes/admin/admin-pages.php:461
+msgid "Display Authors with Links:"
+msgstr "Autoren mit Links anzeigen:"
+
+#: includes/admin/admin-pages.php:465
+msgid "Display Publication Type (Formatted):"
+msgstr "Veröffentlichungstyp anzeigen (formatiert):"
+
+#: includes/admin/admin-pages.php:433
+msgid "Each author becomes a reusable term in Publications → Authors"
+msgstr "Jeder Autor wird zu einem wiederverwendbaren Begriff in Veröffentlichungen → Autoren"
+
+#: includes/core/class-author-taxonomy.php:52
+msgid "Edit Author"
+msgstr "Autor bearbeiten"
+
+#: includes/core/class-post-type.php:52
+msgid "Edit Publication"
+msgstr "Publikation bearbeiten"
+
+#: includes/admin/class-meta-boxes.php:392
+msgid "Edition"
+msgstr "Ausgabe"
+
+#: includes/admin/class-meta-boxes.php:395
+msgid "Edition number (e.g., 2nd, Third)"
+msgstr "Ausgabenummer (z.B. 2., Dritte)"
+
+#: includes/admin/class-meta-boxes.php:249
+msgid "Editors"
+msgstr "Herausgeber"
+
+#: includes/admin/class-meta-boxes.php:237
+msgid "Enter each author name. Authors will be created as terms and can be linked to team members."
+msgstr "Geben Sie jeden Autorennamen ein. Autoren werden als Begriffe erstellt und können mit Team-Mitgliedern verknüpft werden."
+
+#: includes/admin/admin-pages.php:84
+#: includes/admin/admin-pages.php:84
+msgid "Enter one or more DOIs (e.g., 10.1000/xyz123)"
+msgstr "Geben Sie einen oder mehrere DOIs ein (z.B. 10.1000/xyz123)"
+
+#: includes/admin/admin-pages.php:409
+msgid "Enter the slug of the Custom Post Type that contains team member profiles (e.g., team_member). Publications will be automatically linked to team members based on author names matching the team member post titles."
+msgstr "Geben Sie den Slug des Custom Post Type ein, der Team-Mitgliederprofile enthält (z.B. team_member). Veröffentlichungen werden automatisch mit Team-Mitgliedern verknüpft, wenn Autorennamen mit den Post-Titeln der Team-Mitglieder übereinstimmen."
+
+#: includes/admin/admin-pages.php:432
+msgid "Example: \"John Doe, Jane Smith, Bob Lee\""
+msgstr ""
+
+#: includes/admin/admin-pages.php:86
+msgid "Examples:"
+msgstr "Beispiele:"
+
+#: includes/admin/admin-pages.php:119
+msgid "Export Format"
+msgstr "Exportformat"
+
+#: includes/admin/admin-pages.php:107
+#: includes/admin/admin-pages.php:144
+msgid "Export Publications"
+msgstr "Publikationen exportieren"
+
+#: includes/admin/admin-pages.php:109
+msgid "Export your publications in various formats."
+msgstr "Exportieren Sie Ihre Publikationen in verschiedenen Formaten."
+
+#: includes/admin/class-meta-boxes.php:505
+msgid "External Image Link"
+msgstr "Externer Bild-Link"
+
+#: includes/admin/class-meta-boxes.php:508
+msgid "External link for the image"
+msgstr "Externer Link für das Bild"
+
+#: includes/integrations/class-crossref-import.php:135
+msgid "Failed to create/update publication post"
+msgstr "Fehler beim Erstellen/Aktualisieren des Veröffentlichungs-Posts"
+
+#: includes/integrations/class-crossref-import.php:141
+msgid "Failed to parse Crossref data"
+msgstr "Fehler beim Analysieren der Crossref-Daten"
+
+#: includes/admin/class-meta-boxes.php:610
+msgid "Forthcoming"
+msgstr "Bevorstehend"
+
+#: includes/admin/admin-pages.php:755
+msgid "Found %d connections to deleted publications. These are references to publications that no longer exist in your database."
+msgstr "%d Verbindungen zu gelöschten Veröffentlichungen gefunden. Dies sind Verweise auf Veröffentlichungen, die nicht mehr in Ihrer Datenbank vorhanden sind."
+
+#: includes/admin/admin-pages.php:766
+msgid "Found %d duplicate meta entries. Please manually review your publications and re-link authors if needed."
+msgstr ""
+
+#: includes/admin/admin-pages.php:468
+msgid "Get Author Term URL (in Query Loops):"
+msgstr "Autorbegriff-URL abrufen (in Abfrageschleifen):"
+
+#: includes/admin/admin-pages.php:443
+msgid "Go to <strong>Publications → Authors</strong>"
+msgstr "Gehen Sie zu <strong>Veröffentlichungen → Autoren</strong>"
+
+#: includes/admin/admin-pages.php:775
+msgid "Great!"
+msgstr "Großartig!"
+
+#: includes/integrations/class-crossref-import.php:85
+msgid "HTTP Error: %d"
+msgstr "HTTP-Fehler: %d"
+
+#: includes/admin/class-meta-boxes.php:469
+msgid "Hidden field for alphabetizing"
+msgstr "Verstecktes Feld zur alphabetischen Sortierung"
+
+#: includes/admin/class-meta-boxes.php:434
+msgid "How Published"
+msgstr "Wie veröffentlicht"
+
+#: includes/admin/admin-pages.php:428
+msgid "How it works (v2.2.1):"
+msgstr "So funktioniert es (v2.2.1):"
+
+#: includes/admin/admin-pages.php:451
+msgid "How to Use in Bricks Builder"
+msgstr "Verwendung in Bricks Builder"
+
+#: includes/admin/class-meta-boxes.php:453
+msgid "ISBN or ISSN number"
+msgstr "ISBN- oder ISSN-Nummer"
+
+#: includes/admin/class-meta-boxes.php:450
+msgid "ISBN/ISSN"
+msgstr "ISBN/ISSN"
+
+#: includes/admin/class-meta-boxes.php:527
+msgid "Import ID"
+msgstr "Import-ID"
+
+#: includes/admin/admin-pages.php:96
+msgid "Import Publications"
+msgstr "Publikationen importieren"
+
+#: includes/admin/admin-pages.php:65
+msgid "Import from Crossref"
+msgstr "Aus Crossref importieren"
+
+#: includes/admin/admin-pages.php:67
+msgid "Import publications using DOI (Digital Object Identifier) from Crossref.org. You can import multiple publications by entering multiple DOIs separated by spaces or new lines."
+msgstr "Publikationen mittels DOI (Digital Object Identifier) von Crossref.org importieren. Sie können mehrere Publikationen importieren, indem Sie mehrere DOIs durch Leerzeichen oder neue Zeilen getrennt eingeben."
+
+#: includes/admin/admin-pages.php:35
+#: includes/admin/admin-pages.php:36
+msgid "Import/Export"
+msgstr "Importieren/Exportieren"
+
+#: includes/admin/class-meta-boxes.php:611
+msgid "In Press"
+msgstr "Im Druck"
+
+#: includes/admin/class-meta-boxes.php:613
+msgid "In Review"
+msgstr "In Überprüfung"
+
+#: includes/admin/class-meta-boxes.php:409
+msgid "Institution"
+msgstr "Institution"
+
+#: includes/admin/class-meta-boxes.php:563
+msgid "Internal Comment"
+msgstr "Interner Kommentar"
+
+#: includes/admin/class-meta-boxes.php:566
+msgid "Internal comments (not displayed publicly)"
+msgstr "Interne Kommentare (öffentlich nicht angezeigt)"
+
+#: includes/integrations/class-crossref-import.php:97
+msgid "Invalid JSON response from Crossref"
+msgstr "Ungültige JSON-Antwort von Crossref"
+
+#: includes/admin/class-meta-boxes.php:353
+msgid "Issue"
+msgstr "Ausgabe"
+
+#: includes/admin/class-meta-boxes.php:329
+msgid "Issue Title"
+msgstr "Ausgabentitel"
+
+#: includes/admin/class-meta-boxes.php:348
+msgid "Issue number"
+msgstr "Ausgabennummer"
+
+#: includes/admin/admin-pages.php:125
 msgid "JSON (.json)"
 msgstr "JSON (.json)"
 
-#: includes/admin-pages.php:119
-msgid "Export All Publications"
-msgstr "Alle Publikationen exportieren"
+#: includes/admin/class-meta-boxes.php:313
+msgid "Journal"
+msgstr "Zeitschrift"
 
-#: includes/admin-pages.php:130
-msgid "Import BibTeX"
-msgstr "BibTeX importieren"
+#: includes/core/class-publication-types.php:32
+msgid "Journal Article"
+msgstr "Zeitschriftenartikel"
 
-#: includes/admin-pages.php:132
-msgid "Upload a BibTeX file (.bib) to import publications."
-msgstr "Laden Sie eine BibTeX-Datei (.bib) hoch, um Publikationen zu importieren."
+#: includes/core/class-publication-types.php:33
+msgid "Journal Articles"
+msgstr "Zeitschriftenartikel"
 
-#: includes/admin-pages.php:140
-msgid "BibTeX File"
-msgstr "BibTeX-Datei"
+#: includes/admin/class-meta-boxes.php:466
+msgid "Key"
+msgstr "Schlüssel"
 
-#: includes/admin-pages.php:148
-msgid "Import BibTeX File"
-msgstr "BibTeX-Datei importieren"
+#: includes/admin/admin-pages.php:434
+msgid "Link authors to team members manually via Publications → Authors admin"
+msgstr "Verknüpfen Sie Autoren manuell über Veröffentlichungen → Autoren-Admin mit Teammitgliedern"
 
-#: includes/admin-pages.php:165
-msgid "Imported successfully!"
-msgstr "Erfolgreich importiert!"
+#: includes/core/class-author-taxonomy.php:101
+msgid "Link this author to a team member profile"
+msgstr "Diesen Autor mit einem Teammitglied-Profil verknüpfen"
 
-#: includes/admin-pages.php:166
-msgid "Error:"
-msgstr "Fehler:"
+#: includes/core/class-author-taxonomy.php:141
+msgid "Link this author to a team member profile. Author name will link to team member page."
+msgstr "Diesen Autor mit einem Teammitglied-Profil verknüpfen. Der Autorenname wird zur Teammitglied-Seite verlinkt."
 
-#: includes/admin-pages.php:167
-msgid "Processing..."
-msgstr "Verarbeitung läuft..."
+#: includes/admin/class-meta-boxes.php:523
+msgid "Link to a related WordPress page"
+msgstr "Link zu einer verwandten WordPress-Seite"
 
-#: includes/admin-pages.php:177
-msgid "Importing publications..."
-msgstr "Importiere Publikationen..."
+#: includes/core/class-author-taxonomy.php:82
+#: includes/core/class-author-taxonomy.php:120
+msgid "Linked Team Member"
+msgstr "Verknüpftes Teammitglied"
 
-#: includes/admin-pages.php:202
-msgid "Invalid nonce"
-msgstr "Ungültige Nonce"
+#: includes/functions.php:360
+msgid "Linked publication ID"
+msgstr "Verknüpfte Veröffentlichungs-ID"
 
-#: includes/admin-pages.php:207
-msgid "No DOI(s) provided"
-msgstr "Keine DOI(s) angegeben"
+#: includes/functions.php:329
+msgid "Linked team members"
+msgstr "Verknüpfte Teammitglieder"
 
-#: includes/admin-pages.php:220
-msgid "Successfully imported"
-msgstr "Erfolgreich importiert"
+#: includes/core/class-publication-types.php:143
+msgid "Masters Theses"
+msgstr "Masterarbeiten"
 
-#: includes/admin-pages.php:221
-msgid "Failed to import"
-msgstr "Import fehlgeschlagen"
+#: includes/core/class-publication-types.php:142
+msgid "Masters Thesis"
+msgstr "Masterarbeit"
 
-#: includes/admin-pages.php:231
-msgid "Invalid format"
-msgstr "Ungültiges Format"
+#: includes/core/class-publication-types.php:153
+msgid "Media"
+msgstr "Medien"
 
-#: includes/admin-pages.php:239
-msgid "No publications found"
-msgstr "Keine Publikationen gefunden"
+#: includes/core/class-publication-types.php:152
+msgid "Medium"
+msgstr "Medium"
 
-#: includes/admin-pages.php:278
-msgid "Error exporting publications"
-msgstr "Fehler beim Exportieren der Publikationen"
+#: includes/admin/class-meta-boxes.php:437
+msgid "Method of publication (for unusual publications)"
+msgstr "Veröffentlichungsmethode (für ungewöhnliche Veröffentlichungen)"
 
-#: includes/class-crossref-import.php:62
-msgid "Successfully imported publication:"
-msgstr "Publikation erfolgreich importiert:"
+#: includes/core/class-publication-types.php:162
+#: includes/core/class-publication-types.php:163
+msgid "Miscellaneous"
+msgstr "Sonstiges"
 
-#: includes/class-crossref-import.php:64
-msgid "Failed to import DOI:"
-msgstr "DOI-Import fehlgeschlagen:"
+#: includes/admin/class-meta-boxes.php:316
+msgid "Name of the journal"
+msgstr "Name der Zeitschrift"
+
+#: includes/core/class-author-taxonomy.php:55
+msgid "New Author Name"
+msgstr "Neuer Autorenname"
+
+#: includes/core/class-post-type.php:51
+msgid "New Publication"
+msgstr "Neue Publikation"
+
+#: includes/integrations/class-crossref-import.php:33
+msgid "No DOIs provided"
+msgstr "Keine DOIs angegeben"
+
+#: includes/core/class-post-type.php:58
+msgid "No publications found in Trash."
+msgstr "Keine Publikationen im Papierkorb gefunden."
+
+#: includes/core/class-post-type.php:57
+msgid "No publications found."
+msgstr "Keine Publikationen gefunden."
+
+#: includes/admin/class-meta-boxes.php:519
+#: includes/core/class-author-taxonomy.php:94
+#: includes/core/class-author-taxonomy.php:134
+msgid "None"
+msgstr "Keine"
+
+#: includes/admin/admin-pages.php:722
+msgid "Not Found"
+msgstr "Nicht gefunden"
+
+#: includes/admin/class-meta-boxes.php:556
+msgid "Note"
+msgstr "Notiz"
+
+#: includes/admin/class-meta-boxes.php:345
+msgid "Number"
+msgstr "Nummer"
+
+#: includes/admin/admin-pages.php:453
+msgid "On Team Member Page - Query Publications:"
+msgstr "Auf der Teammitglied-Seite - Veröffentlichungen abfragen:"
+
+#: includes/admin/admin-pages.php:435
+msgid "Once linked, author names display as clickable links to team member pages"
+msgstr "Nach der Verknüpfung werden Autorennamen als anklickbare Links zu Teammitglied-Seiten angezeigt"
+
+#: includes/core/class-publication-types.php:172
+#: includes/core/class-publication-types.php:173
+msgid "Online"
+msgstr "Online"
+
+#: includes/admin/class-meta-boxes.php:250
+#: includes/admin/class-meta-boxes.php:250
+msgid "Optional: List of editors"
+msgstr "Optional: Liste der Herausgeber"
+
+#: includes/admin/class-meta-boxes.php:417
+msgid "Organization"
+msgstr "Organisation"
+
+#: includes/admin/admin-pages.php:754
+msgid "Orphaned Connections Detected:"
+msgstr "Verwaiste Verbindungen erkannt:"
+
+#: includes/admin/class-meta-boxes.php:363
+msgid "Page range (e.g., 123-145)"
+msgstr "Seitenbereich (z.B. 123-145)"
+
+#: includes/admin/class-meta-boxes.php:360
+msgid "Pages"
+msgstr "Seiten"
+
+#: includes/core/class-author-taxonomy.php:50
+msgid "Parent Author"
+msgstr "Übergeordneter Autor"
+
+#: includes/core/class-author-taxonomy.php:51
+msgid "Parent Author:"
+msgstr "Übergeordneter Autor:"
+
+#: includes/core/class-post-type.php:56
+msgid "Parent Publications:"
+msgstr "Übergeordnete Publikationen:"
+
+#: includes/core/class-publication-types.php:182
+msgid "Patent"
+msgstr "Patent"
+
+#: includes/core/class-publication-types.php:183
+msgid "Patents"
+msgstr "Patente"
+
+#: includes/core/class-publication-types.php:192
+msgid "Periodical"
+msgstr "Zeitschrift"
+
+#: includes/core/class-publication-types.php:193
+msgid "Periodicals"
+msgstr "Zeitschriften"
+
+#: includes/admin/admin-pages.php:296
+msgid "Permission denied"
+msgstr "Zugriff verweigert"
+
+#: includes/core/class-publication-types.php:203
+msgid "PhD Theses"
+msgstr "Doktorarbeiten"
+
+#: includes/core/class-publication-types.php:202
+msgid "PhD Thesis"
+msgstr "Doktorarbeit"
+
+#: includes/admin/admin-pages.php:302
+msgid "Please enter at least one DOI"
+msgstr "Bitte geben Sie mindestens einen DOI ein"
+
+#: includes/admin/admin-pages.php:457
+msgid "Post Type: Publication"
+msgstr "Beitragstyp: Veröffentlichung"
+
+#: includes/core/class-publication-types.php:212
+msgid "Presentation"
+msgstr "Präsentation"
+
+#: includes/core/class-publication-types.php:213
+msgid "Presentations"
+msgstr "Präsentationen"
+
+#: includes/core/class-publication-types.php:222
+#: includes/core/class-publication-types.php:223
+msgid "Proceedings"
+msgstr "Tagungsband"
+
+#: includes/core/class-publication-types.php:122
+msgid "Proceedings Article"
+msgstr "Tagungsbandartikel"
+
+#: includes/core/class-publication-types.php:123
+msgid "Proceedings Articles"
+msgstr "Tagungsbandartikel"
+
+#: includes/admin/class-meta-boxes.php:195
+msgid "Publication Date"
+msgstr "Veröffentlichungsdatum"
+
+#: includes/admin/class-meta-boxes.php:79
+msgid "Publication Details"
+msgstr "Publikationsdetails"
+
+#: includes/admin/class-meta-boxes.php:119
+#: includes/admin/class-meta-boxes.php:607
+msgid "Publication Status"
+msgstr "Veröffentlichungsstatus"
+
+#: includes/admin/admin-pages.php:131
+#: includes/admin/class-meta-boxes.php:178
+msgid "Publication Type"
+msgstr "Publikationstyp"
+
+#: includes/admin/class-meta-boxes.php:59
+msgid "Publication Type & Basic Information"
+msgstr "Publikationstyp & Basisinformationen"
+
+#: includes/admin/class-meta-boxes.php:585
+msgid "Publication URL"
+msgstr "Publikations-URL"
+
+#: includes/admin/class-meta-boxes.php:552
+msgid "Publication abstract or summary"
+msgstr "Publikationszusammenfassung oder -übersicht"
+
+#: includes/core/class-post-type.php:73
+msgid "Publication entries with full academic metadata"
+msgstr "Veröffentlichungseinträge mit vollständigen akademischen Metadaten"
+
+#: includes/functions.php:303
+msgid "Publication field: %s"
+msgstr "Veröffentlichungsfeld: %s"
+
+#: includes/admin/class-meta-boxes.php:609
+msgid "Published"
+msgstr "Veröffentlicht"
+
+#: includes/admin/class-meta-boxes.php:377
+msgid "Publisher"
+msgstr "Verlag"
+
+#: includes/admin/class-meta-boxes.php:387
+msgid "Publisher address or location"
+msgstr "Verlagsadresse oder -ort"
+
+#: includes/admin/admin-pages.php:456
+msgid "Query Type: Posts"
+msgstr "Abfragetyp: Beiträge"
+
+#: includes/admin/class-meta-boxes.php:512
+msgid "Related Page"
+msgstr "Verwandte Seite"
+
+#: includes/admin/class-meta-boxes.php:242
+#: includes/admin/class-meta-boxes.php:260
+msgid "Remove"
+msgstr "Entfernen"
+
+#: includes/admin/admin-pages.php:446
+msgid "Save - the plugin automatically stores the team member URL"
+msgstr "Speichern - das Plugin speichert automatisch die Teammitglied-URL"
+
+#: includes/admin/admin-pages.php:420
+#: includes/admin/admin-pages.php:420
+msgid "Save Settings"
+msgstr "Einstellungen speichern"
+
+#: includes/admin/class-meta-boxes.php:428
+msgid "School where thesis was written"
+msgstr "Schule, an der die Arbeit verfasst wurde"
+
+#: includes/admin/class-meta-boxes.php:425
+msgid "School/University"
+msgstr "Schule/Universität"
+
+#: includes/core/class-author-taxonomy.php:48
+msgid "Search Authors"
+msgstr "Autoren suchen"
+
+#: includes/core/class-post-type.php:55
+msgid "Search Publications"
+msgstr "Publikationen suchen"
+
+#: includes/admin/class-meta-boxes.php:181
+msgid "Select Type"
+msgstr "Typ auswählen"
+
+#: includes/admin/admin-pages.php:445
+msgid "Select the corresponding team member from the \"Linked Team Member\" dropdown"
+msgstr ""
+
+#: includes/admin/class-meta-boxes.php:184
+msgid "Select the type of publication. Fields will be adjusted based on your selection."
+msgstr "Wählen Sie den Publikationstyp. Die Felder werden basierend auf Ihrer Auswahl angepasst."
+
+#: includes/admin/class-meta-boxes.php:400
+msgid "Series"
+msgstr "Reihe"
+
+#: includes/admin/admin-pages.php:364
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: includes/admin/admin-pages.php:353
+msgid "Settings saved successfully."
+msgstr "Einstellungen erfolgreich gespeichert."
+
+#: includes/admin/admin-pages.php:277
+msgid "Show all publication types"
+msgstr "Alle Publikationstypen anzeigen"
+
+#: includes/admin/admin-pages.php:757
+msgid "Solution:"
+msgstr "Lösung:"
+
+#: includes/admin/class-meta-boxes.php:412
+msgid "Sponsoring institution (for tech reports)"
+msgstr "Sponsernde Institution (für technische Berichte)"
+
+#: includes/admin/class-meta-boxes.php:420
+msgid "Sponsoring organization"
+msgstr "Sponsernde Organisation"
+
+#: includes/admin/admin-pages.php:152
+msgid "Statistics"
+msgstr "Statistiken"
+
+#: includes/admin/class-meta-boxes.php:612
+msgid "Submitted"
+msgstr "Eingereicht"
+
+#: includes/admin/admin-pages.php:343
+msgid "Successfully cleaned up %d orphaned connections."
+msgstr "Erfolgreich %d verwaiste Verbindungen bereinigt."
+
+#: includes/admin/admin-pages.php:399
+msgid "Team CPT Slug"
+msgstr "Team-CPT-Slug"
+
+#: includes/admin/admin-pages.php:718
+msgid "Team CPT Status:"
+msgstr "Team-CPT-Status:"
+
+#: includes/core/class-author-taxonomy.php:194
+msgid "Team Member"
+msgstr "Teammitglied"
+
+#: includes/admin/admin-pages.php:711
+msgid "Team Members"
+msgstr "Teammitglieder"
+
+#: includes/core/class-author-taxonomy.php:318
+msgid "Team member URL for this author"
+msgstr "Teammitglied-URL für diesen Autor"
+
+#: includes/core/class-author-taxonomy.php:104
+#: includes/core/class-author-taxonomy.php:144
+msgid "Team member post type not found. Configure in Publications > Settings"
+msgstr "Teammitglied-Beitragstyp nicht gefunden. Konfigurieren Sie ihn unter Veröffentlichungen > Einstellungen"
+
+#: includes/core/class-publication-types.php:132
+msgid "Technical Manual"
+msgstr "Technisches Handbuch"
+
+#: includes/core/class-publication-types.php:133
+msgid "Technical Manuals"
+msgstr "Technische Handbücher"
+
+#: includes/core/class-publication-types.php:232
+msgid "Technical Report"
+msgstr "Technischer Bericht"
+
+#: includes/core/class-publication-types.php:233
+msgid "Technical Reports"
+msgstr "Technische Berichte"
+
+#: includes/admin/admin-pages.php:458
+msgid "The plugin automatically filters to show only this member\\'s publications"
+msgstr ""
+
+#: includes/admin/admin-pages.php:463
+msgid "This displays authors with automatic links to linked team members."
+msgstr "Dies zeigt Autoren mit automatischen Links zu verknüpften Team-Mitgliedern an."
+
+#: includes/admin/admin-pages.php:758
+#: includes/admin/admin-pages.php:758
+msgid "This will remove all connections to deleted publications. Continue?"
+msgstr "Dies entfernt alle Verbindungen zu gelöschten Veröffentlichungen. Fortfahren?"
+
+#: includes/admin/class-meta-boxes.php:324
+msgid "Title of the book (for chapters, sections)"
+msgstr "Titel des Buches (für Kapitel, Abschnitte)"
+
+#: includes/admin/class-meta-boxes.php:332
+msgid "Title of the specific issue"
+msgstr "Titel der spezifischen Ausgabe"
+
+#: includes/admin/admin-pages.php:44
+#: includes/admin/admin-pages.php:45
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#: includes/admin/admin-pages.php:729
+msgid "Top Authors by Publication Count"
+msgstr "Top-Autoren nach Veröffentlichungsanzahl"
+
+#: includes/admin/admin-pages.php:696
+msgid "Total Connections"
+msgstr "Gesamtverbindungen"
+
+#: includes/admin/admin-pages.php:264
+#: includes/admin/admin-pages.php:679
+msgid "Total Publications"
+msgstr "Gesamtveröffentlichungen"
+
+#: includes/admin/class-meta-boxes.php:442
+#: includes/core/class-post-type.php:114
+msgid "Type"
+msgstr "Typ"
+
+#: includes/admin/class-meta-boxes.php:445
+msgid "Type of technical report or thesis"
+msgstr "Art des technischen Berichts oder der Abschlussarbeit"
+
+#: includes/admin/class-meta-boxes.php:583
+msgid "URL"
+msgstr "URL"
+
+#: includes/admin/class-meta-boxes.php:491
+msgid "URL Access Date"
+msgstr "URL-Zugriffsdatum"
+
+#: includes/admin/class-meta-boxes.php:501
+msgid "URL to publication cover image"
+msgstr "URL zum Veröffentlichungstitel bild"
+
+#: includes/admin/class-meta-boxes.php:109
+msgid "URLs & Digital Object Identifier"
+msgstr "URLs & Digitaler Objektbezeichner"
+
+#: includes/admin/class-meta-boxes.php:191
+msgid "Unique BibTeX citation key (e.g., Smith2024)"
+msgstr "Eindeutiger BibTeX-Zitierschlüssel (z.B. Müller2024)"
+
+#: includes/admin/class-meta-boxes.php:530
+msgid "Unique identifier for imported publications (read-only)"
+msgstr "Eindeutige Kennung für importierte Veröffentlichungen (schreibgeschützt)"
+
+#: includes/core/class-publication-types.php:242
+#: includes/core/class-publication-types.php:243
+msgid "Unpublished"
+msgstr "Unveröffentlicht"
+
+#: includes/core/class-author-taxonomy.php:53
+msgid "Update Author"
+msgstr "Autor aktualisieren"
+
+#: includes/admin/admin-pages.php:462
+msgid "Use dynamic data:"
+msgstr "Dynamische Daten verwenden:"
+
+#: includes/admin/admin-pages.php:466
+msgid "Use:"
+msgstr "Verwenden:"
+
+#: includes/core/class-post-type.php:53
+#: includes/functions.php:236
+msgid "View Publication"
+msgstr "Publikation ansehen"
+
+#: includes/admin/class-meta-boxes.php:338
+msgid "Volume"
+msgstr "Band"
+
+#: includes/admin/admin-pages.php:431
+msgid "When adding publications, enter authors as: \"GivenName FamilyName, GivenName FamilyName\""
+msgstr ""
+
+#: includes/admin/admin-pages.php:469
+msgid "When looping through author terms, use:"
+msgstr "Beim Durchlaufen von Autorbegriffen verwenden Sie:"
+
+#: includes/admin/admin-pages.php:684
+msgid "With Team Links"
+msgstr "Mit Teamlinks"
+
+#: includes/admin/admin-pages.php:690
+msgid "Without Links"
+msgstr "Ohne Links"
+
+#: includes/core/class-publication-types.php:252
+msgid "Working paper"
+msgstr "Arbeitspapier"
+
+#: includes/core/class-publication-types.php:253
+msgid "Working papers"
+msgstr "Arbeitspapiere"
+
+#: includes/core/class-publication-types.php:262
+msgid "Workshop"
+msgstr "Workshop"
+
+#: includes/core/class-publication-types.php:263
+msgid "Workshops"
+msgstr "Workshops"
+
+#: includes/core/class-post-type.php:116
+msgid "Year"
+msgstr "Jahr"
+
+#: includes/admin/admin-pages.php:771
+msgid "You have %d publications without team member links. Go to Publications → Authors to link them manually."
+msgstr ""
+
+#: includes/admin/class-meta-boxes.php:241
+#: includes/admin/class-meta-boxes.php:259
+#: includes/admin/class-meta-boxes.php:241
+#: includes/admin/class-meta-boxes.php:259
+msgid "e.g., John Smith"
+msgstr "z.B. Max Mustermann"
+
+#: includes/admin/admin-pages.php:745
+msgid "publication"
+msgid_plural "publications"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/admin/admin-pages.php:448
+msgid "💡 Tip: Once linked, use {term_meta:pm_author_team_url} in Bricks Builder for author term URLs."
+msgstr "💡 Tipp: Nach der Verknüpfung verwenden Sie {term_meta:pm_author_team_url} in Bricks Builder für Autorbegriff-URLs."
+
+#: includes/admin/admin-pages.php:440
+msgid "📝 Linking Authors to Team Members"
+msgstr "📝 Autoren mit Teammitgliedern verknüpfen"
+

@@ -288,7 +288,6 @@ $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
         <h2>🔧 Actions</h2>
         <a href="<?php echo admin_url('edit.php?post_type=publication'); ?>" class="button">Go to Publications</a>
         <a href="<?php echo admin_url('edit.php?post_type=publication&page=pm-settings'); ?>" class="button">Settings</a>
-        <a href="bulk-process.php" class="button">Bulk Process</a>
 
         <div class="info" style="margin-top: 30px;">
             <h3>💡 How to Use in Bricks Builder</h3>
