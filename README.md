@@ -239,7 +239,17 @@ The plugin includes all teachPress publication types:
 
 ## Changelog
 
-### 2.3.1 (Current)
+### 2.3.2 (Current)
+
+- **Enhanced admin columns** - reordered and optimized publication list columns
+- **Added Date column** - now displays full pm_date value in admin list
+- **Improved column layout** - Title takes remaining space, Authors (max 20%/300px), Type (max 12%/150px), Date (max 8%/100px)
+- **Removed Year column** - replaced with more useful full Date column
+- **Increased author display** - admin list now shows up to 5 authors before "et al."
+- **Default sorting** - publications now automatically ordered by date (newest first)
+- **Better column sorting** - all columns remain sortable with improved query handling
+
+### 2.3.1
 
 - **Fixed translation loading timing** - resolved WordPress 6.7+ compatibility warnings
 - **Improved plugin initialization** - translations now load in constructor for early availability
