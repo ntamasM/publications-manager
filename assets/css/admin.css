@@ -43,21 +43,21 @@ label.required:after {
   color: #dc3232;
 }
 
+.column-title {
+  width: 60%;
+}
+
 /* Publication list columns */
+.column-pm_authors {
+  width: 28%;
+}
+
 .column-pm_type {
   width: 12%;
 }
 
-.column-pm_authors {
-  width: 18%;
-}
-
-.column-pm_year {
-  width: 8%;
-}
-
-.column-title {
-  width: auto !important;
+.column-pm_date {
+  width: 95px;
 }
 
 /* Import/Export page specific styles */

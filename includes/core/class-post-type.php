@@ -33,6 +33,9 @@ class PM_Post_Type
         // Add filters/dropdowns
         add_action('restrict_manage_posts', array(__CLASS__, 'add_admin_filters'));
         add_filter('parse_query', array(__CLASS__, 'filter_by_meta'));
+
+        // Set default order
+        add_filter('pre_get_posts', array(__CLASS__, 'set_default_order'));
     }
 
     /**
@@ -111,9 +114,9 @@ class PM_Post_Type
         $new_columns = array();
         $new_columns['cb'] = $columns['cb'];
         $new_columns['title'] = $columns['title'];
-        $new_columns['pm_type'] = __('Type', 'publications-manager');
         $new_columns['pm_authors'] = __('Authors', 'publications-manager');
-        $new_columns['pm_year'] = __('Year', 'publications-manager');
+        $new_columns['pm_type'] = __('Type', 'publications-manager');
+        $new_columns['pm_date'] = __('Date', 'publications-manager');
 
         return $new_columns;
     }
@@ -138,8 +141,9 @@ class PM_Post_Type
                 $terms = get_the_terms($post_id, 'pm_author');
                 if ($terms && !is_wp_error($terms)) {
                     $author_names = wp_list_pluck($terms, 'name');
-                    if (count($author_names) > 2) {
-                        echo esc_html($author_names[0]) . ' et al.';
+                    if (count($author_names) > 5) {
+                        $first_five = array_slice($author_names, 0, 5);
+                        echo esc_html(implode(', ', $first_five)) . ' et al.';
                     } else {
                         echo esc_html(implode(', ', $author_names));
                     }
@@ -148,10 +152,10 @@ class PM_Post_Type
                 }
                 break;
 
-            case 'pm_year':
+            case 'pm_date':
                 $date = get_post_meta($post_id, 'pm_date', true);
                 if ($date) {
-                    echo esc_html(substr($date, 0, 4));
+                    echo esc_html($date);
                 } else {
                     echo '—';
                 }
@@ -164,9 +168,9 @@ class PM_Post_Type
      */
     public static function sortable_columns($columns)
     {
-        $columns['pm_type'] = 'pm_type';
         $columns['pm_authors'] = 'pm_authors';
-        $columns['pm_year'] = 'pm_year';
+        $columns['pm_type'] = 'pm_type';
+        $columns['pm_date'] = 'pm_date';
         return $columns;
     }
 
@@ -306,12 +310,33 @@ class PM_Post_Type
             $query->set('meta_key', 'pm_date');
             $query->set('orderby', 'meta_value');
             $query->set('order', 'DESC');
-        } elseif (in_array($orderby, array('pm_type', 'pm_year'))) {
+        } elseif (in_array($orderby, array('pm_type', 'pm_date'))) {
             // Handle custom column sorting
             $query->set('meta_key', $orderby);
             $query->set('orderby', 'meta_value');
         }
 
         return $query;
+    }
+
+    /**
+     * Set default order for publications
+     */
+    public static function set_default_order($query)
+    {
+        if (!is_admin() || !$query->is_main_query()) {
+            return;
+        }
+
+        if ($query->get('post_type') !== 'publication') {
+            return;
+        }
+
+        // Only set default order if no orderby is specified
+        if (!$query->get('orderby')) {
+            $query->set('orderby', 'meta_value');
+            $query->set('meta_key', 'pm_date');
+            $query->set('order', 'DESC');
+        }
     }
 }
