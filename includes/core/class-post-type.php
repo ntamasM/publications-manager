@@ -334,9 +334,22 @@ class PM_Post_Type
 
         // Only set default order if no orderby is specified
         if (!$query->get('orderby')) {
-            $query->set('orderby', 'meta_value');
             $query->set('meta_key', 'pm_date');
+            $query->set('orderby', 'meta_value');
             $query->set('order', 'DESC');
+
+            // Include posts without pm_date meta (they'll appear last)
+            $meta_query = $query->get('meta_query') ?: array();
+            $meta_query['relation'] = 'OR';
+            $meta_query[] = array(
+                'key' => 'pm_date',
+                'compare' => 'EXISTS'
+            );
+            $meta_query[] = array(
+                'key' => 'pm_date',
+                'compare' => 'NOT EXISTS'
+            );
+            $query->set('meta_query', $meta_query);
         }
     }
 }
