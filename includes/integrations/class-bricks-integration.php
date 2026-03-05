@@ -317,7 +317,7 @@ class PM_Bricks_Integration
     }
 
     /**
-     * Filter Bricks dynamic data for pm_authors and pm_type fields
+     * Filter Bricks dynamic data for pm_authors, pm_type, and pm_url fields
      */
     public static function filter_dynamic_data($content, $post = null, $context = array())
     {
@@ -337,6 +337,10 @@ class PM_Bricks_Integration
             if (strpos($context['tag'], 'pm_authors') !== false || strpos($context['tag'], 'post_meta:pm_authors') !== false) {
                 return PM_Author_Taxonomy::get_authors_html($post->ID);
             }
+
+            if (strpos($context['tag'], 'pm_url') !== false || strpos($context['tag'], 'post_meta:pm_url') !== false) {
+                return self::get_publication_url($post->ID);
+            }
         }
 
         // Check if content matches raw type value
@@ -350,11 +354,30 @@ class PM_Bricks_Integration
 
     /**
      * Filter post meta specifically
+     * Handles: pm_authors (taxonomy-based), pm_type (formatted label), pm_url (smart fallback)
+     *
+     * Note: In our custom query loop (Team Member Publications), Bricks may pass
+     * the team member's post ID instead of the publication's post ID for link URL fields.
+     * We detect this by checking if the global $post is a publication (set by set_loop_object).
      */
     public static function filter_post_meta($meta_value, $post_id, $meta_key)
     {
-        if (get_post_type($post_id) !== 'publication') {
+        // Only intercept our pm_ keys
+        if (!in_array($meta_key, array('pm_authors', 'pm_type', 'pm_url'), true)) {
             return $meta_value;
+        }
+
+        // If the given post_id is not a publication, check if we're inside our custom
+        // query loop where the global $post is the correct publication object.
+        // This happens when Bricks resolves {cf_pm_url} in link URL fields using
+        // the page's post ID instead of the loop item's post ID.
+        if (get_post_type($post_id) !== 'publication') {
+            global $post;
+            if ($post && is_object($post) && $post->post_type === 'publication') {
+                $post_id = $post->ID;
+            } else {
+                return $meta_value;
+            }
         }
 
         if ($meta_key === 'pm_authors') {
@@ -365,7 +388,36 @@ class PM_Bricks_Integration
             return pm_get_formatted_type($post_id);
         }
 
+        if ($meta_key === 'pm_url') {
+            return self::get_publication_url($post_id);
+        }
+
         return $meta_value;
+    }
+
+    /**
+     * Get the best available URL for a publication
+     * Priority: pm_url meta → DOI URL → publication permalink
+     *
+     * @param int $post_id Publication post ID
+     * @return string URL
+     */
+    public static function get_publication_url($post_id)
+    {
+        // 1. Check pm_url meta field (external URL)
+        $url = get_post_meta($post_id, 'pm_url', true);
+        if (!empty($url)) {
+            return esc_url($url);
+        }
+
+        // 2. Construct URL from DOI if available
+        $doi = get_post_meta($post_id, 'pm_doi', true);
+        if (!empty($doi)) {
+            return esc_url('https://doi.org/' . $doi);
+        }
+
+        // 3. Fall back to the publication's WordPress permalink
+        return get_permalink($post_id);
     }
 
     /**
