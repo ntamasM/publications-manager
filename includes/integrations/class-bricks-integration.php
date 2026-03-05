@@ -2,10 +2,9 @@
 
 /**
  * Bricks Builder Integration
- * Handles all Bricks Builder related functionality including:
- * - Dynamic data filters for publication fields
- * - Custom "Team Member Publications" query loop type
- * - Auto-filtering standard publication queries on team member pages
+ * Handles all Bricks Builder related functionality:
+ * - Dynamic data filters for publication fields (pm_authors, pm_type, pm_url)
+ * - Auto-filtering publication queries on team member single pages
  *
  * @package Publications_Manager
  * @since 2.0.4
@@ -18,11 +17,6 @@ if (!defined('ABSPATH')) {
 
 class PM_Bricks_Integration
 {
-    /**
-     * Custom query loop type identifier
-     */
-    const QUERY_LOOP_TYPE = 'pm_team_publications';
-
     /**
      * Initialize Bricks integration
      */
@@ -41,279 +35,10 @@ class PM_Bricks_Integration
         // Filter term meta for author taxonomy custom fields
         add_filter('bricks/dynamic_data/term_meta', array(__CLASS__, 'filter_term_meta'), 20, 3);
 
-        // Register custom query loop type: "Team Member Publications"
-        add_filter('bricks/setup/control_options', array(__CLASS__, 'register_query_loop_type'));
-        add_filter('bricks/query/loop_object', array(__CLASS__, 'set_loop_object'), 10, 3);
-        add_filter('bricks/query/loop_object_id', array(__CLASS__, 'set_loop_object_id'), 10, 3);
-
-        // Custom query loop controls
-        add_filter('bricks/elements/container/controls', array(__CLASS__, 'add_query_controls'));
-        add_filter('bricks/elements/div/controls', array(__CLASS__, 'add_query_controls'));
-        add_filter('bricks/elements/block/controls', array(__CLASS__, 'add_query_controls'));
-
-        // Run our custom query
-        add_filter('bricks/query/run', array(__CLASS__, 'run_team_publications_query'), 10, 2);
-
-        // Auto-filter standard publication WP_Query on team member pages
-        add_filter('bricks/query/run', array(__CLASS__, 'filter_team_publications_query'), 15, 2);
-    }
-
-    /**
-     * Register "Team Member Publications" as a custom query loop type
-     * Appears in Bricks query type dropdown alongside Posts, Terms, Users, etc.
-     *
-     * @param array $control_options Bricks control options
-     * @return array Modified control options
-     */
-    public static function register_query_loop_type($control_options)
-    {
-        $control_options['queryTypes'][self::QUERY_LOOP_TYPE] = esc_html__('Team Member Publications', 'publications-manager');
-
-        return $control_options;
-    }
-
-    /**
-     * Add custom controls for the Team Member Publications query type
-     * These appear in the Bricks query settings panel when the custom type is selected
-     *
-     * @param array $controls Element controls
-     * @return array Modified controls
-     */
-    public static function add_query_controls($controls)
-    {
-        // Info text explaining the query type
-        $controls['pm_team_pub_info'] = array(
-            'group'    => 'query',
-            'label'    => esc_html__('Team Member Publications', 'publications-manager'),
-            'type'     => 'info',
-            'content'  => esc_html__('Displays all publications linked to a team member via the Authors taxonomy. On a team member single page, publications are detected automatically.', 'publications-manager'),
-            'required' => array(
-                array('query.objectType', '=', self::QUERY_LOOP_TYPE),
-            ),
-        );
-
-        // Optional: Specific team member ID (for use outside of team member single pages)
-        $controls['pm_team_member_id'] = array(
-            'group'       => 'query',
-            'label'       => esc_html__('Team Member ID', 'publications-manager'),
-            'type'        => 'number',
-            'placeholder' => esc_html__('Auto-detect from current page', 'publications-manager'),
-            'description' => esc_html__('Leave empty to auto-detect on team member single pages. Set a specific ID to show publications for a particular team member on any page.', 'publications-manager'),
-            'required'    => array(
-                array('query.objectType', '=', self::QUERY_LOOP_TYPE),
-            ),
-        );
-
-        // Posts per page
-        $controls['pm_team_pub_per_page'] = array(
-            'group'       => 'query',
-            'label'       => esc_html__('Publications Per Page', 'publications-manager'),
-            'type'        => 'number',
-            'placeholder' => '-1',
-            'description' => esc_html__('Number of publications to show. -1 for all.', 'publications-manager'),
-            'required'    => array(
-                array('query.objectType', '=', self::QUERY_LOOP_TYPE),
-            ),
-        );
-
-        // Order by
-        $controls['pm_team_pub_orderby'] = array(
-            'group'       => 'query',
-            'label'       => esc_html__('Order By', 'publications-manager'),
-            'type'        => 'select',
-            'options'     => array(
-                'pm_year'  => esc_html__('Publication Year', 'publications-manager'),
-                'date'     => esc_html__('Publish Date', 'publications-manager'),
-                'title'    => esc_html__('Title', 'publications-manager'),
-                'modified' => esc_html__('Modified Date', 'publications-manager'),
-            ),
-            'placeholder' => esc_html__('Publication Year', 'publications-manager'),
-            'required'    => array(
-                array('query.objectType', '=', self::QUERY_LOOP_TYPE),
-            ),
-        );
-
-        // Order direction
-        $controls['pm_team_pub_order'] = array(
-            'group'       => 'query',
-            'label'       => esc_html__('Order', 'publications-manager'),
-            'type'        => 'select',
-            'options'     => array(
-                'DESC' => esc_html__('Descending (newest first)', 'publications-manager'),
-                'ASC'  => esc_html__('Ascending (oldest first)', 'publications-manager'),
-            ),
-            'placeholder' => esc_html__('Descending', 'publications-manager'),
-            'required'    => array(
-                array('query.objectType', '=', self::QUERY_LOOP_TYPE),
-            ),
-        );
-
-        // Filter by publication type
-        $controls['pm_team_pub_type'] = array(
-            'group'       => 'query',
-            'label'       => esc_html__('Filter by Publication Type', 'publications-manager'),
-            'type'        => 'select',
-            'options'     => self::get_publication_type_options(),
-            'placeholder' => esc_html__('All types', 'publications-manager'),
-            'required'    => array(
-                array('query.objectType', '=', self::QUERY_LOOP_TYPE),
-            ),
-        );
-
-        return $controls;
-    }
-
-    /**
-     * Get publication type options for the select control
-     *
-     * @return array Type slug => label pairs
-     */
-    private static function get_publication_type_options()
-    {
-        $options = array('' => esc_html__('All types', 'publications-manager'));
-
-        if (class_exists('PM_Publication_Types')) {
-            $types = PM_Publication_Types::get_all();
-            foreach ($types as $slug => $data) {
-                $label = isset($data['i18n_singular']) ? $data['i18n_singular'] : $slug;
-                $options[$slug] = $label;
-            }
-        }
-
-        return $options;
-    }
-
-    /**
-     * Run the custom Team Member Publications query
-     * This executes a WP_Query filtered by pm_author taxonomy terms linked to the team member
-     *
-     * @param mixed $results Query results
-     * @param object $query_obj Bricks query object
-     * @return mixed Query results (array of WP_Post objects)
-     */
-    public static function run_team_publications_query($results, $query_obj)
-    {
-        // Only handle our custom query type
-        if ($query_obj->object_type !== self::QUERY_LOOP_TYPE) {
-            return $results;
-        }
-
-        $settings = $query_obj->settings;
-
-        // Determine team member ID
-        $team_member_id = self::get_team_member_id_from_settings($settings);
-
-        if (!$team_member_id) {
-            return array();
-        }
-
-        // Find author term IDs linked to this team member
-        $author_term_ids = self::get_author_terms_for_team_member($team_member_id);
-
-        if (empty($author_term_ids)) {
-            return array();
-        }
-
-        // Build WP_Query args
-        $per_page = isset($settings['pm_team_pub_per_page']) && $settings['pm_team_pub_per_page'] !== ''
-            ? intval($settings['pm_team_pub_per_page'])
-            : -1;
-
-        $orderby = !empty($settings['pm_team_pub_orderby']) ? $settings['pm_team_pub_orderby'] : 'pm_year';
-        $order   = !empty($settings['pm_team_pub_order']) ? $settings['pm_team_pub_order'] : 'DESC';
-
-        $query_args = array(
-            'post_type'      => 'publication',
-            'post_status'    => 'publish',
-            'posts_per_page' => $per_page,
-            'tax_query'      => array(
-                array(
-                    'taxonomy' => 'pm_author',
-                    'field'    => 'term_id',
-                    'terms'    => $author_term_ids,
-                    'operator' => 'IN',
-                ),
-            ),
-        );
-
-        // Handle ordering
-        if ($orderby === 'pm_year') {
-            $query_args['meta_key'] = 'pm_year';
-            $query_args['orderby']  = 'meta_value_num';
-        } else {
-            $query_args['orderby'] = $orderby;
-        }
-        $query_args['order'] = $order;
-
-        // Filter by publication type if set
-        if (!empty($settings['pm_team_pub_type'])) {
-            $query_args['meta_query'] = array(
-                array(
-                    'key'   => 'pm_type',
-                    'value' => sanitize_text_field($settings['pm_team_pub_type']),
-                ),
-            );
-        }
-
-        // Allow external filtering of the query args
-        $query_args = apply_filters('pm/bricks/team_publications_query_args', $query_args, $team_member_id, $settings);
-
-        $query = new WP_Query($query_args);
-
-        // Store query for pagination support
-        $query_obj->query_result = $query;
-
-        return $query->posts;
-    }
-
-    /**
-     * Set the loop object (WP_Post) for each iteration of the custom query loop
-     *
-     * @param mixed $loop_object Current loop object
-     * @param string $loop_key Current loop key/index
-     * @param object $query_obj Bricks query object
-     * @return mixed The post object for this iteration
-     */
-    public static function set_loop_object($loop_object, $loop_key, $query_obj)
-    {
-        if ($query_obj->object_type !== self::QUERY_LOOP_TYPE) {
-            return $loop_object;
-        }
-
-        $results = $query_obj->results;
-
-        if (isset($results[$loop_key]) && $results[$loop_key] instanceof WP_Post) {
-            // Set global post so dynamic data tags like {post_title}, {cf_pm_*} work correctly
-            global $post;
-            $post = $results[$loop_key];
-            setup_postdata($post);
-            return $post;
-        }
-
-        return $loop_object;
-    }
-
-    /**
-     * Set the loop object ID for each iteration of the custom query loop
-     *
-     * @param int $loop_object_id Current loop object ID
-     * @param string $loop_key Current loop key/index
-     * @param object $query_obj Bricks query object
-     * @return int The post ID for this iteration
-     */
-    public static function set_loop_object_id($loop_object_id, $loop_key, $query_obj)
-    {
-        if ($query_obj->object_type !== self::QUERY_LOOP_TYPE) {
-            return $loop_object_id;
-        }
-
-        $results = $query_obj->results;
-
-        if (isset($results[$loop_key]) && $results[$loop_key] instanceof WP_Post) {
-            return $results[$loop_key]->ID;
-        }
-
-        return $loop_object_id;
+        // Auto-filter publication queries on team member single pages
+        // Uses bricks/posts/query_vars (fires BEFORE WP_Query creation)
+        // Note: bricks/query/run only fires for non-post query types (API, array, etc.)
+        add_filter('bricks/posts/query_vars', array(__CLASS__, 'filter_team_publications_query'), 10, 3);
     }
 
     /**
@@ -356,9 +81,9 @@ class PM_Bricks_Integration
      * Filter post meta specifically
      * Handles: pm_authors (taxonomy-based), pm_type (formatted label), pm_url (smart fallback)
      *
-     * Note: In our custom query loop (Team Member Publications), Bricks may pass
-     * the team member's post ID instead of the publication's post ID for link URL fields.
-     * We detect this by checking if the global $post is a publication (set by set_loop_object).
+     * Note: On team member pages, Bricks may pass the team member's post ID instead of
+     * the publication's post ID for link URL fields inside a query loop. We detect this
+     * by checking if the global $post is a publication (set by Bricks' WP_Query loop).
      */
     public static function filter_post_meta($meta_value, $post_id, $meta_key)
     {
@@ -367,10 +92,8 @@ class PM_Bricks_Integration
             return $meta_value;
         }
 
-        // If the given post_id is not a publication, check if we're inside our custom
-        // query loop where the global $post is the correct publication object.
-        // This happens when Bricks resolves {cf_pm_url} in link URL fields using
-        // the page's post ID instead of the loop item's post ID.
+        // If the given post_id is not a publication, check if the global $post
+        // is a publication (happens inside Bricks query loops on non-publication pages)
         if (get_post_type($post_id) !== 'publication') {
             global $post;
             if ($post && is_object($post) && $post->post_type === 'publication') {
@@ -442,36 +165,57 @@ class PM_Bricks_Integration
     }
 
     /**
-     * Auto-filter standard publication WP_Query on team member single pages
-     * When a Bricks query loop uses WP_Query with post_type=publication on a team member page,
-     * this automatically filters it to only show that team member's publications.
+     * Auto-filter publication WP_Query on team member single pages
      *
-     * @param mixed $results Query results
-     * @param object $query_obj Bricks query object
-     * @return mixed Filtered results
+     * When a Bricks query loop queries the "publication" post type on a team member
+     * single page, this automatically adds a tax_query to show only publications
+     * whose pm_author terms are linked to that team member.
+     *
+     * Hooks into bricks/posts/query_vars which fires BEFORE WP_Query is constructed.
+     *
+     * How it works:
+     * 1. Detects you're on a team member single page
+     * 2. Finds all pm_author taxonomy terms linked to that team member
+     * 3. Adds a tax_query so only publications by those authors are returned
+     *
+     * @param array  $query_vars WP_Query arguments
+     * @param array  $settings   Bricks element settings
+     * @param string $element_id Bricks element ID
+     * @return array Modified query vars
      */
-    public static function filter_team_publications_query($results, $query_obj)
+    public static function filter_team_publications_query($query_vars, $settings, $element_id)
     {
-        // Skip our custom query type (handled by run_team_publications_query)
-        if (isset($query_obj->object_type) && $query_obj->object_type === self::QUERY_LOOP_TYPE) {
-            return $results;
-        }
+        // Only filter queries for publications
+        $post_type = isset($query_vars['post_type']) ? $query_vars['post_type'] : '';
 
-        // Only filter WP_Query for publications
-        if (!isset($query_obj->settings['post_type']) || $query_obj->settings['post_type'] !== 'publication') {
-            return $results;
+        // Handle post_type as both string and array (Bricks may use either)
+        if (is_array($post_type)) {
+            if (!in_array('publication', $post_type, true)) {
+                return $query_vars;
+            }
+        } else {
+            if ($post_type !== 'publication') {
+                return $query_vars;
+            }
         }
 
         $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
 
-        if (!is_singular($team_cpt_slug)) {
-            return $results;
+        // Auto-detect: are we on a team member single page?
+        $team_member_id = false;
+
+        if (is_singular($team_cpt_slug)) {
+            $team_member_id = get_queried_object_id();
+        } else {
+            // Fallback for Bricks editor preview
+            $post = get_post();
+            if ($post && $post->post_type === $team_cpt_slug) {
+                $team_member_id = $post->ID;
+            }
         }
 
-        $team_member_id = get_the_ID();
-
         if (!$team_member_id) {
-            return $results;
+            return $query_vars;
         }
 
         // Find author term IDs linked to this team member
@@ -479,54 +223,22 @@ class PM_Bricks_Integration
 
         if (!empty($author_term_ids)) {
             // Add tax_query to filter by the team member's author terms
-            if (!isset($query_obj->query_vars['tax_query'])) {
-                $query_obj->query_vars['tax_query'] = array();
+            if (!isset($query_vars['tax_query'])) {
+                $query_vars['tax_query'] = array();
             }
 
-            $query_obj->query_vars['tax_query'][] = array(
+            $query_vars['tax_query'][] = array(
                 'taxonomy' => 'pm_author',
                 'field'    => 'term_id',
                 'terms'    => $author_term_ids,
                 'operator' => 'IN',
             );
         } else {
-            // No author terms found - return no results
-            $query_obj->query_vars['post__in'] = array(0);
+            // No author terms found — return no results
+            $query_vars['post__in'] = array(0);
         }
 
-        return $results;
-    }
-
-    /**
-     * Get the team member ID from query settings or auto-detect from current page
-     *
-     * @param array $settings Query settings from Bricks
-     * @return int|false Team member post ID or false
-     */
-    private static function get_team_member_id_from_settings($settings)
-    {
-        // Check if a specific team member ID was provided in the control
-        if (!empty($settings['pm_team_member_id'])) {
-            $id = intval($settings['pm_team_member_id']);
-            if ($id > 0 && get_post_status($id)) {
-                return $id;
-            }
-        }
-
-        // Auto-detect: check if we're on a team member single page
-        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
-
-        if (is_singular($team_cpt_slug)) {
-            return get_the_ID();
-        }
-
-        // Check the global post as fallback (useful in Bricks editor preview)
-        $post = get_post();
-        if ($post && $post->post_type === $team_cpt_slug) {
-            return $post->ID;
-        }
-
-        return false;
+        return $query_vars;
     }
 
     /**
@@ -542,7 +254,7 @@ class PM_Bricks_Integration
         $term_ids = get_post_meta($team_member_id, 'pm_author_term_id', false);
 
         if (!empty($term_ids)) {
-            // Validate that these terms still exist and are linked
+            // Validate that these terms still exist
             $valid_ids = array();
             foreach ($term_ids as $term_id) {
                 $term = get_term(intval($term_id), 'pm_author');
