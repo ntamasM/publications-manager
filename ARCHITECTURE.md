@@ -158,27 +158,52 @@ pm_get_authors_with_links()
         └─► Return comma-separated HTML
 ```
 
-### 3. Filtering Publications on Team Member Page
+### 3. Querying Publications on Team Member Page (Custom Query Loop)
 
 ```
-Team member page loads
+Team member page loads with Bricks template
         │
         ▼
-Bricks query for publications
+Query loop element uses "Team Member Publications" type
         │
         ▼
-bricks/query/run filter
+bricks/query/run filter (priority 10)
+        │
+        ▼
+PM_Bricks_Integration::run_team_publications_query()
+        │
+        ├─► Get team member ID (from control or auto-detect)
+        ├─► Find pm_author terms linked to team member
+        │   ├─► Primary: get_post_meta(pm_author_term_id)
+        │   └─► Fallback: query terms with pm_team_member_id meta
+        │
+        ▼
+Build WP_Query with tax_query on pm_author
+        │
+        ├─► Apply orderby (pm_year, date, title, modified)
+        ├─► Apply publication type filter if set
+        └─► Return array of WP_Post objects
+```
+
+### 3b. Auto-Filtering Standard Publication Query on Team Member Page
+
+```
+Team member page loads with standard publication WP_Query
+        │
+        ▼
+bricks/query/run filter (priority 15)
         │
         ▼
 PM_Bricks_Integration::filter_team_publications_query()
         │
-        ├─► Check if query is for publications
-        ├─► Check if on team member page
+        ├─► Skip if custom query type (pm_team_publications)
+        ├─► Check post_type === 'publication'
+        ├─► Check is_singular(team_cpt_slug)
         │
         ▼
-Get pm_publication_id meta values
+Find pm_author terms for team member
         │
-        └─► Modify query: post__in = [publication IDs]
+        └─► Add tax_query to filter publications by author terms
 ```
 
 ## Meta Field Storage
@@ -217,7 +242,15 @@ Get pm_publication_id meta values
 - `bricks/dynamic_data/render_content` - Filter rendered content
 - `bricks/dynamic_data/render_tag` - Filter tag rendering
 - `bricks/dynamic_data/post_meta` - Filter post meta values
-- `bricks/query/run` - Modify publication queries
+- `bricks/dynamic_data/term_meta` - Filter term meta for author URLs
+- `bricks/setup/control_options` - Register custom "Team Member Publications" query loop type
+- `bricks/query/run` (priority 10) - Execute custom Team Member Publications query
+- `bricks/query/run` (priority 15) - Auto-filter standard publication queries on team member pages
+- `bricks/query/loop_object` - Set WP_Post as loop object in custom query
+- `bricks/query/loop_object_id` - Set post ID for custom query loop iteration
+- `bricks/elements/container/controls` - Add query controls to Container elements
+- `bricks/elements/div/controls` - Add query controls to Div elements
+- `bricks/elements/block/controls` - Add query controls to Block elements
 
 ## File Loading Order
 
@@ -264,5 +297,22 @@ Publication 123          Team Member 456
                               └─ pm_publication_id: 123
                                  pm_publication_123: {data}
 ```
+
+### Bricks Builder Query Loop Usage
+
+Two ways to display team member publications in Bricks:
+
+**Method 1: Custom Query Loop Type (Recommended)**
+
+1. Add a Container/Div element with Query Loop enabled
+2. Select query type: "Team Member Publications"
+3. Controls available: Team Member ID, Per Page, Order By, Order, Type Filter
+4. Use dynamic data: `{post_title}`, `{cf_pm_authors}`, `{cf_pm_year}`, `{cf_pm_type}`, `{cf_pm_doi}`
+
+**Method 2: Standard WP_Query (Auto-filtered)**
+
+1. Add a Container/Div element with Query Loop enabled
+2. Use standard Posts query with post type "Publication"
+3. On team member single templates, publications are auto-filtered
 
 This architecture ensures clean separation of concerns, making the plugin maintainable and extensible.
