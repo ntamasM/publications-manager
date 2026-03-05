@@ -1,6 +1,6 @@
 # Publications Manager
 
-**Version:** 2.3.2  
+**Version:** 2.3.3  
 **Author:** Ntamadakis  
 **License:** GPL v2 or later
 
@@ -151,9 +151,21 @@ All fields available as dynamic data:
 - `{post_meta:pm_year}` - Year
 - `{post_meta:pm_abstract}` - Abstract
 
-### Team Member Publications
+### Team Member Publications Query Loop
 
-On team member single pages, create a query loop for publications - the plugin automatically filters to show only that team member's publications.
+The plugin provides a dedicated **"Team Member Publications"** query loop type in Bricks:
+
+1. Add a Container or Div with **Query Loop** enabled
+2. Select query type: **Team Member Publications**
+3. Configure the available controls:
+   - **Team Member ID** — leave empty to auto-detect on single team member pages, or set a specific ID
+   - **Publications Per Page** — defaults to all
+   - **Order By** — Publication Year (default), Publish Date, Title, or Modified Date
+   - **Order** — Descending (newest first) or Ascending
+   - **Filter by Publication Type** — restrict to a specific type (e.g., only Journal Articles)
+4. Inside the loop, use dynamic data: `{post_title}`, `{cf_pm_authors}`, `{cf_pm_year}`, `{cf_pm_type}`, `{cf_pm_doi}`, etc.
+
+**Alternative:** You can also use a standard WP_Query loop with post type "Publication" on a team member single template — the plugin automatically filters it to show only that member's publications.
 
 ## Developer Information
 
@@ -180,9 +192,17 @@ On team member single pages, create a query loop for publications - the plugin a
 **Bricks Builder Filters:**
 
 - `bricks/dynamic_data/render_content` - Filters pm_type and pm_authors output
+- `bricks/dynamic_data/render_tag` - Filters dynamic tag rendering
 - `bricks/dynamic_data/post_meta` - Filters post meta values
 - `bricks/dynamic_data/term_meta` - Filters author term meta
-- `bricks/query/run` - Auto-filters publications on team member pages
+- `bricks/setup/control_options` - Registers "Team Member Publications" query loop type
+- `bricks/query/run` (priority 10) - Executes custom Team Member Publications query
+- `bricks/query/run` (priority 15) - Auto-filters standard publication queries on team member pages
+- `bricks/query/loop_object` - Sets WP_Post for each custom query loop iteration
+- `bricks/query/loop_object_id` - Sets post ID for each custom query loop iteration
+- `bricks/elements/container/controls` - Adds query controls to Container
+- `bricks/elements/div/controls` - Adds query controls to Div
+- `bricks/elements/block/controls` - Adds query controls to Block
 
 ### Helper Functions
 
@@ -239,7 +259,17 @@ The plugin includes all teachPress publication types:
 
 ## Changelog
 
-### 2.3.2 (Current)
+### 2.3.3 (Current)
+
+- **Custom Bricks Query Loop Type** — added "Team Member Publications" as a dedicated query loop type in Bricks Builder
+- **Query Loop Controls** — Team Member ID, Publications Per Page, Order By, Order, and Publication Type filter
+- **Auto-detect team member** — on single team member pages, the query loop automatically fetches that member's publications
+- **Fixed taxonomy-based query filtering** — `filter_team_publications_query()` now uses `pm_author` taxonomy (`tax_query`) instead of deprecated `pm_publication_id` meta
+- **Loop object setup** — proper `setup_postdata()` so all dynamic data tags (`{post_title}`, `{cf_pm_*}`) work inside the custom query loop
+- **Bricks version check** — integration only loads when Bricks Builder is active
+- **Custom filter hook** — `pm/bricks/team_publications_query_args` allows developers to modify query args
+
+### 2.3.2
 
 - **Enhanced admin columns** - reordered and optimized publication list columns
 - **Added Date column** - now displays full pm_date value in admin list
