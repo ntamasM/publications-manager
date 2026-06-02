@@ -20,6 +20,7 @@ class PM_Admin_Pages
         add_action('admin_menu', array(__CLASS__, 'add_menu_pages'));
         add_action('admin_init', array(__CLASS__, 'register_settings'));
         add_action('wp_ajax_pm_import_doi', array(__CLASS__, 'ajax_import_doi'));
+        add_action('admin_post_pm_export_publications', array(__CLASS__, 'handle_export_publications'));
 
         // Clean up team member connections when a publication is permanently deleted
         add_action('before_delete_post', array(__CLASS__, 'cleanup_publication_connections'));
@@ -139,11 +140,55 @@ class PM_Admin_Pages
                             </tr>
                         </table>
 
+                        <details id="pm-export-custom-fields" style="margin: 15px 0;">
+                            <summary style="cursor: pointer; font-weight: 600; padding: 8px 0;">
+                                <?php _e('Custom field selection (for "Export Publications (Custom)")', 'publications-manager'); ?>
+                            </summary>
+                            <p class="description" style="margin-top: 10px;">
+                                <?php _e('Tick the fields you want to include when using the Custom export button. Ignored when using "All Fields".', 'publications-manager'); ?>
+                            </p>
+                            <p style="margin: 8px 0;">
+                                <a href="#" id="pm-export-fields-all"><?php _e('Select all', 'publications-manager'); ?></a>
+                                &nbsp;|&nbsp;
+                                <a href="#" id="pm-export-fields-none"><?php _e('Select none', 'publications-manager'); ?></a>
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; max-height: 360px; overflow-y: auto; padding: 10px; border: 1px solid #ddd; background: #fafafa;">
+                                <?php foreach (self::get_export_field_definitions() as $field_key => $field_label) : ?>
+                                    <label style="display: block;">
+                                        <input type="checkbox" name="pm_export_fields[]" value="<?php echo esc_attr($field_key); ?>" checked />
+                                        <?php echo esc_html($field_label); ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </details>
+
                         <p class="submit">
-                            <button type="submit" class="button button-secondary">
-                                <?php _e('Export Publications', 'publications-manager'); ?>
+                            <button type="submit" name="pm_export_mode" value="all" class="button button-secondary">
+                                <?php _e('Export Publications (All Fields)', 'publications-manager'); ?>
+                            </button>
+                            &nbsp;
+                            <button type="submit" name="pm_export_mode" value="custom" class="button button-primary">
+                                <?php _e('Export Publications (Custom)', 'publications-manager'); ?>
                             </button>
                         </p>
+
+                        <script>
+                            (function() {
+                                var root = document.getElementById('pm-export-custom-fields');
+                                if (!root) return;
+                                var boxes = root.querySelectorAll('input[name="pm_export_fields[]"]');
+                                var all = document.getElementById('pm-export-fields-all');
+                                var none = document.getElementById('pm-export-fields-none');
+                                if (all) all.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    boxes.forEach(function(b) { b.checked = true; });
+                                });
+                                if (none) none.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    boxes.forEach(function(b) { b.checked = false; });
+                                });
+                            })();
+                        </script>
                     </form>
                 </div>
 
@@ -310,6 +355,372 @@ class PM_Admin_Pages
         } else {
             wp_send_json_error($results);
         }
+    }
+
+    /**
+     * Handle the export form submission and stream a file download.
+     */
+    public static function handle_export_publications()
+    {
+        if (! isset($_POST['pm_export_nonce']) || ! wp_verify_nonce($_POST['pm_export_nonce'], 'pm_export_action')) {
+            wp_die(__('Security check failed.', 'publications-manager'), '', array('response' => 400));
+        }
+
+        if (! current_user_can('manage_options')) {
+            wp_die(__('Permission denied.', 'publications-manager'), '', array('response' => 403));
+        }
+
+        $format = isset($_POST['pm_export_format']) ? sanitize_key($_POST['pm_export_format']) : 'bibtex';
+        $type   = isset($_POST['pm_export_type']) ? sanitize_key($_POST['pm_export_type']) : '';
+
+        if (! in_array($format, array('bibtex', 'csv', 'json'), true)) {
+            wp_die(__('Invalid export format.', 'publications-manager'), '', array('response' => 400));
+        }
+
+        $mode = isset($_POST['pm_export_mode']) ? sanitize_key($_POST['pm_export_mode']) : 'all';
+        if (! in_array($mode, array('all', 'custom'), true)) {
+            $mode = 'all';
+        }
+
+        $allowed_fields = null;
+        if ($mode === 'custom') {
+            $valid_keys = array_keys(self::get_export_field_definitions());
+            $posted     = isset($_POST['pm_export_fields']) && is_array($_POST['pm_export_fields'])
+                ? array_map('sanitize_key', $_POST['pm_export_fields'])
+                : array();
+            $allowed_fields = array_values(array_intersect($valid_keys, $posted));
+
+            if (empty($allowed_fields)) {
+                wp_die(
+                    __('Custom export requires at least one field to be selected.', 'publications-manager'),
+                    '',
+                    array('response' => 400)
+                );
+            }
+        }
+
+        $query_args = array(
+            'post_type'      => 'publication',
+            'post_status'    => array('publish', 'draft', 'pending', 'private', 'future'),
+            'posts_per_page' => -1,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        );
+
+        if (! empty($type)) {
+            $query_args['meta_query'] = array(
+                array(
+                    'key'   => 'pm_type',
+                    'value' => $type,
+                ),
+            );
+        }
+
+        $posts = get_posts($query_args);
+
+        $records = array();
+        foreach ($posts as $post) {
+            $records[] = self::build_export_record($post);
+        }
+
+        $timestamp = gmdate('Ymd-His');
+        $type_part = $type ? '-' . $type : '';
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        nocache_headers();
+
+        switch ($format) {
+            case 'bibtex':
+                $filename = "publications{$type_part}-{$timestamp}.bib";
+                header('Content-Type: application/x-bibtex; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . $filename . '"');
+                echo self::render_bibtex($records, $allowed_fields);
+                break;
+
+            case 'csv':
+                $filename = "publications{$type_part}-{$timestamp}.csv";
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . $filename . '"');
+                echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel
+                self::render_csv($records, $allowed_fields);
+                break;
+
+            case 'json':
+                $filename = "publications{$type_part}-{$timestamp}.json";
+                header('Content-Type: application/json; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . $filename . '"');
+                echo wp_json_encode(self::filter_records_for_json($records, $allowed_fields), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                break;
+        }
+
+        exit;
+    }
+
+    /**
+     * Field keys + human labels exposed in the custom-export UI.
+     */
+    private static function get_export_field_definitions()
+    {
+        return array(
+            'title'        => __('Title', 'publications-manager'),
+            'authors'      => __('Authors', 'publications-manager'),
+            'editor'       => __('Editors', 'publications-manager'),
+            'type'         => __('Publication Type', 'publications-manager'),
+            'date'         => __('Date', 'publications-manager'),
+            'year'         => __('Year', 'publications-manager'),
+            'award'        => __('Award', 'publications-manager'),
+            'journal'      => __('Journal', 'publications-manager'),
+            'booktitle'    => __('Book Title', 'publications-manager'),
+            'issuetitle'   => __('Issue Title', 'publications-manager'),
+            'volume'       => __('Volume', 'publications-manager'),
+            'number'       => __('Number', 'publications-manager'),
+            'issue'        => __('Issue', 'publications-manager'),
+            'pages'        => __('Pages', 'publications-manager'),
+            'chapter'      => __('Chapter', 'publications-manager'),
+            'publisher'    => __('Publisher', 'publications-manager'),
+            'address'      => __('Address', 'publications-manager'),
+            'edition'      => __('Edition', 'publications-manager'),
+            'series'       => __('Series', 'publications-manager'),
+            'institution'  => __('Institution', 'publications-manager'),
+            'organization' => __('Organization', 'publications-manager'),
+            'school'       => __('School', 'publications-manager'),
+            'howpublished' => __('How Published', 'publications-manager'),
+            'techtype'     => __('Tech/Thesis Type', 'publications-manager'),
+            'isbn'         => __('ISBN/ISSN', 'publications-manager'),
+            'crossref'     => __('Cross Reference', 'publications-manager'),
+            'key'          => __('Key', 'publications-manager'),
+            'url'          => __('URL', 'publications-manager'),
+            'doi'          => __('DOI', 'publications-manager'),
+            'urldate'      => __('URL Access Date', 'publications-manager'),
+            'image_url'    => __('Image URL', 'publications-manager'),
+            'image_ext'    => __('External Image Link', 'publications-manager'),
+            'rel_page'     => __('Related Page', 'publications-manager'),
+            'import_id'    => __('Import ID', 'publications-manager'),
+            'abstract'     => __('Abstract', 'publications-manager'),
+            'note'         => __('Note', 'publications-manager'),
+            'comment'      => __('Internal Comment', 'publications-manager'),
+            'status'       => __('Status', 'publications-manager'),
+        );
+    }
+
+    /**
+     * Meta fields exported for each publication.
+     */
+    private static function get_export_meta_fields()
+    {
+        return array(
+            'pm_type', 'pm_date', 'pm_year', 'pm_award',
+            'pm_editor',
+            'pm_journal', 'pm_booktitle', 'pm_issuetitle',
+            'pm_volume', 'pm_number', 'pm_issue', 'pm_pages', 'pm_chapter',
+            'pm_publisher', 'pm_address', 'pm_edition', 'pm_series',
+            'pm_institution', 'pm_organization', 'pm_school',
+            'pm_howpublished', 'pm_techtype', 'pm_isbn', 'pm_crossref', 'pm_key',
+            'pm_url', 'pm_doi', 'pm_urldate',
+            'pm_image_url', 'pm_image_ext', 'pm_rel_page', 'pm_import_id',
+            'pm_abstract', 'pm_note', 'pm_comment', 'pm_status',
+        );
+    }
+
+    /**
+     * Build a normalized record for a single publication post.
+     */
+    private static function build_export_record($post)
+    {
+        $record = array(
+            'id'    => (int) $post->ID,
+            'slug'  => $post->post_name,
+            'title' => $post->post_title,
+        );
+
+        $author_terms = get_the_terms($post->ID, 'pm_author');
+        $authors = array();
+        if ($author_terms && ! is_wp_error($author_terms)) {
+            foreach ($author_terms as $term) {
+                $authors[] = $term->name;
+            }
+        }
+        $record['authors'] = $authors;
+
+        foreach (self::get_export_meta_fields() as $meta_key) {
+            $value = get_post_meta($post->ID, $meta_key, true);
+            $key = preg_replace('/^pm_/', '', $meta_key);
+            $record[$key] = is_string($value) ? $value : '';
+        }
+
+        return $record;
+    }
+
+    /**
+     * Render an array of records as a BibTeX document.
+     */
+    private static function render_bibtex(array $records, $allowed_fields = null)
+    {
+        $field_map = array(
+            'author'       => null,  // handled separately
+            'editor'       => 'editor',
+            'title'        => null,  // post title
+            'year'         => 'year',
+            'month'        => null,
+            'journal'      => 'journal',
+            'booktitle'    => 'booktitle',
+            'volume'       => 'volume',
+            'number'       => 'number',
+            'issue'        => 'issue',
+            'pages'        => 'pages',
+            'chapter'      => 'chapter',
+            'publisher'    => 'publisher',
+            'address'      => 'address',
+            'edition'      => 'edition',
+            'series'       => 'series',
+            'institution'  => 'institution',
+            'organization' => 'organization',
+            'school'       => 'school',
+            'howpublished' => 'howpublished',
+            'type'         => 'techtype',
+            'isbn'         => 'isbn',
+            'crossref'     => 'crossref',
+            'key'          => 'key',
+            'url'          => 'url',
+            'doi'          => 'doi',
+            'urldate'      => 'urldate',
+            'abstract'     => 'abstract',
+            'note'         => 'note',
+            'award'        => 'award',
+        );
+
+        $out = '';
+        $is_allowed = function ($key) use ($allowed_fields) {
+            return $allowed_fields === null || in_array($key, $allowed_fields, true);
+        };
+        foreach ($records as $record) {
+            $type_slug = isset($record['type']) ? $record['type'] : '';
+            $type_def = $type_slug ? PM_Publication_Types::get($type_slug) : null;
+            $entry_type = ($type_def && ! empty($type_def['bibtex_key_ext'])) ? $type_def['bibtex_key_ext'] : 'misc';
+            $cite_key = $record['slug'] !== '' ? $record['slug'] : ('pub-' . $record['id']);
+
+            $out .= '@' . $entry_type . '{' . $cite_key . ",\n";
+
+            $lines = array();
+            if ($is_allowed('title')) {
+                $lines[] = self::bibtex_line('title', $record['title']);
+            }
+
+            if ($is_allowed('authors') && ! empty($record['authors'])) {
+                $lines[] = self::bibtex_line('author', implode(' and ', $record['authors']));
+            }
+
+            if ($is_allowed('date') && ! empty($record['date'])) {
+                $ts = strtotime($record['date']);
+                if ($ts) {
+                    $months = array('', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
+                    $m = (int) gmdate('n', $ts);
+                    if ($m >= 1 && $m <= 12) {
+                        $lines[] = '  month = ' . $months[$m];
+                    }
+                }
+            }
+
+            foreach ($field_map as $bib_field => $rec_key) {
+                if ($rec_key === null) {
+                    continue;
+                }
+                if (! $is_allowed($rec_key)) {
+                    continue;
+                }
+                if (! isset($record[$rec_key]) || $record[$rec_key] === '') {
+                    continue;
+                }
+                $lines[] = self::bibtex_line($bib_field, $record[$rec_key]);
+            }
+
+            $lines = array_filter($lines);
+            $out .= implode(",\n", $lines) . "\n";
+            $out .= "}\n\n";
+        }
+
+        return $out;
+    }
+
+    /**
+     * Format a single BibTeX field line.
+     */
+    private static function bibtex_line($field, $value)
+    {
+        if ($value === '' || $value === null) {
+            return '';
+        }
+        $value = (string) $value;
+        // Strip HTML, normalize whitespace, escape braces and backslashes.
+        $value = wp_strip_all_tags($value);
+        $value = preg_replace('/\s+/', ' ', $value);
+        $value = trim($value);
+        $value = str_replace(array('\\', '{', '}'), array('\\\\', '\\{', '\\}'), $value);
+        return '  ' . $field . ' = {' . $value . '}';
+    }
+
+    /**
+     * Stream records as CSV to the output buffer.
+     */
+    private static function render_csv(array $records, $allowed_fields = null)
+    {
+        $base_columns = array(
+            'id', 'slug', 'title', 'type', 'authors', 'editor',
+            'date', 'year', 'award',
+            'journal', 'booktitle', 'issuetitle',
+            'volume', 'number', 'issue', 'pages', 'chapter',
+            'publisher', 'address', 'edition', 'series',
+            'institution', 'organization', 'school',
+            'howpublished', 'techtype', 'isbn', 'crossref', 'key',
+            'url', 'doi', 'urldate',
+            'image_url', 'image_ext', 'rel_page', 'import_id',
+            'abstract', 'note', 'comment', 'status',
+        );
+
+        if ($allowed_fields === null) {
+            $columns = $base_columns;
+        } else {
+            $columns = array_values(array_unique(array_merge(
+                array('id', 'slug'),
+                array_intersect($base_columns, $allowed_fields)
+            )));
+        }
+
+        $fh = fopen('php://output', 'w');
+        fputcsv($fh, $columns);
+
+        foreach ($records as $record) {
+            $row = array();
+            foreach ($columns as $col) {
+                if ($col === 'authors') {
+                    $row[] = isset($record['authors']) ? implode('; ', $record['authors']) : '';
+                } else {
+                    $row[] = isset($record[$col]) ? $record[$col] : '';
+                }
+            }
+            fputcsv($fh, $row);
+        }
+
+        fclose($fh);
+    }
+
+    /**
+     * Filter records down to a whitelist of fields, preserving id + slug.
+     */
+    private static function filter_records_for_json(array $records, $allowed_fields)
+    {
+        if ($allowed_fields === null) {
+            return $records;
+        }
+        $keep = array_flip(array_merge(array('id', 'slug'), $allowed_fields));
+        $out = array();
+        foreach ($records as $record) {
+            $out[] = array_intersect_key($record, $keep);
+        }
+        return $out;
     }
 
     /**

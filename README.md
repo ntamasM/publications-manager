@@ -1,6 +1,6 @@
 # Publications Manager
 
-**Version:** 2.3.4  
+**Version:** 2.3.6  
 **Author:** Ntamadakis  
 **License:** GPL v2 or later
 
@@ -79,6 +79,46 @@ Import publications directly from Crossref using DOI:
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to Publications → Tools and configure your Team CPT slug
 4. Start creating publications!
+
+## Packaging / Releases
+
+Built release zips and their per-version release notes live in the `Releases/` folder at the plugin root:
+
+```
+Releases/
+  publications-manager-v2.3.6.zip
+  publications-manager-v2.3.6.md
+  ...
+```
+
+**Important — exclude `Releases/` from the distributed zip.**
+
+The `Releases/` folder must **not** be bundled inside the plugin zip that ships to WordPress installs. It only exists in the source repository to archive past builds and changelogs. Shipping it would balloon the install size and ship every prior version inside the current one.
+
+When creating a new release zip, package only the plugin runtime files and exclude `Releases/` (and any other dev-only paths). Examples:
+
+**PowerShell (Windows):**
+
+```powershell
+$version = "2.3.7"
+$staging = "$env:TEMP\publications-manager"
+Remove-Item -Recurse -Force $staging -ErrorAction SilentlyContinue
+robocopy . $staging /E /XD Releases .git node_modules /XF .gitignore *.log | Out-Null
+Compress-Archive -Path $staging -DestinationPath ".\Releases\publications-manager-v$version.zip" -Force
+Remove-Item -Recurse -Force $staging
+```
+
+**Bash / zip:**
+
+```bash
+cd ..
+zip -r publications-manager/Releases/publications-manager-v2.3.7.zip publications-manager \
+  -x "publications-manager/Releases/*" \
+  -x "publications-manager/.git/*" \
+  -x "publications-manager/.gitignore"
+```
+
+**Per-release notes:** every shipped zip in `Releases/` must have a matching `publications-manager-v<version>.md` next to it summarising the changes, upgrade notes, and any breaking changes. Use the existing files in `Releases/` as a template.
 
 ## Quick Start Guide
 
@@ -247,7 +287,14 @@ The plugin includes all teachPress publication types:
 
 ## Changelog
 
-### 2.3.5 (Current)
+### 2.3.6 (Current)
+
+- **New export feature** — added a working "Export Publications" backend handler that streams BibTeX, CSV, or JSON downloads, with optional filtering by publication type
+- **BibTeX cite key** — uses the publication's post slug as the BibTeX cite key, with entry type derived from `bibtex_key_ext`
+- **All Fields / Custom buttons** — Import/Export page now offers two export buttons: one exports every field, the other lets the user tick which fields to include via a collapsible checkbox panel (with Select all / Select none shortcuts)
+- **Custom export validation** — Custom export rejects submissions with zero selected fields; `id` and `slug` are always preserved in CSV/JSON for record identity
+
+### 2.3.5
 
 - **Fixed auto-filter hook** — switched from `bricks/query/run` to `bricks/posts/query_vars` which is the correct hook for modifying WP_Query args before execution (`bricks/query/run` only fires for non-post query types)
 - **Fixed post_type detection** — now handles both string and array post_type values from Bricks
