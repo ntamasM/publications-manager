@@ -91,21 +91,34 @@ Releases/
   ...
 ```
 
-**Important — exclude `Releases/` from the distributed zip.**
+### Two hard rules
+
+**Rule 1 — the folder *inside* the zip must always be named exactly `publications-manager/` (no version, no suffix).**
+
+WordPress identifies a plugin by its folder name (the slug), **not** by the zip file name. If the zip extracts to `publications-manager-v2.3.6/`, WordPress treats it as a brand-new, unrelated plugin instead of an update to the existing `publications-manager/` install — and you end up with two copies side by side.
+
+- ✅ Correct zip contents: `publications-manager/publications-manager.php`, `publications-manager/includes/...`
+- ❌ Wrong: `publications-manager-v2.3.6/publications-manager.php`
+
+The zip file name on disk can (and should) include the version (`publications-manager-v2.3.6.zip`) — only the **top-level folder inside the archive** must stay version-less.
+
+**Rule 2 — exclude `Releases/` from the distributed zip.**
 
 The `Releases/` folder must **not** be bundled inside the plugin zip that ships to WordPress installs. It only exists in the source repository to archive past builds and changelogs. Shipping it would balloon the install size and ship every prior version inside the current one.
 
-When creating a new release zip, package only the plugin runtime files and exclude `Releases/` (and any other dev-only paths). Examples:
+### Build snippets
+
+Both snippets below produce a zip whose top-level folder is `publications-manager/` (Rule 1) and exclude `Releases/` plus dev-only paths (Rule 2). They work by **staging** the runtime files under a clean `publications-manager` folder name, then zipping that staging directory — so the version in the zip filename never leaks into the folder structure inside.
 
 **PowerShell (Windows):**
 
 ```powershell
 $version = "2.3.7"
-$staging = "$env:TEMP\publications-manager"
-Remove-Item -Recurse -Force $staging -ErrorAction SilentlyContinue
+$staging = "$env:TEMP\pm-build\publications-manager"
+Remove-Item -Recurse -Force "$env:TEMP\pm-build" -ErrorAction SilentlyContinue
 robocopy . $staging /E /XD Releases .git node_modules /XF .gitignore *.log | Out-Null
 Compress-Archive -Path $staging -DestinationPath ".\Releases\publications-manager-v$version.zip" -Force
-Remove-Item -Recurse -Force $staging
+Remove-Item -Recurse -Force "$env:TEMP\pm-build"
 ```
 
 **Bash / zip:**
@@ -118,7 +131,30 @@ zip -r publications-manager/Releases/publications-manager-v2.3.7.zip publication
   -x "publications-manager/.gitignore"
 ```
 
-**Per-release notes:** every shipped zip in `Releases/` must have a matching `publications-manager-v<version>.md` next to it summarising the changes, upgrade notes, and any breaking changes. Use the existing files in `Releases/` as a template.
+### Verify before uploading
+
+Always inspect the zip's top-level structure before shipping it to WordPress:
+
+**PowerShell:**
+
+```powershell
+# should list "publications-manager/" as the top entry, NOT "publications-manager-v2.3.7/"
+[IO.Compression.ZipFile]::OpenRead("Releases\publications-manager-v2.3.7.zip").Entries |
+  Select-Object -First 5 FullName
+```
+
+**Bash:**
+
+```bash
+# first line should start with "publications-manager/" (no version)
+unzip -l Releases/publications-manager-v2.3.7.zip | head
+```
+
+If you see a versioned folder at the top, the zip is broken — rebuild it before uploading.
+
+### Per-release notes
+
+Every shipped zip in `Releases/` must have a matching `publications-manager-v<version>.md` next to it summarising the changes, upgrade notes, and any breaking changes. Use the existing files in `Releases/` as a template.
 
 ## Quick Start Guide
 
