@@ -25,12 +25,12 @@
     /**
      * Auto-generate BibTeX key suggestion
      */
-    $("#pm_author, #pm_date").on("blur", function () {
+    $(document).on("blur", 'input[name="pm_authors[]"], #pm_date', function () {
       if ($("#pm_bibtex").val()) {
         return; // Don't overwrite existing key
       }
 
-      var author = $("#pm_author").val();
+      var author = $('input[name="pm_authors[]"]').first().val();
       var date = $("#pm_date").val();
 
       if (author && date) {
@@ -61,7 +61,14 @@
       if (!$("#pm_date").val()) {
         errors.push("Publication Date is required");
       }
-      if (!$("#pm_author").val()) {
+      var hasAuthor = false;
+      $('input[name="pm_authors[]"]').each(function () {
+        if ($(this).val().trim() !== "") {
+          hasAuthor = true;
+          return false; // break out of .each
+        }
+      });
+      if (!hasAuthor) {
         errors.push("Author is required");
       }
 

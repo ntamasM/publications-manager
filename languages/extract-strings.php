@@ -201,7 +201,7 @@ function generate_pot_header()
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Publications Manager 2.2.1\\n"
+"Project-Id-Version: Publications Manager 2.4.1\\n"
 "Report-Msgid-Bugs-To: https://ntamadakis.gr\\n"
 "POT-Creation-Date: {$date}\\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"
@@ -239,7 +239,7 @@ function generate_po_header($locale)
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Publications Manager 2.2.1\\n"
+"Project-Id-Version: Publications Manager 2.4.1\\n"
 "Report-Msgid-Bugs-To: https://ntamadakis.gr\\n"
 "POT-Creation-Date: {$date}\\n"
 "PO-Revision-Date: {$date}\\n"

@@ -1,6 +1,6 @@
 # Publications Manager
 
-**Version:** 2.3.6  
+**Version:** 2.4.1  
 **Author:** Ntamadakis  
 **License:** GPL v2 or later
 
@@ -323,7 +323,19 @@ The plugin includes all teachPress publication types:
 
 ## Changelog
 
-### 2.3.6 (Current)
+### 2.4.1 (Current)
+
+- **Field registry (`PM_Fields`)** — all field definitions (24+ fields) now live in one canonical list read by save, REST, export, and import. Fixes: (1) BibTeX Key no longer lost on save; (2) Award field no longer lost on save; (3) CSV/JSON/BibTeX exports now cover the full field set; (4) BibTeX citation key now uses the BibTeX Key field (not the post slug); (5) Crossref duplicate checks now detect the correct meta key
+- **Export/import round-trip** — JSON, CSV, and BibTeX exports now include every field and can be re-imported losslessly. Matched records are updated, non-matches are created. BibTeX files also round-trip within the plugin
+- **File import** — new "Import from File" panel on the Import/Export page accepts the plugin's own JSON, CSV, and BibTeX exports. Imports the full field set (inverse of the export, so an export → import round-trip preserves all data) and matches existing publications by DOI → BibTeX key → slug (matches are updated, the rest created)
+- **DOI text export** — new "DOIs (.txt, one per line)" export format that streams just the DOIs of the selected publications
+- **Author URL re-sync tool** — new "Re-sync Author URLs" button under Tools → Settings. After changing the Team CPT, it re-links each author to the matching team member in the current Team CPT (by name) and refreshes the cached `pm_author_team_url` used by Bricks; clears links whose team member no longer exists
+- **Imported publications always get a date** — file imports (BibTeX has no full date) now reconstruct `pm_date` from year/month, so imported publications appear and sort correctly in the admin list
+- **Fixed admin list hiding date-less publications** — the publications list no longer drops publications that lack a `pm_date`
+- **Fixed Statistics per-type counts** — the Import/Export Statistics box no longer reported the grand total for every publication type
+- **Fixed "Author is required" save bug** — the admin form validated a non-existent `#pm_author` field, so saving a publication always failed with "Author is required" even when authors were present. Validation now checks the actual `pm_authors[]` repeater inputs; the BibTeX-key auto-suggest was repointed to the same inputs
+
+### 2.3.6
 
 - **New export feature** — added a working "Export Publications" backend handler that streams BibTeX, CSV, or JSON downloads, with optional filtering by publication type
 - **BibTeX cite key** — uses the publication's post slug as the BibTeX cite key, with entry type derived from `bibtex_key_ext`

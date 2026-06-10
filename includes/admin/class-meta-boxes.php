@@ -637,51 +637,16 @@ class PM_Meta_Boxes
         }
 
         // Define all meta fields
-        $meta_fields = array(
-            'pm_type',
-            'pm_editor',
-            'pm_doi',
-            'pm_date',
-            'pm_year',
-            'pm_journal',
-            'pm_booktitle',
-            'pm_issuetitle',
-            'pm_volume',
-            'pm_number',
-            'pm_issue',
-            'pm_pages',
-            'pm_chapter',
-            'pm_publisher',
-            'pm_address',
-            'pm_edition',
-            'pm_series',
-            'pm_institution',
-            'pm_organization',
-            'pm_school',
-            'pm_howpublished',
-            'pm_techtype',
-            'pm_isbn',
-            'pm_crossref',
-            'pm_key',
-            'pm_url',
-            'pm_urldate',
-            'pm_image_url',
-            'pm_image_ext',
-            'pm_rel_page',
-            'pm_abstract',
-            'pm_note',
-            'pm_comment',
-            'pm_status',
-            'pm_bibtex_key'
-        );
+        $meta_fields = PM_Fields::get_editable_meta_keys();
 
-        // Extract year from date if pm_date is provided
+        // Extract year from date if pm_date is provided.
+        // pm_year is NOT in the editable-meta list (it is derived), so persist it directly here.
         if (isset($_POST['pm_date']) && !empty($_POST['pm_date'])) {
             $date_value = sanitize_text_field($_POST['pm_date']);
             // Extract year from date format (YYYY-MM-DD)
             $year = substr($date_value, 0, 4);
             if (!empty($year) && is_numeric($year)) {
-                $_POST['pm_year'] = $year;
+                update_post_meta($post_id, 'pm_year', $year);
             }
         }
 
@@ -713,14 +678,8 @@ class PM_Meta_Boxes
             if (isset($_POST[$field])) {
                 $value = $_POST[$field];
 
-                // Sanitize based on field type
-                if (in_array($field, array('pm_abstract', 'pm_note', 'pm_comment', 'pm_editor'))) {
-                    $value = sanitize_textarea_field($value);
-                } elseif (in_array($field, array('pm_url', 'pm_image_url', 'pm_image_ext'))) {
-                    $value = esc_url_raw($value);
-                } else {
-                    $value = sanitize_text_field($value);
-                }
+                // Sanitize using PM_Fields registry
+                $value = PM_Fields::sanitize_by_meta($meta_key, $value);
 
                 update_post_meta($post_id, $meta_key, $value);
             } else {

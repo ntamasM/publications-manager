@@ -1,1037 +1,913 @@
-# Copyright (C) 2026 Publications Manager
-# This file is distributed under the GPL v2 or later.
 msgid ""
-msgstr ""
-"Project-Id-Version: Publications Manager 2.2.1\n"
-"Report-Msgid-Bugs-To: https://ntamadakis.gr\n"
-"POT-Creation-Date: 2026-01-26 13:28+0000\n"
-"PO-Revision-Date: 2026-01-26 13:28+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: el\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: includes/admin/admin-pages.php:737
+msgstr "Project-Id-Version: Publications Manager 2.4.1\nReport-Msgid-Bugs-To: https://ntamadakis.gr\nPOT-Creation-Date: 2026-01-26 13:28+0000\nPO-Revision-Date: 2026-01-26 13:28+0000\nLast-Translator: \nLanguage-Team: \nLanguage: el\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+
 msgid "%d deleted publications"
 msgstr "%d διαγραμμένες δημοσιεύσεις"
 
-#: includes/admin/admin-pages.php:741
 msgid "%d total, %d duplicates"
 msgstr "%d συνολικά, %d διπλότυπα"
 
-#: includes/admin/admin-pages.php:700
 msgid "(%d with duplicates)"
 msgstr "(%d με διπλότυπα)"
 
-#: includes/admin/class-meta-boxes.php:246
 msgid "+ Add Author"
 msgstr "+ Προσθήκη Συγγραφέα"
 
-#: includes/admin/admin-pages.php:466
 msgid "- shows \"Journal Article\" instead of \"article\""
-msgstr ""
+msgstr "- εμφανίζει \"Journal Article\" αντί για \"article\""
 
-#: includes/admin/class-meta-boxes.php:549
 msgid "Abstract"
 msgstr "Περίληψη"
 
-#: includes/admin/class-meta-boxes.php:99
 msgid "Abstract & Notes"
 msgstr "Περίληψη & Σημειώσεις"
 
-#: includes/admin/admin-pages.php:770
 msgid "Action Required:"
 msgstr "Απαιτείται Ενέργεια:"
 
-#: includes/admin/admin-pages.php:722
 msgid "Active"
 msgstr "Ενεργή"
 
-#: includes/core/class-post-type.php:49
 msgid "Add New"
 msgstr "Προσθήκη Νέας"
 
-#: includes/core/class-author-taxonomy.php:54
 msgid "Add New Author"
 msgstr "Προσθήκη Νέου Συγγραφέα"
 
-#: includes/core/class-post-type.php:50
 msgid "Add New Publication"
 msgstr "Προσθήκη Νέας Δημοσίευσης"
 
-#: includes/admin/admin-pages.php:455
 msgid "Add Query Loop element"
 msgstr "Προσθήκη στοιχείου Βρόχου Ερωτήματος"
 
-#: includes/admin/class-meta-boxes.php:89
 msgid "Additional Information"
 msgstr "Πρόσθετες Πληροφορίες"
 
-#: includes/admin/class-meta-boxes.php:559
 msgid "Additional notes or remarks"
 msgstr "Πρόσθετες σημειώσεις ή παρατηρήσεις"
 
-#: includes/admin/class-meta-boxes.php:384
 msgid "Address"
 msgstr "Διεύθυνση"
 
-#: includes/admin/admin-pages.php:441
 msgid "After creating publications, link author terms to team member profiles:"
 msgstr "Μετά τη δημιουργία δημοσιεύσεων, συνδέστε τους όρους συγγραφέων με τα προφίλ μελών της ομάδας:"
 
-#: includes/core/class-author-taxonomy.php:49
-#: includes/core/class-post-type.php:236
 msgid "All Authors"
 msgstr "Όλοι οι Συγγραφείς"
 
-#: includes/core/class-post-type.php:54
 msgid "All Publications"
 msgstr "Όλες οι Δημοσιεύσεις"
 
-#: includes/admin/admin-pages.php:135
-#: includes/core/class-post-type.php:187
 msgid "All Types"
 msgstr "Όλοι οι Τύποι"
 
-#: includes/core/class-post-type.php:212
 msgid "All Years"
 msgstr "Όλα τα Έτη"
 
-#: includes/admin/admin-pages.php:775
 msgid "All publications are linked to team members."
 msgstr "Όλες οι δημοσιεύσεις είναι συνδεδεμένες με μέλη της ομάδας."
 
-#: includes/admin/admin-pages.php:367
 msgid "Analytics"
 msgstr "Αναλυτικά"
 
-#: includes/admin/class-meta-boxes.php:205
 msgid "Any award or distinction received"
 msgstr "Οποιοδήποτε βραβείο ή διάκριση που έλαβε"
 
-#: includes/admin/class-meta-boxes.php:271
 msgid "At least one author is required."
 msgstr "Απαιτείται τουλάχιστον ένας συγγραφέας."
 
-#: includes/admin/admin-pages.php:426
 msgid "Author Linking Information"
 msgstr "Πληροφορίες Σύνδεσης Συγγραφέων"
 
-#: includes/functions.php:343
 msgid "Author link data"
 msgstr "Δεδομένα σύνδεσης συγγραφέα"
 
-#: includes/admin/class-meta-boxes.php:236
-#: includes/core/class-author-taxonomy.php:56
-#: includes/core/class-post-type.php:115
 msgid "Authors"
 msgstr "Συγγραφείς"
 
-#: includes/admin/class-meta-boxes.php:69
 msgid "Authors & Editors"
 msgstr "Συγγραφείς & Επιμελητές"
 
-#: includes/admin/admin-pages.php:430
 msgid "Authors are stored as taxonomy terms in the pm_author taxonomy"
 msgstr "Οι συγγραφείς αποθηκεύονται ως όροι ταξινομίας στην pm_author taxonomy"
 
-#: includes/admin/admin-pages.php:706
 msgid "Avg Links/Publication"
 msgstr "Μέσος Όρος Συνδέσεων/Δημοσίευση"
 
-#: includes/admin/class-meta-boxes.php:202
 msgid "Award"
 msgstr "Βραβείο"
 
-#: includes/core/class-publication-types.php:83
 msgid "Bachelor Theses"
 msgstr "Πτυχιακές Εργασίες"
 
-#: includes/core/class-publication-types.php:82
 msgid "Bachelor Thesis"
 msgstr "Πτυχιακή Εργασία"
 
-#: includes/admin/admin-pages.php:123
 msgid "BibTeX (.bib)"
 msgstr "BibTeX (.bib)"
 
-#: includes/admin/class-meta-boxes.php:188
 msgid "BibTeX Key"
 msgstr "Κλειδί BibTeX"
 
-#: includes/admin/class-meta-boxes.php:461
 msgid "BibTeX cross-reference key"
 msgstr "Κλειδί διασταυρούμενης αναφοράς BibTeX"
 
-#: includes/core/class-publication-types.php:42
 msgid "Book"
 msgstr "Βιβλίο"
 
-#: includes/core/class-publication-types.php:102
 msgid "Book Chapter"
 msgstr "Κεφάλαιο Βιβλίου"
 
-#: includes/core/class-publication-types.php:103
 msgid "Book Chapters"
 msgstr "Κεφάλαια Βιβλίων"
 
-#: includes/core/class-publication-types.php:112
 msgid "Book Section"
 msgstr "Τμήμα Βιβλίου"
 
-#: includes/core/class-publication-types.php:113
 msgid "Book Sections"
 msgstr "Τμήματα Βιβλίων"
 
-#: includes/admin/class-meta-boxes.php:321
 msgid "Book Title"
 msgstr "Τίτλος Βιβλίου"
 
-#: includes/admin/class-meta-boxes.php:403
 msgid "Book or journal series"
 msgstr "Σειρά βιβλίων ή περιοδικών"
 
-#: includes/core/class-publication-types.php:52
 msgid "Booklet"
 msgstr "Φυλλάδιο"
 
-#: includes/core/class-publication-types.php:53
 msgid "Booklets"
 msgstr "Φυλλάδια"
 
-#: includes/core/class-publication-types.php:43
 msgid "Books"
 msgstr "Βιβλία"
 
-#: includes/admin/admin-pages.php:124
 msgid "CSV (.csv)"
 msgstr "CSV (.csv)"
 
-#: includes/admin/class-meta-boxes.php:368
 msgid "Chapter"
 msgstr "Κεφάλαιο"
 
-#: includes/admin/class-meta-boxes.php:371
 msgid "Chapter number or title"
 msgstr "Αριθμός ή τίτλος κεφαλαίου"
 
-#: includes/admin/admin-pages.php:759
 msgid "Clean Up Orphaned Connections"
 msgstr "Εκκαθάριση Ορφανών Συνδέσεων"
 
-#: includes/admin/admin-pages.php:444
 msgid "Click \"Edit\" on an author term"
-msgstr ""
+msgstr "Κάντε κλικ στο \"Επεξεργασία\" σε έναν όρο συγγραφέα"
 
-#: includes/core/class-publication-types.php:62
 msgid "Collection"
 msgstr "Συλλογή"
 
-#: includes/core/class-publication-types.php:63
 msgid "Collections"
 msgstr "Συλλογές"
 
-#: includes/core/class-publication-types.php:72
 msgid "Conference"
 msgstr "Συνέδριο"
 
-#: includes/core/class-publication-types.php:73
 msgid "Conferences"
 msgstr "Συνέδρια"
 
-#: includes/admin/admin-pages.php:675
 msgid "Connection Statistics"
 msgstr "Στατιστικά Συνδέσεων"
 
-#: includes/admin/class-meta-boxes.php:498
 msgid "Cover Image URL"
 msgstr "URL Εικόνας Εξωφύλλου"
 
-#: includes/admin/class-meta-boxes.php:458
 msgid "Cross Reference"
 msgstr "Διασταυρούμενη Αναφορά"
 
-#: includes/admin/class-meta-boxes.php:588
 msgid "DOI"
 msgstr "DOI"
 
-#: includes/admin/admin-pages.php:76
 msgid "DOI(s)"
 msgstr "DOI"
 
-#: includes/admin/admin-pages.php:765
 msgid "Data Integrity Issue Detected:"
 msgstr "Ανιχνεύτηκε Πρόβλημα Ακεραιότητας Δεδομένων:"
 
-#: includes/admin/class-meta-boxes.php:198
 msgid "Date of publication"
 msgstr "Ημερομηνία δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:494
 msgid "Date when the URL was last accessed"
 msgstr "Ημερομηνία τελευταίας πρόσβασης στο URL"
 
-#: includes/admin/class-meta-boxes.php:590
 msgid "Digital Object Identifier"
 msgstr "Αναγνωριστικό Ψηφιακού Αντικειμένου"
 
-#: includes/core/class-publication-types.php:93
 msgid "Diploma Theses"
 msgstr "Διπλωματικές Εργασίες"
 
-#: includes/core/class-publication-types.php:92
 msgid "Diploma Thesis"
 msgstr "Διπλωματική Εργασία"
 
-#: includes/admin/admin-pages.php:461
 msgid "Display Authors with Links:"
 msgstr "Εμφάνιση Συγγραφέων με Συνδέσμους:"
 
-#: includes/admin/admin-pages.php:465
 msgid "Display Publication Type (Formatted):"
 msgstr "Εμφάνιση Τύπου Δημοσίευσης (Μορφοποιημένος):"
 
-#: includes/admin/admin-pages.php:433
 msgid "Each author becomes a reusable term in Publications → Authors"
 msgstr "Κάθε συγγραφέας γίνεται επαναχρησιμοποιήσιμος όρος στο Δημοσιεύσεις → Συγγραφείς"
 
-#: includes/core/class-author-taxonomy.php:52
 msgid "Edit Author"
 msgstr "Επεξεργασία Συγγραφέα"
 
-#: includes/core/class-post-type.php:52
 msgid "Edit Publication"
 msgstr "Επεξεργασία Δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:392
 msgid "Edition"
 msgstr "Έκδοση"
 
-#: includes/admin/class-meta-boxes.php:395
 msgid "Edition number (e.g., 2nd, Third)"
 msgstr "Αριθμός έκδοσης (π.χ., 2η, Τρίτη)"
 
-#: includes/admin/class-meta-boxes.php:249
 msgid "Editors"
 msgstr "Επιμελητές"
 
-#: includes/admin/class-meta-boxes.php:237
 msgid "Enter each author name. Authors will be created as terms and can be linked to team members."
 msgstr "Εισάγετε κάθε όνομα συγγραφέα. Οι συγγραφείς θα δημιουργηθούν ως όροι και μπορούν να συνδεθούν με μέλη ομάδας."
 
-#: includes/admin/admin-pages.php:84
-#: includes/admin/admin-pages.php:84
 msgid "Enter one or more DOIs (e.g., 10.1000/xyz123)"
 msgstr "Εισαγάγετε ένα ή περισσότερα DOI (π.χ., 10.1000/xyz123)"
 
-#: includes/admin/admin-pages.php:409
 msgid "Enter the slug of the Custom Post Type that contains team member profiles (e.g., team_member). Publications will be automatically linked to team members based on author names matching the team member post titles."
 msgstr "Εισάγετε το slug του Προσαρμοσμένου Τύπου Ανάρτησης που περιέχει προφίλ μελών ομάδας (π.χ., team_member). Οι δημοσιεύσεις θα συνδεθούν αυτόματα με μέλη ομάδας βάσει της αντιστοίχισης ονομάτων συγγραφέων με τους τίτλους αναρτήσεων μελών ομάδας."
 
-#: includes/admin/admin-pages.php:432
 msgid "Example: \"John Doe, Jane Smith, Bob Lee\""
-msgstr ""
+msgstr "Παράδειγμα: \"John Doe, Jane Smith, Bob Lee\""
 
-#: includes/admin/admin-pages.php:86
 msgid "Examples:"
 msgstr "Παραδείγματα:"
 
-#: includes/admin/admin-pages.php:119
 msgid "Export Format"
 msgstr "Μορφή Εξαγωγής"
 
-#: includes/admin/admin-pages.php:107
-#: includes/admin/admin-pages.php:144
 msgid "Export Publications"
 msgstr "Εξαγωγή Δημοσιεύσεων"
 
-#: includes/admin/admin-pages.php:109
 msgid "Export your publications in various formats."
 msgstr "Εξαγωγή των δημοσιεύσεών σας σε διάφορες μορφές."
 
-#: includes/admin/class-meta-boxes.php:505
 msgid "External Image Link"
 msgstr "Εξωτερικός Σύνδεσμος Εικόνας"
 
-#: includes/admin/class-meta-boxes.php:508
 msgid "External link for the image"
 msgstr "Εξωτερικός σύνδεσμος για την εικόνα"
 
-#: includes/integrations/class-crossref-import.php:135
 msgid "Failed to create/update publication post"
 msgstr "Απέτυχε η δημιουργία/ενημέρωση ανάρτησης δημοσίευσης"
 
-#: includes/integrations/class-crossref-import.php:141
 msgid "Failed to parse Crossref data"
 msgstr "Απέτυχε η ανάλυση δεδομένων Crossref"
 
-#: includes/admin/class-meta-boxes.php:610
 msgid "Forthcoming"
 msgstr "Υπό Έκδοση"
 
-#: includes/admin/admin-pages.php:755
 msgid "Found %d connections to deleted publications. These are references to publications that no longer exist in your database."
 msgstr "Βρέθηκαν %d συνδέσεις σε διαγραμμένες δημοσιεύσεις. Αυτές είναι αναφορές σε δημοσιεύσεις που δεν υπάρχουν πια στη βάση δεδομένων σας."
 
-#: includes/admin/admin-pages.php:766
 msgid "Found %d duplicate meta entries. Please manually review your publications and re-link authors if needed."
-msgstr ""
+msgstr "Βρέθηκαν %d διπλότυπες καταχωρήσεις meta. Ελέγξτε χειροκίνητα τις δημοσιεύσεις σας και επανασυνδέστε τους συγγραφείς αν χρειάζεται."
 
-#: includes/admin/admin-pages.php:468
 msgid "Get Author Term URL (in Query Loops):"
 msgstr "Λήψη URL Όρου Συγγραφέα (σε Query Loops):"
 
-#: includes/admin/admin-pages.php:443
 msgid "Go to <strong>Publications → Authors</strong>"
 msgstr "Πηγαίνετε στο <strong>Δημοσιεύσεις → Συγγραφείς</strong>"
 
-#: includes/admin/admin-pages.php:775
 msgid "Great!"
 msgstr "Τέλεια!"
 
-#: includes/integrations/class-crossref-import.php:85
 msgid "HTTP Error: %d"
 msgstr "Σφάλμα HTTP: %d"
 
-#: includes/admin/class-meta-boxes.php:469
 msgid "Hidden field for alphabetizing"
 msgstr "Κρυφό πεδίο για αλφαβητική ταξινόμηση"
 
-#: includes/admin/class-meta-boxes.php:434
 msgid "How Published"
 msgstr "Πώς Δημοσιεύτηκε"
 
-#: includes/admin/admin-pages.php:428
-msgid "How it works (v2.2.1):"
-msgstr "Πώς λειτουργεί (v2.2.1):"
+msgid "How it works:"
+msgstr "Πώς λειτουργεί:"
 
-#: includes/admin/admin-pages.php:451
 msgid "How to Use in Bricks Builder"
 msgstr "Πώς να Χρησιμοποιήσετε στο Bricks Builder"
 
-#: includes/admin/class-meta-boxes.php:453
 msgid "ISBN or ISSN number"
 msgstr "Αριθμός ISBN ή ISSN"
 
-#: includes/admin/class-meta-boxes.php:450
 msgid "ISBN/ISSN"
 msgstr "ISBN/ISSN"
 
-#: includes/admin/class-meta-boxes.php:527
 msgid "Import ID"
 msgstr "Αναγνωριστικό Εισαγωγής"
 
-#: includes/admin/admin-pages.php:96
 msgid "Import Publications"
 msgstr "Εισαγωγή Δημοσιεύσεων"
 
-#: includes/admin/admin-pages.php:65
 msgid "Import from Crossref"
 msgstr "Εισαγωγή από Crossref"
 
-#: includes/admin/admin-pages.php:67
 msgid "Import publications using DOI (Digital Object Identifier) from Crossref.org. You can import multiple publications by entering multiple DOIs separated by spaces or new lines."
 msgstr "Εισαγωγή δημοσιεύσεων με χρήση DOI (Αναγνωριστικό Ψηφιακού Αντικειμένου) από το Crossref.org. Μπορείτε να εισαγάγετε πολλαπλές δημοσιεύσεις εισάγοντας πολλαπλά DOI διαχωρισμένα με κενά ή νέες γραμμές."
 
-#: includes/admin/admin-pages.php:35
-#: includes/admin/admin-pages.php:36
 msgid "Import/Export"
 msgstr "Εισαγωγή/Εξαγωγή"
 
-#: includes/admin/class-meta-boxes.php:611
 msgid "In Press"
 msgstr "Υπό Έκδοση"
 
-#: includes/admin/class-meta-boxes.php:613
 msgid "In Review"
 msgstr "Υπό Αξιολόγηση"
 
-#: includes/admin/class-meta-boxes.php:409
 msgid "Institution"
 msgstr "Ίδρυμα"
 
-#: includes/admin/class-meta-boxes.php:563
 msgid "Internal Comment"
 msgstr "Εσωτερικό Σχόλιο"
 
-#: includes/admin/class-meta-boxes.php:566
 msgid "Internal comments (not displayed publicly)"
 msgstr "Εσωτερικά σχόλια (δεν εμφανίζονται δημόσια)"
 
-#: includes/integrations/class-crossref-import.php:97
 msgid "Invalid JSON response from Crossref"
 msgstr "Μη έγκυρη απάντηση JSON από Crossref"
 
-#: includes/admin/class-meta-boxes.php:353
 msgid "Issue"
 msgstr "Τεύχος"
 
-#: includes/admin/class-meta-boxes.php:329
 msgid "Issue Title"
 msgstr "Τίτλος Τεύχους"
 
-#: includes/admin/class-meta-boxes.php:348
 msgid "Issue number"
 msgstr "Αριθμός τεύχους"
 
-#: includes/admin/admin-pages.php:125
 msgid "JSON (.json)"
 msgstr "JSON (.json)"
 
-#: includes/admin/class-meta-boxes.php:313
 msgid "Journal"
 msgstr "Περιοδικό"
 
-#: includes/core/class-publication-types.php:32
 msgid "Journal Article"
 msgstr "Άρθρο Περιοδικού"
 
-#: includes/core/class-publication-types.php:33
 msgid "Journal Articles"
 msgstr "Άρθρα Περιοδικών"
 
-#: includes/admin/class-meta-boxes.php:466
 msgid "Key"
 msgstr "Κλειδί"
 
-#: includes/admin/admin-pages.php:434
 msgid "Link authors to team members manually via Publications → Authors admin"
 msgstr "Σύνδεση συγγραφέων με μέλη ομάδας χειροκίνητα μέσω Δημοσιεύσεις → Συγγραφείς"
 
-#: includes/core/class-author-taxonomy.php:101
 msgid "Link this author to a team member profile"
 msgstr "Σύνδεση αυτού του συγγραφέα με προφίλ μέλους ομάδας"
 
-#: includes/core/class-author-taxonomy.php:141
 msgid "Link this author to a team member profile. Author name will link to team member page."
 msgstr "Σύνδεση αυτού του συγγραφέα με προφίλ μέλους ομάδας. Το όνομα του συγγραφέα θα συνδέεται με τη σελίδα μέλους ομάδας."
 
-#: includes/admin/class-meta-boxes.php:523
 msgid "Link to a related WordPress page"
 msgstr "Σύνδεσμος σε σχετική σελίδα WordPress"
 
-#: includes/core/class-author-taxonomy.php:82
-#: includes/core/class-author-taxonomy.php:120
 msgid "Linked Team Member"
 msgstr "Συνδεδεμένο Μέλος Ομάδας"
 
-#: includes/functions.php:360
 msgid "Linked publication ID"
 msgstr "Αναγνωριστικό συνδεδεμένης δημοσίευσης"
 
-#: includes/functions.php:329
 msgid "Linked team members"
 msgstr "Συνδεδεμένα μέλη ομάδας"
 
-#: includes/core/class-publication-types.php:143
 msgid "Masters Theses"
 msgstr "Μεταπτυχιακές Διατριβές"
 
-#: includes/core/class-publication-types.php:142
 msgid "Masters Thesis"
 msgstr "Μεταπτυχιακή Διατριβή"
 
-#: includes/core/class-publication-types.php:153
 msgid "Media"
 msgstr "Μέσα"
 
-#: includes/core/class-publication-types.php:152
 msgid "Medium"
 msgstr "Μέσο"
 
-#: includes/admin/class-meta-boxes.php:437
 msgid "Method of publication (for unusual publications)"
 msgstr "Μέθοδος δημοσίευσης (για άτυπες δημοσιεύσεις)"
 
-#: includes/core/class-publication-types.php:162
-#: includes/core/class-publication-types.php:163
 msgid "Miscellaneous"
 msgstr "Διάφορα"
 
-#: includes/admin/class-meta-boxes.php:316
 msgid "Name of the journal"
 msgstr "Όνομα περιοδικού"
 
-#: includes/core/class-author-taxonomy.php:55
 msgid "New Author Name"
 msgstr "Όνομα Νέου Συγγραφέα"
 
-#: includes/core/class-post-type.php:51
 msgid "New Publication"
 msgstr "Νέα Δημοσίευση"
 
-#: includes/integrations/class-crossref-import.php:33
 msgid "No DOIs provided"
 msgstr "Δεν έχουν παρασχεθεί DOI"
 
-#: includes/core/class-post-type.php:58
 msgid "No publications found in Trash."
 msgstr "Δεν βρέθηκαν δημοσιεύσεις στα Απορρίμματα."
 
-#: includes/core/class-post-type.php:57
 msgid "No publications found."
 msgstr "Δεν βρέθηκαν δημοσιεύσεις."
 
-#: includes/admin/class-meta-boxes.php:519
-#: includes/core/class-author-taxonomy.php:94
-#: includes/core/class-author-taxonomy.php:134
 msgid "None"
 msgstr "Κανένα"
 
-#: includes/admin/admin-pages.php:722
 msgid "Not Found"
 msgstr "Δεν Βρέθηκε"
 
-#: includes/admin/class-meta-boxes.php:556
 msgid "Note"
 msgstr "Σημείωση"
 
-#: includes/admin/class-meta-boxes.php:345
 msgid "Number"
 msgstr "Αριθμός"
 
-#: includes/admin/admin-pages.php:453
 msgid "On Team Member Page - Query Publications:"
 msgstr "Στη Σελίδα Μέλους Ομάδας - Αναζήτηση Δημοσιεύσεων:"
 
-#: includes/admin/admin-pages.php:435
 msgid "Once linked, author names display as clickable links to team member pages"
 msgstr "Όταν συνδεθούν, τα ονόματα συγγραφέων εμφανίζονται ως σύνδεσμοι σε σελίδες μελών ομάδας"
 
-#: includes/core/class-publication-types.php:172
-#: includes/core/class-publication-types.php:173
 msgid "Online"
 msgstr "Διαδικτυακό"
 
-#: includes/admin/class-meta-boxes.php:250
-#: includes/admin/class-meta-boxes.php:250
 msgid "Optional: List of editors"
 msgstr "Προαιρετικό: Λίστα επιμελητών"
 
-#: includes/admin/class-meta-boxes.php:417
 msgid "Organization"
 msgstr "Οργανισμός"
 
-#: includes/admin/admin-pages.php:754
 msgid "Orphaned Connections Detected:"
 msgstr "Ανιχνεύθηκαν Ορφανές Συνδέσεις:"
 
-#: includes/admin/class-meta-boxes.php:363
 msgid "Page range (e.g., 123-145)"
 msgstr "Εύρος σελίδων (π.χ., 123-145)"
 
-#: includes/admin/class-meta-boxes.php:360
 msgid "Pages"
 msgstr "Σελίδες"
 
-#: includes/core/class-author-taxonomy.php:50
 msgid "Parent Author"
 msgstr "Γονικός Συγγραφέας"
 
-#: includes/core/class-author-taxonomy.php:51
 msgid "Parent Author:"
 msgstr "Γονικός Συγγραφέας:"
 
-#: includes/core/class-post-type.php:56
 msgid "Parent Publications:"
 msgstr "Γονικές Δημοσιεύσεις:"
 
-#: includes/core/class-publication-types.php:182
 msgid "Patent"
 msgstr "Δίπλωμα Ευρεσιτεχνίας"
 
-#: includes/core/class-publication-types.php:183
 msgid "Patents"
 msgstr "Διπλώματα Ευρεσιτεχνίας"
 
-#: includes/core/class-publication-types.php:192
 msgid "Periodical"
 msgstr "Περιοδικό"
 
-#: includes/core/class-publication-types.php:193
 msgid "Periodicals"
 msgstr "Περιοδικά"
 
-#: includes/admin/admin-pages.php:296
 msgid "Permission denied"
 msgstr "Άρνηση άδειας"
 
-#: includes/core/class-publication-types.php:203
 msgid "PhD Theses"
 msgstr "Διδακτορικές Διατριβές"
 
-#: includes/core/class-publication-types.php:202
 msgid "PhD Thesis"
 msgstr "Διδακτορική Διατριβή"
 
-#: includes/admin/admin-pages.php:302
 msgid "Please enter at least one DOI"
 msgstr "Παρακαλώ εισάγετε τουλάχιστον ένα DOI"
 
-#: includes/admin/admin-pages.php:457
 msgid "Post Type: Publication"
 msgstr "Τύπος Ανάρτησης: Δημοσίευση"
 
-#: includes/core/class-publication-types.php:212
 msgid "Presentation"
 msgstr "Παρουσίαση"
 
-#: includes/core/class-publication-types.php:213
 msgid "Presentations"
 msgstr "Παρουσιάσεις"
 
-#: includes/core/class-publication-types.php:222
-#: includes/core/class-publication-types.php:223
 msgid "Proceedings"
 msgstr "Πρακτικά"
 
-#: includes/core/class-publication-types.php:122
 msgid "Proceedings Article"
 msgstr "Άρθρο Πρακτικών"
 
-#: includes/core/class-publication-types.php:123
 msgid "Proceedings Articles"
 msgstr "Άρθρα Πρακτικών"
 
-#: includes/admin/class-meta-boxes.php:195
 msgid "Publication Date"
 msgstr "Ημερομηνία Δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:79
 msgid "Publication Details"
 msgstr "Λεπτομέρειες Δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:119
-#: includes/admin/class-meta-boxes.php:607
 msgid "Publication Status"
 msgstr "Κατάσταση Δημοσίευσης"
 
-#: includes/admin/admin-pages.php:131
-#: includes/admin/class-meta-boxes.php:178
 msgid "Publication Type"
 msgstr "Τύπος Δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:59
 msgid "Publication Type & Basic Information"
 msgstr "Τύπος Δημοσίευσης & Βασικές Πληροφορίες"
 
-#: includes/admin/class-meta-boxes.php:585
 msgid "Publication URL"
 msgstr "URL Δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:552
 msgid "Publication abstract or summary"
 msgstr "Περίληψη ή σύνοψη δημοσίευσης"
 
-#: includes/core/class-post-type.php:73
 msgid "Publication entries with full academic metadata"
 msgstr "Καταχωρήσεις δημοσιεύσεων με πλήρη ακαδημαϊκά μεταδεδομένα"
 
-#: includes/functions.php:303
 msgid "Publication field: %s"
 msgstr "Πεδίο δημοσίευσης: %s"
 
-#: includes/admin/class-meta-boxes.php:609
 msgid "Published"
 msgstr "Δημοσιευμένη"
 
-#: includes/admin/class-meta-boxes.php:377
 msgid "Publisher"
 msgstr "Εκδότης"
 
-#: includes/admin/class-meta-boxes.php:387
 msgid "Publisher address or location"
 msgstr "Διεύθυνση ή τοποθεσία εκδότη"
 
-#: includes/admin/admin-pages.php:456
 msgid "Query Type: Posts"
 msgstr "Τύπος Αναζήτησης: Αναρτήσεις"
 
-#: includes/admin/class-meta-boxes.php:512
 msgid "Related Page"
 msgstr "Σχετική Σελίδα"
 
-#: includes/admin/class-meta-boxes.php:242
-#: includes/admin/class-meta-boxes.php:260
 msgid "Remove"
 msgstr "Αφαίρεση"
 
-#: includes/admin/admin-pages.php:446
 msgid "Save - the plugin automatically stores the team member URL"
 msgstr "Αποθήκευση - το plugin αποθηκεύει αυτόματα το URL μέλους ομάδας"
 
-#: includes/admin/admin-pages.php:420
-#: includes/admin/admin-pages.php:420
 msgid "Save Settings"
 msgstr "Αποθήκευση Ρυθμίσεων"
 
-#: includes/admin/class-meta-boxes.php:428
 msgid "School where thesis was written"
 msgstr "Σχολή όπου γράφτηκε η διατριβή"
 
-#: includes/admin/class-meta-boxes.php:425
 msgid "School/University"
 msgstr "Σχολή/Πανεπιστήμιο"
 
-#: includes/core/class-author-taxonomy.php:48
 msgid "Search Authors"
 msgstr "Αναζήτηση Συγγραφέων"
 
-#: includes/core/class-post-type.php:55
 msgid "Search Publications"
 msgstr "Αναζήτηση Δημοσιεύσεων"
 
-#: includes/admin/class-meta-boxes.php:181
 msgid "Select Type"
 msgstr "Επιλογή Τύπου"
 
-#: includes/admin/admin-pages.php:445
 msgid "Select the corresponding team member from the \"Linked Team Member\" dropdown"
-msgstr ""
+msgstr "Επιλέξτε το αντίστοιχο μέλος της ομάδας από το αναπτυσσόμενο μενού \"Συνδεδεμένο μέλος ομάδας\""
 
-#: includes/admin/class-meta-boxes.php:184
 msgid "Select the type of publication. Fields will be adjusted based on your selection."
 msgstr "Επιλέξτε τον τύπο δημοσίευσης. Τα πεδία θα προσαρμοστούν βάσει της επιλογής σας."
 
-#: includes/admin/class-meta-boxes.php:400
 msgid "Series"
 msgstr "Σειρά"
 
-#: includes/admin/admin-pages.php:364
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
-#: includes/admin/admin-pages.php:353
 msgid "Settings saved successfully."
 msgstr "Οι ρυθμίσεις αποθηκεύτηκαν επιτυχώς."
 
-#: includes/admin/admin-pages.php:277
 msgid "Show all publication types"
 msgstr "Εμφάνιση όλων των τύπων δημοσιεύσεων"
 
-#: includes/admin/admin-pages.php:757
 msgid "Solution:"
 msgstr "Λύση:"
 
-#: includes/admin/class-meta-boxes.php:412
 msgid "Sponsoring institution (for tech reports)"
 msgstr "Χορηγός ίδρυμα (για τεχνικές αναφορές)"
 
-#: includes/admin/class-meta-boxes.php:420
 msgid "Sponsoring organization"
 msgstr "Χορηγός οργανισμός"
 
-#: includes/admin/admin-pages.php:152
 msgid "Statistics"
 msgstr "Στατιστικά"
 
-#: includes/admin/class-meta-boxes.php:612
 msgid "Submitted"
 msgstr "Υποβληθείσα"
 
-#: includes/admin/admin-pages.php:343
 msgid "Successfully cleaned up %d orphaned connections."
 msgstr "Καθαρίστηκαν επιτυχώς %d ορφανές συνδέσεις."
 
-#: includes/admin/admin-pages.php:399
 msgid "Team CPT Slug"
 msgstr "Team CPT Slug"
 
-#: includes/admin/admin-pages.php:718
 msgid "Team CPT Status:"
 msgstr "Κατάσταση Team CPT:"
 
-#: includes/core/class-author-taxonomy.php:194
 msgid "Team Member"
 msgstr "Μέλος Ομάδας"
 
-#: includes/admin/admin-pages.php:711
 msgid "Team Members"
 msgstr "Μέλη Ομάδας"
 
-#: includes/core/class-author-taxonomy.php:318
 msgid "Team member URL for this author"
 msgstr "URL μέλους ομάδας για αυτόν τον συγγραφέα"
 
-#: includes/core/class-author-taxonomy.php:104
-#: includes/core/class-author-taxonomy.php:144
 msgid "Team member post type not found. Configure in Publications > Settings"
 msgstr "Δεν βρέθηκε ο τύπος ανάρτησης μέλους ομάδας. Ρυθμίστε στο Δημοσιεύσεις > Ρυθμίσεις"
 
-#: includes/core/class-publication-types.php:132
 msgid "Technical Manual"
 msgstr "Τεχνικό Εγχειρίδιο"
 
-#: includes/core/class-publication-types.php:133
 msgid "Technical Manuals"
 msgstr "Τεχνικά Εγχειρίδια"
 
-#: includes/core/class-publication-types.php:232
 msgid "Technical Report"
 msgstr "Τεχνική Αναφορά"
 
-#: includes/core/class-publication-types.php:233
 msgid "Technical Reports"
 msgstr "Τεχνικές Αναφορές"
 
-#: includes/admin/admin-pages.php:458
-msgid "The plugin automatically filters to show only this member\\'s publications"
-msgstr ""
+msgid "The plugin automatically filters to show only this member's publications"
+msgstr "Το πρόσθετο φιλτράρει αυτόματα ώστε να εμφανίζονται μόνο οι δημοσιεύσεις αυτού του μέλους"
 
-#: includes/admin/admin-pages.php:463
 msgid "This displays authors with automatic links to linked team members."
 msgstr "Εμφανίζει συγγραφείς με αυτόματους συνδέσμους σε συνδεδεμένα μέλη ομάδας."
 
-#: includes/admin/admin-pages.php:758
-#: includes/admin/admin-pages.php:758
 msgid "This will remove all connections to deleted publications. Continue?"
 msgstr "Αυτό θα αφαιρέσει όλες τις συνδέσεις σε διαγραμμένες δημοσιεύσεις. Συνέχεια;"
 
-#: includes/admin/class-meta-boxes.php:324
 msgid "Title of the book (for chapters, sections)"
 msgstr "Τίτλος του βιβλίου (για κεφάλαια, τμήματα)"
 
-#: includes/admin/class-meta-boxes.php:332
 msgid "Title of the specific issue"
 msgstr "Τίτλος του συγκεκριμένου τεύχους"
 
-#: includes/admin/admin-pages.php:44
-#: includes/admin/admin-pages.php:45
 msgid "Tools"
 msgstr "Εργαλεία"
 
-#: includes/admin/admin-pages.php:729
 msgid "Top Authors by Publication Count"
 msgstr "Κορυφαίοι Συγγραφείς ανά Αριθμό Δημοσιεύσεων"
 
-#: includes/admin/admin-pages.php:696
 msgid "Total Connections"
 msgstr "Συνολικές Συνδέσεις"
 
-#: includes/admin/admin-pages.php:264
-#: includes/admin/admin-pages.php:679
 msgid "Total Publications"
 msgstr "Συνολικές Δημοσιεύσεις"
 
-#: includes/admin/class-meta-boxes.php:442
-#: includes/core/class-post-type.php:114
 msgid "Type"
 msgstr "Τύπος"
 
-#: includes/admin/class-meta-boxes.php:445
 msgid "Type of technical report or thesis"
 msgstr "Τύπος τεχνικής αναφοράς ή διατριβής"
 
-#: includes/admin/class-meta-boxes.php:583
 msgid "URL"
 msgstr "URL"
 
-#: includes/admin/class-meta-boxes.php:491
 msgid "URL Access Date"
 msgstr "Ημερομηνία Πρόσβασης URL"
 
-#: includes/admin/class-meta-boxes.php:501
 msgid "URL to publication cover image"
 msgstr "URL σε εικόνα εξωφύλλου δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:109
 msgid "URLs & Digital Object Identifier"
 msgstr "URLs & Αναγνωριστικό Ψηφιακού Αντικειμένου"
 
-#: includes/admin/class-meta-boxes.php:191
 msgid "Unique BibTeX citation key (e.g., Smith2024)"
 msgstr "Μοναδικό κλειδί BibTeX αναφοράς (π.χ., Smith2024)"
 
-#: includes/admin/class-meta-boxes.php:530
 msgid "Unique identifier for imported publications (read-only)"
 msgstr "Μοναδικό αναγνωριστικό για εισαγόμενες δημοσιεύσεις (μόνο για ανάγνωση)"
 
-#: includes/core/class-publication-types.php:242
-#: includes/core/class-publication-types.php:243
 msgid "Unpublished"
 msgstr "Αδημοσίευτο"
 
-#: includes/core/class-author-taxonomy.php:53
 msgid "Update Author"
 msgstr "Ενημέρωση Συγγραφέα"
 
-#: includes/admin/admin-pages.php:462
 msgid "Use dynamic data:"
 msgstr "Χρήση δυναμικών δεδομένων:"
 
-#: includes/admin/admin-pages.php:466
 msgid "Use:"
 msgstr "Χρήση:"
 
-#: includes/core/class-post-type.php:53
-#: includes/functions.php:236
 msgid "View Publication"
 msgstr "Προβολή Δημοσίευσης"
 
-#: includes/admin/class-meta-boxes.php:338
 msgid "Volume"
 msgstr "Τόμος"
 
-#: includes/admin/admin-pages.php:431
 msgid "When adding publications, enter authors as: \"GivenName FamilyName, GivenName FamilyName\""
-msgstr ""
+msgstr "Κατά την προσθήκη δημοσιεύσεων, εισαγάγετε τους συγγραφείς ως εξής: \"Όνομα Επώνυμο, Όνομα Επώνυμο\""
 
-#: includes/admin/admin-pages.php:469
 msgid "When looping through author terms, use:"
 msgstr "Όταν κάνετε επανάληψη σε όρους συγγραφέων, χρησιμοποιήστε:"
 
-#: includes/admin/admin-pages.php:684
 msgid "With Team Links"
 msgstr "Με Συνδέσεις Ομάδας"
 
-#: includes/admin/admin-pages.php:690
 msgid "Without Links"
 msgstr "Χωρίς Συνδέσεις"
 
-#: includes/core/class-publication-types.php:252
 msgid "Working paper"
 msgstr "Εργασία υπό εξέλιξη"
 
-#: includes/core/class-publication-types.php:253
 msgid "Working papers"
 msgstr "Εργασίες υπό εξέλιξη"
 
-#: includes/core/class-publication-types.php:262
 msgid "Workshop"
 msgstr "Εργαστήριο"
 
-#: includes/core/class-publication-types.php:263
 msgid "Workshops"
 msgstr "Εργαστήρια"
 
-#: includes/core/class-post-type.php:116
 msgid "Year"
 msgstr "Έτος"
 
-#: includes/admin/admin-pages.php:771
 msgid "You have %d publications without team member links. Go to Publications → Authors to link them manually."
-msgstr ""
+msgstr "Έχετε %d δημοσιεύσεις χωρίς συνδέσεις με μέλη ομάδας. Μεταβείτε στο Δημοσιεύσεις → Συγγραφείς για να τις συνδέσετε χειροκίνητα."
 
-#: includes/admin/class-meta-boxes.php:241
-#: includes/admin/class-meta-boxes.php:259
-#: includes/admin/class-meta-boxes.php:241
-#: includes/admin/class-meta-boxes.php:259
 msgid "e.g., John Smith"
 msgstr "π.χ., Γιώργος Παπαδόπουλος"
 
-#: includes/admin/admin-pages.php:745
 msgid "publication"
 msgid_plural "publications"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "δημοσίευση"
+msgstr[1] "δημοσιεύσεις"
 
-#: includes/admin/admin-pages.php:448
 msgid "💡 Tip: Once linked, use {term_meta:pm_author_team_url} in Bricks Builder for author term URLs."
 msgstr "💡 Συμβουλή: Όταν συνδεθεί, χρησιμοποιήστε {term_meta:pm_author_team_url} στο Bricks Builder για URLs όρων συγγραφέων."
 
-#: includes/admin/admin-pages.php:440
 msgid "📝 Linking Authors to Team Members"
 msgstr "📝 Σύνδεση Συγγραφέων με Μέλη Ομάδας"
 
+msgid "ID"
+msgstr "ID"
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Title"
+msgstr "Τίτλος"
+
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgid "Status"
+msgstr "Κατάσταση"
+
+msgid "School"
+msgstr "Σχολή"
+
+msgid "Author"
+msgstr "Συγγραφέας"
+
+msgid "Image URL"
+msgstr "URL εικόνας"
+
+msgid "Sort Key"
+msgstr "Κλειδί ταξινόμησης"
+
+msgid "Tech/Thesis Type"
+msgstr "Τύπος έκθεσης/διατριβής"
+
+msgid "Publication"
+msgstr "Δημοσίευση"
+
+msgid "Publications"
+msgstr "Δημοσιεύσεις"
+
+msgid "Publications list"
+msgstr "Λίστα δημοσιεύσεων"
+
+msgid "Publications list navigation"
+msgstr "Πλοήγηση λίστας δημοσιεύσεων"
+
+msgid "Filter publications list"
+msgstr "Φιλτράρισμα λίστας δημοσιεύσεων"
+
+msgid "Publication archives"
+msgstr "Αρχεία δημοσιεύσεων"
+
+msgid "Insert into publication"
+msgstr "Εισαγωγή στη δημοσίευση"
+
+msgid "Uploaded to this publication"
+msgstr "Μεταφορτώθηκε σε αυτή τη δημοσίευση"
+
+msgid "Publication Cover Image"
+msgstr "Εικόνα εξωφύλλου δημοσίευσης"
+
+msgid "Set cover image"
+msgstr "Ορισμός εικόνας εξωφύλλου"
+
+msgid "Remove cover image"
+msgstr "Αφαίρεση εικόνας εξωφύλλου"
+
+msgid "Use as cover image"
+msgstr "Χρήση ως εικόνα εξωφύλλου"
+
+msgid "Import from File"
+msgstr "Εισαγωγή από αρχείο"
+
+msgid "Import File"
+msgstr "Εισαγωγή αρχείου"
+
+msgid "File"
+msgstr "Αρχείο"
+
+msgid "DOIs (.txt, one per line)"
+msgstr "DOI (.txt, ένα ανά γραμμή)"
+
+msgid "Author URL Maintenance"
+msgstr "Συντήρηση URL συγγραφέων"
+
+msgid "Re-sync Author URLs"
+msgstr "Επανασυγχρονισμός URL συγγραφέων"
+
+msgid "Re-synced %d author URLs."
+msgstr "Επανασυγχρονίστηκαν %d URL συγγραφέων."
+
+msgid "Export Publications (All Fields)"
+msgstr "Εξαγωγή δημοσιεύσεων (Όλα τα πεδία)"
+
+msgid "Export Publications (Custom)"
+msgstr "Εξαγωγή δημοσιεύσεων (Προσαρμοσμένη)"
+
+msgid "Select all"
+msgstr "Επιλογή όλων"
+
+msgid "Select none"
+msgstr "Καμία επιλογή"
+
+msgid "Import failed."
+msgstr "Η εισαγωγή απέτυχε."
+
+msgid "Invalid export format."
+msgstr "Μη έγκυρη μορφή εξαγωγής."
+
+msgid "Permission denied."
+msgstr "Δεν επιτρέπεται η πρόσβαση."
+
+msgid "Security check failed."
+msgstr "Ο έλεγχος ασφαλείας απέτυχε."
+
+msgid "File upload failed. Please try again."
+msgstr "Η μεταφόρτωση αρχείου απέτυχε. Δοκιμάστε ξανά."
+
+msgid "The file is too large (max 5 MB)."
+msgstr "Το αρχείο είναι πολύ μεγάλο (έως 5 MB)."
+
+msgid "Unsupported file type. Use .json, .csv, .bib or .bibtex."
+msgstr "Μη υποστηριζόμενος τύπος αρχείου. Χρησιμοποιήστε .json, .csv, .bib ή .bibtex."
+
+msgid "The uploaded file was empty."
+msgstr "Το αρχείο που μεταφορτώθηκε ήταν κενό."
+
+msgid "Could not read any publications from the file."
+msgstr "Δεν ήταν δυνατή η ανάγνωση δημοσιεύσεων από το αρχείο."
+
+msgid "Import complete: %1$d created, %2$d updated, %3$d failed."
+msgstr "Η εισαγωγή ολοκληρώθηκε: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν, %3$d απέτυχαν."
+
+msgid "Import publications from a file exported by this plugin. Supported formats: JSON, CSV, and BibTeX. Existing publications are matched by DOI, then BibTeX key, then slug &mdash; matches are updated, everything else is created."
+msgstr "Εισαγωγή δημοσιεύσεων από αρχείο που εξήχθη από αυτό το πρόσθετο. Υποστηριζόμενες μορφές: JSON, CSV και BibTeX. Οι υπάρχουσες δημοσιεύσεις αντιστοιχίζονται με DOI, μετά κλειδί BibTeX, μετά slug &mdash; οι αντιστοιχίες ενημερώνονται, όλα τα άλλα δημιουργούνται."
+
+msgid "Accepted file types: .json, .csv, .bib, .bibtex (max 5 MB)."
+msgstr "Αποδεκτοί τύποι αρχείων: .json, .csv, .bib, .bibtex (έως 5 MB)."
+
+msgid "Custom field selection (for \"Export Publications (Custom)\")"
+msgstr "Επιλογή προσαρμοσμένων πεδίων (για \"Εξαγωγή δημοσιεύσεων (Προσαρμοσμένη)\")"
+
+msgid "Tick the fields you want to include when using the Custom export button. Ignored when using \"All Fields\"."
+msgstr "Επιλέξτε τα πεδία που θέλετε να συμπεριλάβετε κατά την προσαρμοσμένη εξαγωγή. Αγνοείται με \"Όλα τα πεδία\"."
+
+msgid "Custom export requires at least one field to be selected."
+msgstr "Η προσαρμοσμένη εξαγωγή απαιτεί την επιλογή τουλάχιστον ενός πεδίου."
+
+msgid "If you changed the Team CPT (the slug setting above, or team-member permalinks), click this to re-link each author to the matching team member in the current Team CPT (by name) and refresh the cached URLs used by Bricks Builder."
+msgstr "Αν αλλάξατε το Team CPT (τη ρύθμιση slug παραπάνω ή τους μόνιμους συνδέσμους των μελών), κάντε κλικ εδώ για να επανασυνδέσετε κάθε συγγραφέα με το αντίστοιχο μέλος της ομάδας στο τρέχον Team CPT (βάσει ονόματος) και να ανανεώσετε τις αποθηκευμένες URL που χρησιμοποιεί το Bricks Builder."
+
+msgid "Unsupported import format."
+msgstr "Μη υποστηριζόμενη μορφή εισαγωγής."
+
+msgid "No publications found in the uploaded file."
+msgstr "Δεν βρέθηκαν δημοσιεύσεις στο αρχείο που μεταφορτώθηκε."
+
+msgid "Skipped a record with no title."
+msgstr "Παραλείφθηκε εγγραφή χωρίς τίτλο."
+
+msgid "Failed to save publication."
+msgstr "Αποτυχία αποθήκευσης δημοσίευσης."
+
+msgid "The uploaded file is not valid JSON."
+msgstr "Το αρχείο που μεταφορτώθηκε δεν είναι έγκυρο JSON."
+
+msgid "The uploaded CSV file is empty or invalid."
+msgstr "Το αρχείο CSV που μεταφορτώθηκε είναι κενό ή μη έγκυρο."

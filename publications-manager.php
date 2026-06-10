@@ -4,7 +4,7 @@
  * Plugin Name: Publications Manager
  * Plugin URI: https://ntamadakis.gr
  * Description: Advanced publication management using Custom Post Types with teachPress-compatible fields and Crossref import functionality
- * Version: 2.3.6
+ * Version: 2.4.1
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Ntamadakis
@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('PM_VERSION', '2.3.6');
+define('PM_VERSION', '2.4.1');
 define('PM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PM_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('PM_PLUGIN_FILE', __FILE__);
@@ -30,9 +30,11 @@ define('PM_PLUGIN_FILE', __FILE__);
 require_once PM_PLUGIN_DIR . 'includes/core/class-publication-types.php';
 require_once PM_PLUGIN_DIR . 'includes/core/class-author-taxonomy.php';
 require_once PM_PLUGIN_DIR . 'includes/core/class-post-type.php';
+require_once PM_PLUGIN_DIR . 'includes/core/class-fields.php';
 require_once PM_PLUGIN_DIR . 'includes/admin/class-meta-boxes.php';
 require_once PM_PLUGIN_DIR . 'includes/admin/admin-pages.php';
 require_once PM_PLUGIN_DIR . 'includes/integrations/class-crossref-import.php';
+require_once PM_PLUGIN_DIR . 'includes/integrations/class-file-import.php';
 require_once PM_PLUGIN_DIR . 'includes/integrations/class-bricks-integration.php';
 require_once PM_PLUGIN_DIR . 'includes/helpers/class-publication-helpers.php';
 require_once PM_PLUGIN_DIR . 'includes/helpers/class-team-member-helpers.php';

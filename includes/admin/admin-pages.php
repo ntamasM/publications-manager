@@ -21,6 +21,7 @@ class PM_Admin_Pages
         add_action('admin_init', array(__CLASS__, 'register_settings'));
         add_action('wp_ajax_pm_import_doi', array(__CLASS__, 'ajax_import_doi'));
         add_action('admin_post_pm_export_publications', array(__CLASS__, 'handle_export_publications'));
+        add_action('admin_post_pm_import_file', array(__CLASS__, 'handle_import_file'));
 
         // Clean up team member connections when a publication is permanently deleted
         add_action('before_delete_post', array(__CLASS__, 'cleanup_publication_connections'));
@@ -58,6 +59,8 @@ class PM_Admin_Pages
 ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+
+            <?php self::render_import_file_notice(); ?>
 
             <div class="pm-import-export-container">
 
@@ -103,6 +106,39 @@ class PM_Admin_Pages
                     <div id="pm-import-results" class="pm-results"></div>
                 </div>
 
+                <!-- Import from File Section -->
+                <div class="pm-section pm-import-file-section">
+                    <h2><?php _e('Import from File', 'publications-manager'); ?></h2>
+                    <p class="description">
+                        <?php _e('Import publications from a file exported by this plugin. Supported formats: JSON, CSV, and BibTeX. Existing publications are matched by DOI, then BibTeX key, then slug &mdash; matches are updated, everything else is created.', 'publications-manager'); ?>
+                    </p>
+
+                    <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data">
+                        <?php wp_nonce_field('pm_import_file_action', 'pm_import_file_nonce'); ?>
+                        <input type="hidden" name="action" value="pm_import_file" />
+
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row">
+                                    <label for="pm_import_file"><?php _e('File', 'publications-manager'); ?></label>
+                                </th>
+                                <td>
+                                    <input type="file" name="pm_import_file" id="pm_import_file" accept=".json,.csv,.bib,.bibtex" required />
+                                    <p class="description">
+                                        <?php _e('Accepted file types: .json, .csv, .bib, .bibtex (max 5 MB).', 'publications-manager'); ?>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p class="submit">
+                            <button type="submit" class="button button-primary">
+                                <?php _e('Import File', 'publications-manager'); ?>
+                            </button>
+                        </p>
+                    </form>
+                </div>
+
                 <!-- Export Section -->
                 <div class="pm-section pm-export-section">
                     <h2><?php _e('Export Publications', 'publications-manager'); ?></h2>
@@ -124,6 +160,7 @@ class PM_Admin_Pages
                                         <option value="bibtex"><?php _e('BibTeX (.bib)', 'publications-manager'); ?></option>
                                         <option value="csv"><?php _e('CSV (.csv)', 'publications-manager'); ?></option>
                                         <option value="json"><?php _e('JSON (.json)', 'publications-manager'); ?></option>
+                                        <option value="txt"><?php _e('DOIs (.txt, one per line)', 'publications-manager'); ?></option>
                                     </select>
                                 </td>
                             </tr>
@@ -373,7 +410,7 @@ class PM_Admin_Pages
         $format = isset($_POST['pm_export_format']) ? sanitize_key($_POST['pm_export_format']) : 'bibtex';
         $type   = isset($_POST['pm_export_type']) ? sanitize_key($_POST['pm_export_type']) : '';
 
-        if (! in_array($format, array('bibtex', 'csv', 'json'), true)) {
+        if (! in_array($format, array('bibtex', 'csv', 'json', 'txt'), true)) {
             wp_die(__('Invalid export format.', 'publications-manager'), '', array('response' => 400));
         }
 
@@ -454,9 +491,127 @@ class PM_Admin_Pages
                 header('Content-Disposition: attachment; filename="' . $filename . '"');
                 echo wp_json_encode(self::filter_records_for_json($records, $allowed_fields), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                 break;
+
+            case 'txt':
+                $filename = "publication-dois{$type_part}-{$timestamp}.txt";
+                header('Content-Type: text/plain; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . $filename . '"');
+                echo self::render_txt_dois($records);
+                break;
         }
 
         exit;
+    }
+
+    /**
+     * Handle an uploaded import file: validate, parse, create/update, then redirect
+     * back to the import/export page with result counts.
+     */
+    public static function handle_import_file()
+    {
+        if (! isset($_POST['pm_import_file_nonce']) || ! wp_verify_nonce($_POST['pm_import_file_nonce'], 'pm_import_file_action')) {
+            wp_die(__('Security check failed.', 'publications-manager'), '', array('response' => 400));
+        }
+
+        if (! current_user_can('manage_options')) {
+            wp_die(__('Permission denied.', 'publications-manager'), '', array('response' => 403));
+        }
+
+        $redirect = admin_url('edit.php?post_type=publication&page=pm-import-export');
+
+        // Basic upload validation.
+        if (empty($_FILES['pm_import_file']) || ! isset($_FILES['pm_import_file']['tmp_name']) || $_FILES['pm_import_file']['error'] !== UPLOAD_ERR_OK) {
+            wp_safe_redirect(add_query_arg('pm_import_error', 'upload', $redirect));
+            exit;
+        }
+
+        $file = $_FILES['pm_import_file'];
+
+        // Size guard: 5 MB.
+        if ($file['size'] > 5 * 1024 * 1024) {
+            wp_safe_redirect(add_query_arg('pm_import_error', 'size', $redirect));
+            exit;
+        }
+
+        // Determine format from the extension.
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $format_map = array(
+            'json'   => 'json',
+            'csv'    => 'csv',
+            'bib'    => 'bibtex',
+            'bibtex' => 'bibtex',
+        );
+
+        if (! isset($format_map[$ext])) {
+            wp_safe_redirect(add_query_arg('pm_import_error', 'type', $redirect));
+            exit;
+        }
+
+        $contents = file_get_contents($file['tmp_name']);
+        if ($contents === false || $contents === '') {
+            wp_safe_redirect(add_query_arg('pm_import_error', 'empty', $redirect));
+            exit;
+        }
+
+        $results = PM_File_Import::import_from_file($contents, $format_map[$ext]);
+
+        if (empty($results['success'])) {
+            wp_safe_redirect(add_query_arg('pm_import_error', 'parse', $redirect));
+            exit;
+        }
+
+        $created = 0;
+        $updated = 0;
+        foreach ($results['imported'] as $item) {
+            if (isset($item['action']) && $item['action'] === 'updated') {
+                $updated++;
+            } else {
+                $created++;
+            }
+        }
+
+        $redirect = add_query_arg(array(
+            'pm_import_created' => $created,
+            'pm_import_updated' => $updated,
+            'pm_import_failed'  => count($results['failed']),
+        ), $redirect);
+
+        wp_safe_redirect($redirect);
+        exit;
+    }
+
+    /**
+     * Render the success/error notice for a file import, based on redirect query args.
+     */
+    private static function render_import_file_notice()
+    {
+        if (isset($_GET['pm_import_error'])) {
+            $errors = array(
+                'upload' => __('File upload failed. Please try again.', 'publications-manager'),
+                'size'   => __('The file is too large (max 5 MB).', 'publications-manager'),
+                'type'   => __('Unsupported file type. Use .json, .csv, .bib or .bibtex.', 'publications-manager'),
+                'empty'  => __('The uploaded file was empty.', 'publications-manager'),
+                'parse'  => __('Could not read any publications from the file.', 'publications-manager'),
+            );
+            $key = sanitize_key($_GET['pm_import_error']);
+            $message = isset($errors[$key]) ? $errors[$key] : __('Import failed.', 'publications-manager');
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
+            return;
+        }
+
+        if (isset($_GET['pm_import_created']) || isset($_GET['pm_import_updated'])) {
+            $created = isset($_GET['pm_import_created']) ? absint($_GET['pm_import_created']) : 0;
+            $updated = isset($_GET['pm_import_updated']) ? absint($_GET['pm_import_updated']) : 0;
+            $failed  = isset($_GET['pm_import_failed']) ? absint($_GET['pm_import_failed']) : 0;
+
+            $class = $failed > 0 ? 'notice-warning' : 'notice-success';
+            echo '<div class="notice ' . $class . ' is-dismissible"><p>' . sprintf(
+                __('Import complete: %1$d created, %2$d updated, %3$d failed.', 'publications-manager'),
+                $created,
+                $updated,
+                $failed
+            ) . '</p></div>';
+        }
     }
 
     /**
@@ -464,65 +619,16 @@ class PM_Admin_Pages
      */
     private static function get_export_field_definitions()
     {
-        return array(
-            'title'        => __('Title', 'publications-manager'),
-            'authors'      => __('Authors', 'publications-manager'),
-            'editor'       => __('Editors', 'publications-manager'),
-            'type'         => __('Publication Type', 'publications-manager'),
-            'date'         => __('Date', 'publications-manager'),
-            'year'         => __('Year', 'publications-manager'),
-            'award'        => __('Award', 'publications-manager'),
-            'journal'      => __('Journal', 'publications-manager'),
-            'booktitle'    => __('Book Title', 'publications-manager'),
-            'issuetitle'   => __('Issue Title', 'publications-manager'),
-            'volume'       => __('Volume', 'publications-manager'),
-            'number'       => __('Number', 'publications-manager'),
-            'issue'        => __('Issue', 'publications-manager'),
-            'pages'        => __('Pages', 'publications-manager'),
-            'chapter'      => __('Chapter', 'publications-manager'),
-            'publisher'    => __('Publisher', 'publications-manager'),
-            'address'      => __('Address', 'publications-manager'),
-            'edition'      => __('Edition', 'publications-manager'),
-            'series'       => __('Series', 'publications-manager'),
-            'institution'  => __('Institution', 'publications-manager'),
-            'organization' => __('Organization', 'publications-manager'),
-            'school'       => __('School', 'publications-manager'),
-            'howpublished' => __('How Published', 'publications-manager'),
-            'techtype'     => __('Tech/Thesis Type', 'publications-manager'),
-            'isbn'         => __('ISBN/ISSN', 'publications-manager'),
-            'crossref'     => __('Cross Reference', 'publications-manager'),
-            'key'          => __('Key', 'publications-manager'),
-            'url'          => __('URL', 'publications-manager'),
-            'doi'          => __('DOI', 'publications-manager'),
-            'urldate'      => __('URL Access Date', 'publications-manager'),
-            'image_url'    => __('Image URL', 'publications-manager'),
-            'image_ext'    => __('External Image Link', 'publications-manager'),
-            'rel_page'     => __('Related Page', 'publications-manager'),
-            'import_id'    => __('Import ID', 'publications-manager'),
-            'abstract'     => __('Abstract', 'publications-manager'),
-            'note'         => __('Note', 'publications-manager'),
-            'comment'      => __('Internal Comment', 'publications-manager'),
-            'status'       => __('Status', 'publications-manager'),
-        );
+        return PM_Fields::get_field_labels();
     }
 
     /**
      * Meta fields exported for each publication.
+     * Public so the file importer can invert the same field set (import/export can't drift).
      */
-    private static function get_export_meta_fields()
+    public static function get_export_meta_fields()
     {
-        return array(
-            'pm_type', 'pm_date', 'pm_year', 'pm_award',
-            'pm_editor',
-            'pm_journal', 'pm_booktitle', 'pm_issuetitle',
-            'pm_volume', 'pm_number', 'pm_issue', 'pm_pages', 'pm_chapter',
-            'pm_publisher', 'pm_address', 'pm_edition', 'pm_series',
-            'pm_institution', 'pm_organization', 'pm_school',
-            'pm_howpublished', 'pm_techtype', 'pm_isbn', 'pm_crossref', 'pm_key',
-            'pm_url', 'pm_doi', 'pm_urldate',
-            'pm_image_url', 'pm_image_ext', 'pm_rel_page', 'pm_import_id',
-            'pm_abstract', 'pm_note', 'pm_comment', 'pm_status',
-        );
+        return PM_Fields::get_editable_meta_keys();
     }
 
     /**
@@ -545,6 +651,10 @@ class PM_Admin_Pages
         }
         $record['authors'] = $authors;
 
+        // pm_year is derived (not in the editable-meta set), so capture it explicitly.
+        $year = get_post_meta($post->ID, 'pm_year', true);
+        $record['year'] = is_string($year) ? $year : '';
+
         foreach (self::get_export_meta_fields() as $meta_key) {
             $value = get_post_meta($post->ID, $meta_key, true);
             $key = preg_replace('/^pm_/', '', $meta_key);
@@ -559,38 +669,7 @@ class PM_Admin_Pages
      */
     private static function render_bibtex(array $records, $allowed_fields = null)
     {
-        $field_map = array(
-            'author'       => null,  // handled separately
-            'editor'       => 'editor',
-            'title'        => null,  // post title
-            'year'         => 'year',
-            'month'        => null,
-            'journal'      => 'journal',
-            'booktitle'    => 'booktitle',
-            'volume'       => 'volume',
-            'number'       => 'number',
-            'issue'        => 'issue',
-            'pages'        => 'pages',
-            'chapter'      => 'chapter',
-            'publisher'    => 'publisher',
-            'address'      => 'address',
-            'edition'      => 'edition',
-            'series'       => 'series',
-            'institution'  => 'institution',
-            'organization' => 'organization',
-            'school'       => 'school',
-            'howpublished' => 'howpublished',
-            'type'         => 'techtype',
-            'isbn'         => 'isbn',
-            'crossref'     => 'crossref',
-            'key'          => 'key',
-            'url'          => 'url',
-            'doi'          => 'doi',
-            'urldate'      => 'urldate',
-            'abstract'     => 'abstract',
-            'note'         => 'note',
-            'award'        => 'award',
-        );
+        $field_map = PM_Fields::get_bibtex_field_map();
 
         $out = '';
         $is_allowed = function ($key) use ($allowed_fields) {
@@ -600,7 +679,7 @@ class PM_Admin_Pages
             $type_slug = isset($record['type']) ? $record['type'] : '';
             $type_def = $type_slug ? PM_Publication_Types::get($type_slug) : null;
             $entry_type = ($type_def && ! empty($type_def['bibtex_key_ext'])) ? $type_def['bibtex_key_ext'] : 'misc';
-            $cite_key = $record['slug'] !== '' ? $record['slug'] : ('pub-' . $record['id']);
+            $cite_key = !empty($record['bibtex']) ? $record['bibtex'] : ($record['slug'] !== '' ? $record['slug'] : ('pub-' . $record['id']));
 
             $out .= '@' . $entry_type . '{' . $cite_key . ",\n";
 
@@ -624,10 +703,7 @@ class PM_Admin_Pages
                 }
             }
 
-            foreach ($field_map as $bib_field => $rec_key) {
-                if ($rec_key === null) {
-                    continue;
-                }
+            foreach ($field_map as $rec_key => $bib_field) {
                 if (! $is_allowed($rec_key)) {
                     continue;
                 }
@@ -667,18 +743,7 @@ class PM_Admin_Pages
      */
     private static function render_csv(array $records, $allowed_fields = null)
     {
-        $base_columns = array(
-            'id', 'slug', 'title', 'type', 'authors', 'editor',
-            'date', 'year', 'award',
-            'journal', 'booktitle', 'issuetitle',
-            'volume', 'number', 'issue', 'pages', 'chapter',
-            'publisher', 'address', 'edition', 'series',
-            'institution', 'organization', 'school',
-            'howpublished', 'techtype', 'isbn', 'crossref', 'key',
-            'url', 'doi', 'urldate',
-            'image_url', 'image_ext', 'rel_page', 'import_id',
-            'abstract', 'note', 'comment', 'status',
-        );
+        $base_columns = PM_Fields::get_record_keys();
 
         if ($allowed_fields === null) {
             $columns = $base_columns;
@@ -705,6 +770,21 @@ class PM_Admin_Pages
         }
 
         fclose($fh);
+    }
+
+    /**
+     * Render records as a plain-text list of DOIs, one per line.
+     * Records without a DOI are skipped.
+     */
+    private static function render_txt_dois(array $records)
+    {
+        $lines = array();
+        foreach ($records as $record) {
+            if (! empty($record['doi'])) {
+                $lines[] = $record['doi'];
+            }
+        }
+        return implode("\n", $lines) . "\n";
     }
 
     /**
@@ -762,6 +842,14 @@ class PM_Admin_Pages
             update_option('pm_team_cpt_slug', $team_cpt_slug);
 
             echo '<div class="notice notice-success is-dismissible"><p>' . __('Settings saved successfully.', 'publications-manager') . '</p></div>';
+        }
+
+        // Re-sync cached author -> team member URLs (e.g. after a Team CPT slug change)
+        if (isset($_POST['pm_resync_author_urls'])) {
+            check_admin_referer('pm_resync_urls_action', 'pm_resync_urls_nonce');
+
+            $count = self::resync_author_team_urls();
+            echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(__('Re-synced %d author URLs.', 'publications-manager'), $count) . '</p></div>';
         }
 
         $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
@@ -834,9 +922,26 @@ class PM_Admin_Pages
 
         <hr>
 
+        <h2><?php _e('Author URL Maintenance', 'publications-manager'); ?></h2>
+        <p class="description">
+            <?php _e('If you changed the Team CPT (the slug setting above, or team-member permalinks), click this to re-link each author to the matching team member in the current Team CPT (by name) and refresh the cached URLs used by Bricks Builder.', 'publications-manager'); ?>
+        </p>
+        <form method="post" action="">
+            <?php wp_nonce_field('pm_resync_urls_action', 'pm_resync_urls_nonce'); ?>
+            <p class="submit">
+                <input
+                    type="submit"
+                    name="pm_resync_author_urls"
+                    class="button button-secondary"
+                    value="<?php esc_attr_e('Re-sync Author URLs', 'publications-manager'); ?>" />
+            </p>
+        </form>
+
+        <hr>
+
         <h2><?php _e('Author Linking Information', 'publications-manager'); ?></h2>
         <div class="notice notice-info inline">
-            <p><strong><?php _e('How it works (v2.2.1):', 'publications-manager'); ?></strong></p>
+            <p><strong><?php _e('How it works:', 'publications-manager'); ?></strong></p>
             <ul style="list-style: disc; margin-left: 20px;">
                 <li><?php _e('Authors are stored as taxonomy terms in the pm_author taxonomy', 'publications-manager'); ?></li>
                 <li><?php _e('When adding publications, enter authors as: "GivenName FamilyName, GivenName FamilyName"', 'publications-manager'); ?></li>
@@ -1188,6 +1293,85 @@ class PM_Admin_Pages
             <?php endif; ?>
         </div>
 <?php
+    }
+
+    /**
+     * Re-sync author -> team member links and cached URLs.
+     *
+     * Used after the Team CPT changes (slug setting or URL rewrite). For each linked author
+     * term it RE-RESOLVES the team member by name against the CURRENT team CPT (so links survive
+     * pointing the plugin at a different CPT), updates pm_team_member_id if it moved, and refreshes
+     * the cached pm_author_team_url permalink. Falls back to the stored member when no name match
+     * exists; clears the link when the stored member is also gone.
+     *
+     * @return int Number of author terms whose link or cached URL was updated.
+     */
+    private static function resync_author_team_urls()
+    {
+        $team_cpt_slug = get_option('pm_team_cpt_slug', 'team_member');
+
+        $terms = get_terms(array(
+            'taxonomy'   => 'pm_author',
+            'hide_empty' => false,
+            'meta_query' => array(
+                array(
+                    'key'     => 'pm_team_member_id',
+                    'compare' => 'EXISTS',
+                ),
+            ),
+        ));
+
+        if (is_wp_error($terms) || empty($terms)) {
+            return 0;
+        }
+
+        $cpt_exists = post_type_exists($team_cpt_slug);
+        $updated    = 0;
+
+        foreach ($terms as $term) {
+            $old_member = (int) get_term_meta($term->term_id, 'pm_team_member_id', true);
+            $member_id  = 0;
+
+            // Prefer a fresh title match in the CURRENT team CPT.
+            if ($cpt_exists) {
+                $found = get_posts(array(
+                    'post_type'      => $team_cpt_slug,
+                    'post_status'    => 'publish',
+                    'posts_per_page' => 1,
+                    'title'          => $term->name,
+                    'fields'         => 'ids',
+                ));
+                if (!empty($found)) {
+                    $member_id = (int) $found[0];
+                }
+            }
+
+            // No name match: keep the stored member if it still exists, else clear the link.
+            if (!$member_id) {
+                if ($old_member && get_post_status($old_member) !== false) {
+                    $member_id = $old_member;
+                } else {
+                    delete_term_meta($term->term_id, 'pm_team_member_id');
+                    delete_term_meta($term->term_id, 'pm_author_team_url');
+                    $updated++;
+                    continue;
+                }
+            }
+
+            if ($member_id !== $old_member) {
+                update_term_meta($term->term_id, 'pm_team_member_id', $member_id);
+            }
+
+            $fresh   = get_permalink($member_id);
+            $old_url = get_term_meta($term->term_id, 'pm_author_team_url', true);
+
+            if ($fresh && ($fresh !== $old_url || $member_id !== $old_member)) {
+                update_term_meta($term->term_id, 'pm_author_team_url', $fresh);
+                $updated++;
+            }
+        }
+
+        return $updated;
     }
 
     /**

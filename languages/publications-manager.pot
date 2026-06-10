@@ -2,7 +2,7 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Publications Manager 2.2.1\n"
+"Project-Id-Version: Publications Manager 2.4.1\n"
 "Report-Msgid-Bugs-To: https://ntamadakis.gr\n"
 "POT-Creation-Date: 2026-01-26 13:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -404,7 +404,7 @@ msgid "How Published"
 msgstr ""
 
 #: includes/admin/admin-pages.php:428
-msgid "How it works (v2.2.1):"
+msgid "How it works:"
 msgstr ""
 
 #: includes/admin/admin-pages.php:451
@@ -1035,3 +1035,176 @@ msgstr ""
 msgid "📝 Linking Authors to Team Members"
 msgstr ""
 
+
+msgid "ID"
+msgstr ""
+
+msgid "Slug"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "School"
+msgstr ""
+
+msgid "Author"
+msgstr ""
+
+msgid "Image URL"
+msgstr ""
+
+msgid "Sort Key"
+msgstr ""
+
+msgid "Tech/Thesis Type"
+msgstr ""
+
+msgid "Publication"
+msgstr ""
+
+msgid "Publications"
+msgstr ""
+
+msgid "Publications list"
+msgstr ""
+
+msgid "Publications list navigation"
+msgstr ""
+
+msgid "Filter publications list"
+msgstr ""
+
+msgid "Publication archives"
+msgstr ""
+
+msgid "Insert into publication"
+msgstr ""
+
+msgid "Uploaded to this publication"
+msgstr ""
+
+msgid "Publication Cover Image"
+msgstr ""
+
+msgid "Set cover image"
+msgstr ""
+
+msgid "Remove cover image"
+msgstr ""
+
+msgid "Use as cover image"
+msgstr ""
+
+msgid "Import from File"
+msgstr ""
+
+msgid "Import File"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "DOIs (.txt, one per line)"
+msgstr ""
+
+msgid "Author URL Maintenance"
+msgstr ""
+
+msgid "Re-sync Author URLs"
+msgstr ""
+
+msgid "Re-synced %d author URLs."
+msgstr ""
+
+msgid "Export Publications (All Fields)"
+msgstr ""
+
+msgid "Export Publications (Custom)"
+msgstr ""
+
+msgid "Select all"
+msgstr ""
+
+msgid "Select none"
+msgstr ""
+
+msgid "Import failed."
+msgstr ""
+
+msgid "Invalid export format."
+msgstr ""
+
+msgid "Permission denied."
+msgstr ""
+
+msgid "Security check failed."
+msgstr ""
+
+msgid "File upload failed. Please try again."
+msgstr ""
+
+msgid "The file is too large (max 5 MB)."
+msgstr ""
+
+msgid "Unsupported file type. Use .json, .csv, .bib or .bibtex."
+msgstr ""
+
+msgid "The uploaded file was empty."
+msgstr ""
+
+msgid "Could not read any publications from the file."
+msgstr ""
+
+msgid "Import complete: %1$d created, %2$d updated, %3$d failed."
+msgstr ""
+
+msgid "Import publications from a file exported by this plugin. Supported formats: JSON, CSV, and BibTeX. Existing publications are matched by DOI, then BibTeX key, then slug &mdash; matches are updated, everything else is created."
+msgstr ""
+
+msgid "Accepted file types: .json, .csv, .bib, .bibtex (max 5 MB)."
+msgstr ""
+
+msgid "Custom field selection (for \"Export Publications (Custom)\")"
+msgstr ""
+
+msgid "Tick the fields you want to include when using the Custom export button. Ignored when using \"All Fields\"."
+msgstr ""
+
+msgid "Custom export requires at least one field to be selected."
+msgstr ""
+
+msgid "If you changed the Team CPT (the slug setting above, or team-member permalinks), click this to re-link each author to the matching team member in the current Team CPT (by name) and refresh the cached URLs used by Bricks Builder."
+msgstr ""
+
+msgid "The plugin automatically filters to show only this member's publications"
+msgstr ""
+
+msgid "Unsupported import format."
+msgstr ""
+
+msgid "No publications found in the uploaded file."
+msgstr ""
+
+msgid "Skipped a record with no title."
+msgstr ""
+
+msgid "Failed to save publication."
+msgstr ""
+
+msgid "The uploaded file is not valid JSON."
+msgstr ""
+
+msgid "The uploaded CSV file is empty or invalid."
+msgstr ""
+
+msgid "publication"
+msgid_plural "publications"
+msgstr[0] ""
+msgstr[1] ""

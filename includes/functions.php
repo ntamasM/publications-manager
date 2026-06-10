@@ -257,43 +257,9 @@ function pm_display_publication($post_id, $args = array())
  */
 function pm_register_meta_fields_for_rest()
 {
-    $fields = array(
-        'pm_type',
-        'pm_editor',
-        'pm_doi',
-        'pm_date',
-        'pm_year',
-        'pm_journal',
-        'pm_booktitle',
-        'pm_issuetitle',
-        'pm_volume',
-        'pm_number',
-        'pm_issue',
-        'pm_pages',
-        'pm_chapter',
-        'pm_publisher',
-        'pm_address',
-        'pm_edition',
-        'pm_series',
-        'pm_institution',
-        'pm_organization',
-        'pm_school',
-        'pm_howpublished',
-        'pm_techtype',
-        'pm_isbn',
-        'pm_crossref',
-        'pm_key',
-        'pm_url',
-        'pm_urldate',
-        'pm_image_url',
-        'pm_image_ext',
-        'pm_rel_page',
-        'pm_abstract',
-        'pm_note',
-        'pm_comment',
-        'pm_status',
-        'pm_bibtex_key',
-    );
+    // Editable meta + pm_year (derived, but still exposed via REST for parity).
+    $fields = PM_Fields::get_editable_meta_keys();
+    $fields[] = 'pm_year';
 
     foreach ($fields as $field) {
         register_post_meta('publication', $field, array(

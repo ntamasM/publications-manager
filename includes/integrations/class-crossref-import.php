@@ -394,7 +394,7 @@ class PM_Crossref_Import
             'posts_per_page' => 1,
             'meta_query'     => array(
                 array(
-                    'key'     => 'pm_bibtex_key',
+                    'key'     => 'pm_bibtex',
                     'value'   => $key,
                     'compare' => '='
                 )

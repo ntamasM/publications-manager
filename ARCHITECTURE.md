@@ -1,6 +1,6 @@
 # Publications Manager - Architecture Overview
 
-## Plugin Architecture (v2.3.6)
+## Plugin Architecture (v2.4.1)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -22,25 +22,35 @@
            │                               │
     ┌──────▼─────────────────────┐  ┌─────▼──────────────────┐
     │                            │  │                        │
-    │  class-publication-types   │  │   class-meta-boxes     │
-    │  ─────────────────────     │  │   ─────────────────    │
-    │  Defines all publication   │  │   Renders and saves    │
-    │  types (article, book,     │  │   meta fields:         │
-    │  conference, etc.)         │  │   - Authors (multiple) │
+    │  class-fields              │  │   class-meta-boxes     │
+    │  ──────────────             │  │   ─────────────────    │
+    │  Single canonical field     │  │   Renders and saves    │
+    │  registry read by save,     │  │   meta fields via      │
+    │  REST, export, and import   │  │   PM_Fields registry   │
+    │                            │  │   - Authors (multiple) │
     │                            │  │   - Year, DOI, etc.    │
     └────────────────────────────┘  │   - jQuery handlers    │
                                     └────────────────────────┘
     ┌────────────────────────────┐  ┌────────────────────────┐
     │                            │  │                        │
-    │    class-post-type         │  │    admin-pages         │
-    │    ──────────────          │  │    ───────────         │
-    │  Registers CPT:            │  │  Admin interface:      │
-    │  - Custom columns          │  │  - Import/Export       │
-    │  - Filters (Type,          │  │  - Settings page       │
-    │    Authors, Year)          │  │  - Bulk actions        │
-    │  - Sortable columns        │  │                        │
-    │  - Default sorting         │  │                        │
+    │  class-publication-types   │  │    admin-pages         │
+    │  ─────────────────────     │  │    ───────────         │
+    │  Defines all publication   │  │  Admin interface:      │
+    │  types (article, book,     │  │  - Import/Export (uses │
+    │  conference, etc.)         │  │    PM_Fields registry) │
+    │                            │  │  - Settings page       │
+    │                            │  │  - Bulk actions        │
     └────────────────────────────┘  └────────────────────────┘
+    ┌────────────────────────────┐
+    │                            │
+    │    class-post-type         │
+    │    ──────────────          │
+    │  Registers CPT:            │
+    │  - Custom columns          │
+    │  - Filters (Type, Authors) │
+    │  - Sortable columns        │
+    │  - Default sorting         │
+    └────────────────────────────┘
 ```
 
 ## Integration Layer
@@ -62,8 +72,25 @@
 │  │                          │  │                        │ │
 │  └──────────────────────────┘  └────────────────────────┘ │
 │                                                            │
+│  ┌──────────────────────────┐                              │
+│  │   class-file-import      │                              │
+│  │   ──────────────────     │                              │
+│  │   Inverse of the export: │                              │
+│  │   parses JSON / CSV /    │                              │
+│  │   BibTeX files and       │                              │
+│  │   creates/updates pubs   │                              │
+│  │   (match: DOI → key →    │                              │
+│  │   slug). Writes the full │                              │
+│  │   field set.             │                              │
+│  └──────────────────────────┘                              │
+│                                                            │
 └────────────────────────────────────────────────────────────┘
 ```
+
+**`PM_File_Import`** reuses `PM_Admin_Pages::get_export_meta_fields()` so import and export
+can never drift. It intentionally does **not** route through
+`PM_Crossref_Import::create_publication()` (which only maps a subset of fields and would drop
+data on a round-trip).
 
 ## Helper Functions & Tools
 
@@ -231,12 +258,15 @@ Add tax_query on pm_author taxonomy
 
 1. `publications-manager.php` (main file)
 2. `includes/core/class-publication-types.php`
-3. `includes/core/class-post-type.php`
-4. `includes/admin/class-meta-boxes.php`
-5. `includes/admin/admin-pages.php`
-6. `includes/integrations/class-crossref-import.php`
-7. `includes/integrations/class-bricks-integration.php`
-8. `includes/functions.php`
+3. `includes/core/class-author-taxonomy.php`
+4. `includes/core/class-post-type.php`
+5. `includes/core/class-fields.php` - **Single field registry (`PM_Fields`) read by all consumers**
+6. `includes/admin/class-meta-boxes.php`
+7. `includes/admin/admin-pages.php`
+8. `includes/integrations/class-crossref-import.php`
+9. `includes/integrations/class-file-import.php`
+10. `includes/integrations/class-bricks-integration.php`
+11. `includes/functions.php`
 
 Then on `init` hook:
 

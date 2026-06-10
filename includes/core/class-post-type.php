@@ -257,7 +257,11 @@ class PM_Post_Type
     {
         global $pagenow;
 
-        if (!is_admin() || $pagenow !== 'edit.php' || !isset($_GET['post_type']) || $_GET['post_type'] !== 'publication') {
+        // Only touch the main publications list query. Without the is_main_query() guard this
+        // also fires for secondary WP_Query calls on the same page (e.g. the Statistics counts on
+        // the Import/Export page, whose URL is also edit.php?post_type=publication), clobbering
+        // their meta_query and making every type report the total count.
+        if (!is_admin() || !$query->is_main_query() || $pagenow !== 'edit.php' || !isset($_GET['post_type']) || $_GET['post_type'] !== 'publication') {
             return $query;
         }
 
@@ -292,28 +296,43 @@ class PM_Post_Type
             $query->set('tax_query', $tax_query);
         }
 
-        if (!empty($meta_query)) {
-            $query->set('meta_query', $meta_query);
-        }
-
         // Handle sorting
         $orderby = $query->get('orderby');
 
-        // Set default sorting to pm_date DESC if no sorting is specified
-        if (empty($orderby)) {
-            $query->set('meta_key', 'pm_date');
-            $query->set('orderby', 'meta_value');
-            $query->set('order', 'DESC');
-        } elseif ($orderby === 'pm_authors') {
-            // Sorting by authors is not supported with taxonomy
-            // Fall back to default sorting
-            $query->set('meta_key', 'pm_date');
-            $query->set('orderby', 'meta_value');
-            $query->set('order', 'DESC');
+        if (empty($orderby) || $orderby === 'pm_authors') {
+            // Default: order by pm_date DESC. Use an EXISTS/NOT EXISTS clause so that
+            // publications WITHOUT a pm_date (e.g. some imports) are still listed (they
+            // sort last) instead of being dropped by the meta INNER JOIN.
+            // (Sorting by authors is not supported with the taxonomy, so it falls back here.)
+            $date_clause = array(
+                'relation'    => 'OR',
+                'pm_has_date' => array('key' => 'pm_date', 'compare' => 'EXISTS'),
+                array('key' => 'pm_date', 'compare' => 'NOT EXISTS'),
+            );
+
+            if (!empty($meta_query)) {
+                $meta_query = array(
+                    'relation' => 'AND',
+                    $meta_query,
+                    $date_clause,
+                );
+            } else {
+                $meta_query = $date_clause;
+            }
+
+            $query->set('meta_query', $meta_query);
+            $query->set('orderby', array('pm_has_date' => 'DESC'));
         } elseif (in_array($orderby, array('pm_type', 'pm_date'))) {
-            // Handle custom column sorting
+            // Explicit column sort by a meta value.
+            if (!empty($meta_query)) {
+                $query->set('meta_query', $meta_query);
+            }
             $query->set('meta_key', $orderby);
             $query->set('orderby', 'meta_value');
+        } else {
+            if (!empty($meta_query)) {
+                $query->set('meta_query', $meta_query);
+            }
         }
 
         return $query;
