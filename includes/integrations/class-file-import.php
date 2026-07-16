@@ -164,6 +164,8 @@ class PM_File_Import
             }
             if (! empty($author_term_ids)) {
                 wp_set_object_terms($post_id, $author_term_ids, 'pm_author', false);
+                // Persist the author order (import order = desired display order)
+                update_post_meta($post_id, 'pm_author_order', array_map('intval', $author_term_ids));
             }
         }
 

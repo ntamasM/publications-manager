@@ -535,6 +535,8 @@ class PM_Crossref_Import
             if (!empty($author_term_ids)) {
                 $result = wp_set_object_terms($post_id, $author_term_ids, 'pm_author', false);
                 error_log('[PM Import CREATE] wp_set_object_terms result: ' . print_r($result, true));
+                // Persist the author order (Crossref order = desired display order)
+                update_post_meta($post_id, 'pm_author_order', array_map('intval', $author_term_ids));
             }
         }
 
@@ -628,6 +630,8 @@ class PM_Crossref_Import
             if (!empty($author_term_ids)) {
                 $result = wp_set_object_terms($post_id, $author_term_ids, 'pm_author', false);
                 error_log('[PM Import UPDATE] wp_set_object_terms result: ' . print_r($result, true));
+                // Persist the author order (Crossref order = desired display order)
+                update_post_meta($post_id, 'pm_author_order', array_map('intval', $author_term_ids));
             }
         }
 

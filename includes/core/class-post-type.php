@@ -138,7 +138,7 @@ class PM_Post_Type
                 break;
 
             case 'pm_authors':
-                $terms = get_the_terms($post_id, 'pm_author');
+                $terms = PM_Author_Taxonomy::get_ordered_author_terms($post_id);
                 if ($terms && !is_wp_error($terms)) {
                     $author_names = wp_list_pluck($terms, 'name');
                     if (count($author_names) > 5) {

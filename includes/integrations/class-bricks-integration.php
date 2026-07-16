@@ -39,6 +39,80 @@ class PM_Bricks_Integration
         // Uses bricks/posts/query_vars (fires BEFORE WP_Query creation)
         // Note: bricks/query/run only fires for non-post query types (API, array, etc.)
         add_filter('bricks/posts/query_vars', array(__CLASS__, 'filter_team_publications_query'), 10, 3);
+
+        // Order author Terms query loops by the stored pm_author_order.
+        // Bricks' Terms query "Order by" options can't reach a post meta, so we
+        // force the order here via include + orderby=include.
+        add_filter('bricks/terms/query_vars', array(__CLASS__, 'filter_author_terms_order'), 20, 3);
+    }
+
+    /**
+     * Force a Bricks "Terms" query loop over pm_author to follow the publication's
+     * stored author order (pm_author_order).
+     *
+     * When the loop runs in the context of a single publication, we replace the
+     * term set with exactly that publication's author term IDs, in stored order,
+     * and set orderby=include so WordPress preserves that order. This both scopes
+     * the loop to the current publication's authors and orders them correctly.
+     *
+     * Outside a publication context (e.g. an authors index) the filter is a no-op,
+     * so all-authors term loops are unaffected.
+     *
+     * @param array  $query_vars WP_Term_Query arguments
+     * @param array  $settings   Bricks element settings
+     * @param string $element_id Bricks element ID
+     * @return array Modified query vars
+     */
+    public static function filter_author_terms_order($query_vars, $settings, $element_id)
+    {
+        // Only act on pm_author term queries.
+        $taxonomy = isset($query_vars['taxonomy']) ? (array) $query_vars['taxonomy'] : array();
+        if (!in_array('pm_author', $taxonomy, true)) {
+            return $query_vars;
+        }
+
+        // Resolve the current publication (single page or Bricks editor preview).
+        $post_id = get_queried_object_id();
+        if (!$post_id || get_post_type($post_id) !== 'publication') {
+            $post = get_post();
+            if ($post && is_object($post) && $post->post_type === 'publication') {
+                $post_id = $post->ID;
+            } else {
+                return $query_vars;
+            }
+        }
+
+        // Ordered term IDs, reconciled against the terms actually assigned to the post
+        // (drops removed authors, tolerates a stale/absent order meta).
+        $assigned = wp_get_object_terms($post_id, 'pm_author', array('fields' => 'ids'));
+        if (is_wp_error($assigned) || empty($assigned)) {
+            return $query_vars;
+        }
+        $assigned = array_map('intval', $assigned);
+
+        $order = get_post_meta($post_id, 'pm_author_order', true);
+        $ordered = array();
+        if (!empty($order) && is_array($order)) {
+            foreach ($order as $id) {
+                $id = (int) $id;
+                if (in_array($id, $assigned, true) && !in_array($id, $ordered, true)) {
+                    $ordered[] = $id;
+                }
+            }
+        }
+        // Append any assigned-but-unordered terms so none are dropped.
+        foreach ($assigned as $id) {
+            if (!in_array($id, $ordered, true)) {
+                $ordered[] = $id;
+            }
+        }
+
+        $query_vars['include']    = $ordered;
+        $query_vars['orderby']    = 'include';
+        $query_vars['hide_empty'] = false;
+        unset($query_vars['order']); // include order is absolute; a DESC would reverse it
+
+        return $query_vars;
     }
 
     /**

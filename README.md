@@ -1,6 +1,6 @@
 # Publications Manager
 
-**Version:** 2.4.1  
+**Version:** 2.5.0  
 **Author:** Ntamadakis  
 **License:** GPL v2 or later
 
@@ -323,7 +323,14 @@ The plugin includes all teachPress publication types:
 
 ## Changelog
 
-### 2.4.1 (Current)
+### 2.5.0 (Current)
+
+- **Author order is preserved** — authors now display in the exact order they were entered or imported, instead of being alphabetized. Order is stored per publication (`pm_author_order`) and honored everywhere: the frontend/shortcode, the admin list column, exports, and Bricks Builder
+- **Reorder authors by drag-and-drop** — the "Authors & Editors" meta box now has a drag handle on each author row (jQuery UI sortable) so the order can be corrected by hand; the new order is saved with the normal Update button
+- **Import order fidelity** — File import (JSON/CSV/BibTeX) and Crossref import now record author order, so an imported publication matches its source
+- **Bricks author ordering** — a `bricks/terms/query_vars` filter makes a Terms query loop over the Authors taxonomy follow the stored order on a single publication (set the loop's "Order by" to "Include list"). Legacy publications with no saved order fall back to the previous alphabetical behavior
+
+### 2.4.1
 
 - **Field registry (`PM_Fields`)** — all field definitions (24+ fields) now live in one canonical list read by save, REST, export, and import. Fixes: (1) BibTeX Key no longer lost on save; (2) Award field no longer lost on save; (3) CSV/JSON/BibTeX exports now cover the full field set; (4) BibTeX citation key now uses the BibTeX Key field (not the post slug); (5) Crossref duplicate checks now detect the correct meta key
 - **Export/import round-trip** — JSON, CSV, and BibTeX exports now include every field and can be re-imported losslessly. Matched records are updated, non-matches are created. BibTeX files also round-trip within the plugin

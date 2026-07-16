@@ -1,6 +1,6 @@
 # Publications Manager - Architecture Overview
 
-## Plugin Architecture (v2.4.1)
+## Plugin Architecture (v2.5.0)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

@@ -642,7 +642,7 @@ class PM_Admin_Pages
             'title' => $post->post_title,
         );
 
-        $author_terms = get_the_terms($post->ID, 'pm_author');
+        $author_terms = PM_Author_Taxonomy::get_ordered_author_terms($post->ID);
         $authors = array();
         if ($author_terms && ! is_wp_error($author_terms)) {
             foreach ($author_terms as $term) {
@@ -1010,7 +1010,7 @@ class PM_Admin_Pages
 
         foreach ($all_pubs as $pub_id) {
             // Get author terms for this publication
-            $author_terms = get_the_terms($pub_id, 'pm_author');
+            $author_terms = PM_Author_Taxonomy::get_ordered_author_terms($pub_id);
             $has_link = false;
 
             if ($author_terms && !is_wp_error($author_terms)) {

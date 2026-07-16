@@ -134,28 +134,57 @@ class PM_Meta_Boxes
         if (('post.php' === $hook || 'post-new.php' === $hook) &&
             isset($post->post_type) && 'publication' === $post->post_type
         ) {
+            // Enqueue jquery-ui-sortable for author reordering
+            wp_enqueue_script('jquery-ui-sortable');
 
             wp_add_inline_script('pm-admin', '
                 jQuery(document).ready(function($) {
                     function updateFieldVisibility() {
                         var selectedType = $("#pm_type").val();
                         var typeData = ' . json_encode(PM_Publication_Types::get_all()) . ';
-                        
+
                         // Hide all optional fields first
                         $(".pm-field-wrapper").removeClass("pm-recommended");
-                        
+
                         if (typeData[selectedType] && typeData[selectedType].default_fields) {
                             var defaultFields = typeData[selectedType].default_fields;
-                            
+
                             $.each(defaultFields, function(index, field) {
                                 $("#pm_" + field).closest(".pm-field-wrapper").addClass("pm-recommended");
                             });
                         }
                     }
-                    
+
                     $("#pm_type").on("change", updateFieldVisibility);
                     updateFieldVisibility();
+
+                    // Initialize sortable for author rows
+                    $("#pm-authors-wrapper").sortable({
+                        items: ".pm-author-row",
+                        handle: ".pm-author-drag",
+                        axis: "y",
+                        cursor: "move",
+                        placeholder: "pm-author-placeholder",
+                        forcePlaceholderSize: true
+                    });
                 });
+            ');
+
+            // Add inline styles for the drag handle
+            wp_add_inline_style('pm-admin', '
+                .pm-author-drag {
+                    cursor: move;
+                    padding: 5px 8px;
+                    color: #666;
+                    font-size: 18px;
+                    line-height: 1;
+                    flex-shrink: 0;
+                }
+                .pm-author-placeholder {
+                    background-color: #f0f0f0;
+                    border: 1px dashed #999;
+                    margin-bottom: 8px;
+                }
             ');
         }
     }
@@ -214,7 +243,7 @@ class PM_Meta_Boxes
      */
     public static function render_authors_metabox($post)
     {
-        $terms = get_the_terms($post->ID, 'pm_author');
+        $terms = PM_Author_Taxonomy::get_ordered_author_terms($post->ID);
         $authors = array();
 
         if ($terms && !is_wp_error($terms)) {
@@ -238,6 +267,7 @@ class PM_Meta_Boxes
 
                 <?php foreach ($authors as $index => $author) : ?>
                     <div class="pm-author-row" style="margin-bottom: 8px; display: flex; gap: 5px;">
+                        <span class="pm-author-drag dashicons dashicons-menu" title="<?php esc_attr_e('Drag to reorder', 'publications-manager'); ?>"></span>
                         <input type="text" name="pm_authors[]" value="<?php echo esc_attr($author); ?>" class="widefat" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" <?php echo ($index === 0) ? 'required' : ''; ?> style="flex: 1;" />
                         <button type="button" class="button pm-remove-author"><?php _e('Remove', 'publications-manager'); ?></button>
                     </div>
@@ -256,10 +286,13 @@ class PM_Meta_Boxes
                 // Add author field
                 $('#pm-add-author').on('click', function() {
                     var newRow = '<div class="pm-author-row" style="margin-bottom: 8px; display: flex; gap: 5px;">' +
+                        '<span class="pm-author-drag dashicons dashicons-menu" title="<?php esc_attr_e('Drag to reorder', 'publications-manager'); ?>"></span>' +
                         '<input type="text" name="pm_authors[]" value="" class="widefat" placeholder="<?php esc_attr_e('e.g., John Smith', 'publications-manager'); ?>" style="flex: 1;" />' +
                         '<button type="button" class="button pm-remove-author"><?php _e('Remove', 'publications-manager'); ?></button>' +
                         '</div>';
                     $('#pm-authors-wrapper').append(newRow);
+                    // Refresh sortable to include the new row
+                    $('#pm-authors-wrapper').sortable('refresh');
                 });
 
                 // Remove author field
@@ -666,9 +699,12 @@ class PM_Meta_Boxes
 
             // Set the terms for this post
             wp_set_object_terms($post_id, $author_term_ids, 'pm_author', false);
+            // Persist the author order (POST order = drag order = desired display order)
+            update_post_meta($post_id, 'pm_author_order', array_map('intval', $author_term_ids));
         } else {
             // No authors provided, clear terms
             wp_set_object_terms($post_id, array(), 'pm_author', false);
+            delete_post_meta($post_id, 'pm_author_order');
         }
 
         // Save each field

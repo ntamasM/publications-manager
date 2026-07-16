@@ -260,14 +260,57 @@ class PM_Author_Taxonomy
     }
 
     /**
+     * Get this publication's author terms in the stored display order.
+     *
+     * get_the_terms() is authoritative for WHICH terms are assigned; pm_author_order
+     * only dictates ORDER. This reconciles the two so renamed/deleted terms and
+     * legacy posts (no order meta) still render correctly.
+     *
+     * @param int $post_id
+     * @return WP_Term[] Ordered terms (empty array if none).
+     */
+    public static function get_ordered_author_terms($post_id)
+    {
+        $terms = get_the_terms($post_id, 'pm_author');
+        if (!$terms || is_wp_error($terms)) {
+            return array();
+        }
+
+        $order = get_post_meta($post_id, 'pm_author_order', true);
+        if (empty($order) || !is_array($order)) {
+            return $terms; // Legacy / not-yet-ordered → current behavior (alphabetical).
+        }
+
+        $by_id = array();
+        foreach ($terms as $t) {
+            $by_id[$t->term_id] = $t;
+        }
+
+        $ordered = array();
+        foreach ($order as $id) {
+            $id = (int) $id;
+            if (isset($by_id[$id])) {
+                $ordered[] = $by_id[$id];
+                unset($by_id[$id]); // also makes duplicate IDs in the meta self-healing
+            }
+        }
+        // Any assigned-but-unordered terms (added out-of-band) go last.
+        foreach ($by_id as $t) {
+            $ordered[] = $t;
+        }
+
+        return $ordered;
+    }
+
+    /**
      * Get authors with team member links for display
-     * 
+     *
      * @param int $post_id Publication ID
      * @return string HTML with author names and links
      */
     public static function get_authors_html($post_id)
     {
-        $terms = get_the_terms($post_id, 'pm_author');
+        $terms = self::get_ordered_author_terms($post_id);
 
         if (!$terms || is_wp_error($terms)) {
             return '';
